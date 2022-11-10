@@ -95,7 +95,7 @@ fn impl_mooshroom_packet_struct(
     quote! {
         #[automatically_derived]
         impl ::mooshroom_core::io::MooshroomReadable for #name {
-            fn read(reader: &mut impl ::std::io::Read, version: ::mooshroom_core::ProtocolVersion) -> ::mooshroom_core::error::Result<Self> {
+            fn read(mut reader: impl ::std::io::Read, version: ::mooshroom_core::ProtocolVersion) -> ::mooshroom_core::error::Result<Self> {
                 Ok(
                     Self{
                         #read
@@ -105,7 +105,7 @@ fn impl_mooshroom_packet_struct(
         }
 
         impl ::mooshroom_core::io::MooshroomWritable for #name {
-            fn write(&self, writer: &mut impl ::std::io::Write, version: ::mooshroom_core::ProtocolVersion) -> ::mooshroom_core::error::Result<()> {
+            fn write(&self, mut writer: impl ::std::io::Write, version: ::mooshroom_core::ProtocolVersion) -> ::mooshroom_core::error::Result<()> {
                 #write
                 Ok(())
             }
@@ -128,7 +128,7 @@ fn handle_named_fields(
                 let ty = &it.ty;
 
                 quote! {
-                    #ident: <#ty as ::mooshroom_core::io::MooshroomReadable>::read(reader, version)?
+                    #ident: <#ty as ::mooshroom_core::io::MooshroomReadable>::read(&mut reader, version)?
                 }
             })
         })
@@ -142,7 +142,7 @@ fn handle_named_fields(
                 let ident = i;
 
                 quote! {
-                    ::mooshroom_core::io::MooshroomWritable::write(&self.#ident, writer, version)?;
+                    ::mooshroom_core::io::MooshroomWritable::write(&self.#ident, &mut writer, version)?;
                 }
             })
         })

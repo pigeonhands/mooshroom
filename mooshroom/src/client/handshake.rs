@@ -38,7 +38,7 @@ impl TryFrom<VarInt> for HandshakeState {
 
 impl MooshroomReadable for HandshakeState {
     fn read(
-        reader: &mut impl std::io::Read,
+        reader: impl std::io::Read,
         version: mooshroom_core::ProtocolVersion,
     ) -> Result<Self> {
         let val = VarInt::read(reader, version)?;
@@ -49,7 +49,7 @@ impl MooshroomReadable for HandshakeState {
 impl MooshroomWritable for HandshakeState {
     fn write(
         &self,
-        writer: &mut impl std::io::Write,
+        writer: impl std::io::Write,
         version: mooshroom_core::ProtocolVersion,
     ) -> Result<()> {
         let vi: VarInt = self.into();

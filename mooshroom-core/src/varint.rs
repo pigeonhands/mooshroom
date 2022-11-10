@@ -39,7 +39,7 @@ impl From<i32> for VarInt {
 
 impl MooshroomReadable for VarInt {
     fn read(
-        reader: &mut impl std::io::Read,
+        mut reader: impl std::io::Read,
         _: crate::ProtocolVersion,
     ) -> crate::error::Result<Self> {
         let mut num_read = 0;
@@ -64,7 +64,7 @@ impl MooshroomReadable for VarInt {
 }
 
 impl MooshroomWritable for VarInt {
-    fn write(&self, writer: &mut impl io::Write, _: ProtocolVersion) -> Result<()> {
+    fn write(&self, mut writer: impl io::Write, _: ProtocolVersion) -> Result<()> {
         let mut x = self.0 as u32;
         loop {
             let mut temp = (x & 0b0111_1111) as u8;
@@ -88,7 +88,7 @@ pub struct VarLong(pub i64);
 
 impl MooshroomReadable for VarLong {
     fn read(
-        reader: &mut impl std::io::Read,
+        mut reader: impl std::io::Read,
         _: crate::ProtocolVersion,
     ) -> crate::error::Result<Self> {
         let mut num_read = 0;
@@ -114,7 +114,7 @@ impl MooshroomReadable for VarLong {
 }
 
 impl MooshroomWritable for VarLong {
-    fn write(&self, writer: &mut impl io::Write, _: ProtocolVersion) -> Result<()> {
+    fn write(&self, mut writer: impl io::Write, _: ProtocolVersion) -> Result<()> {
         let mut x = self.0 as u64;
         writer
             .write_u8(((x & 0b0111_1111) | (0b1000_0000 * ((x >> 7 != 0) as u64))) as u8)

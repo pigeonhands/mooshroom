@@ -79,7 +79,7 @@ where
     T: for<'de> Deserialize<'de>,
 {
     fn read(
-        reader: &mut impl std::io::Read,
+        reader: impl std::io::Read,
         version: mooshroom_core::ProtocolVersion,
     ) -> mooshroom_core::error::Result<Self> {
         let s = String::read(reader, version)?;
@@ -94,7 +94,7 @@ where
 {
     fn write(
         &self,
-        writer: &mut impl std::io::Write,
+        writer: impl std::io::Write,
         version: mooshroom_core::ProtocolVersion,
     ) -> mooshroom_core::error::Result<()> {
         let s = serde_json::to_string(&self)
@@ -150,10 +150,10 @@ where
     T: MooshroomReadable,
 {
     fn read(
-        reader: &mut impl std::io::Read,
+        mut reader: impl std::io::Read,
         version: mooshroom_core::ProtocolVersion,
     ) -> mooshroom_core::error::Result<Self> {
-        if bool::read(reader, version)? {
+        if bool::read(&mut reader, version)? {
             Ok(Self(Some(T::read(reader, version)?)))
         } else {
             Ok(Self(None))
@@ -167,11 +167,11 @@ where
 {
     fn write(
         &self,
-        writer: &mut impl std::io::Write,
+        mut writer: impl std::io::Write,
         version: mooshroom_core::ProtocolVersion,
     ) -> mooshroom_core::error::Result<()> {
         if let Some(t) = &self.0 {
-            true.write(writer, version)?;
+            true.write(&mut writer, version)?;
             t.write(writer, version)?;
         } else {
             false.write(writer, version)?;
