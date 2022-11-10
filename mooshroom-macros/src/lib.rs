@@ -1,6 +1,15 @@
-use proc_macro::{TokenStream};
+use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse_macro_input, Data, DataStruct, DeriveInput, Fields, FieldsNamed, Attribute, LitInt};
+use syn::{
+    parse_macro_input,
+    Attribute,
+    Data,
+    DataStruct,
+    DeriveInput,
+    Fields,
+    FieldsNamed,
+    LitInt,
+};
 
 #[derive(Copy, Clone)]
 struct Symbol(&'static str);
@@ -8,7 +17,7 @@ struct Symbol(&'static str);
 #[derive(Default)]
 struct MooshroomAttrs {
     packet_id: Option<i32>,
-    response: Option<syn::Ident>
+    response: Option<syn::Ident>,
 }
 
 impl MooshroomAttrs {
@@ -16,14 +25,18 @@ impl MooshroomAttrs {
         let mut ma = Self::default();
         for attr in attributes {
             if attr.path.is_ident("packet_id") {
-                ma.packet_id = match attr.parse_args().ok().map(|l: LitInt| l.base10_parse().unwrap()) {
+                ma.packet_id = match attr
+                    .parse_args()
+                    .ok()
+                    .map(|l: LitInt| l.base10_parse().unwrap())
+                {
                     Some(s) => Some(s),
-                    None => panic!("packet_id must be i32")
+                    None => panic!("packet_id must be i32"),
                 }
-            }else if attr.path.is_ident("response") {
+            } else if attr.path.is_ident("response") {
                 ma.response = match attr.parse_args() {
                     Ok(r) => r,
-                    Err(e) => panic!("response must be ident. {}", e)
+                    Err(e) => panic!("response must be ident. {}", e),
                 }
             }
         }
@@ -56,8 +69,11 @@ fn impl_mooshroom_packet_struct(
 
     let (read, write) = match &data.fields {
         Fields::Named(fields) => handle_named_fields(fields),
-        Fields::Unit =>(proc_macro2::TokenStream::new(), proc_macro2::TokenStream::new()),
-        _ => unimplemented!("impl_mooshroom_packet_struct")
+        Fields::Unit => (
+            proc_macro2::TokenStream::new(),
+            proc_macro2::TokenStream::new(),
+        ),
+        _ => unimplemented!("impl_mooshroom_packet_struct"),
     };
 
     let packet = attrs.packet_id.map(|id| {

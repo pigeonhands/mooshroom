@@ -11,3 +11,8 @@ license = "MIT"
 byteorder = "1.4.3"
 paste = "1.0.9"
 thiserror = "1.0.37"
+uuid = { version = "1.2.1", features = ["v4"] }
+
+[features]
+default = ["uuid"]
+uuid = []

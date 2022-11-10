@@ -11,6 +11,20 @@ use crate::error::{MoshroomError, Result};
 #[derive(Copy, Clone, Default, Debug, PartialEq, Eq)]
 pub struct VarInt(pub i32);
 
+impl VarInt {
+    pub fn new(i: i32) -> Self {
+        Self(i)
+    }
+    pub fn as_i32(&self) -> i32 {
+        self.0
+    }
+    pub fn read_with_size(buffer: &[u8], version: ProtocolVersion) -> Result<(VarInt, usize)> {
+        let mut cur = std::io::Cursor::new(buffer);
+        let i = Self::read(&mut cur, version)?;
+        Ok((i, cur.position() as usize))
+    }
+}
+
 impl PartialEq<i32> for VarInt {
     fn eq(&self, i: &i32) -> bool {
         self.0 == *i
@@ -24,7 +38,10 @@ impl From<i32> for VarInt {
 }
 
 impl MooshroomReadable for VarInt {
-    fn read(reader: &mut impl std::io::Read, _: crate::ProtocolVersion) -> crate::error::Result<Self>{
+    fn read(
+        reader: &mut impl std::io::Read,
+        _: crate::ProtocolVersion,
+    ) -> crate::error::Result<Self> {
         let mut num_read = 0;
         let mut result = 0;
 
@@ -70,7 +87,10 @@ impl MooshroomWritable for VarInt {
 pub struct VarLong(pub i64);
 
 impl MooshroomReadable for VarLong {
-    fn read(reader: &mut impl std::io::Read, _: crate::ProtocolVersion) -> crate::error::Result<Self>{
+    fn read(
+        reader: &mut impl std::io::Read,
+        _: crate::ProtocolVersion,
+    ) -> crate::error::Result<Self> {
         let mut num_read = 0;
         let mut result = 0;
 

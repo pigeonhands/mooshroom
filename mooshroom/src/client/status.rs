@@ -1,4 +1,5 @@
 use mooshroom_macros::Mooshroom;
+
 use crate::server::status::StatusResponse;
 
 #[derive(Debug, Clone, Default, Mooshroom)]
@@ -6,11 +7,11 @@ use crate::server::status::StatusResponse;
 #[response(StatusResponse)]
 pub struct StatusRequest;
 
-
 #[cfg(test)]
 mod tests {
-    use super::*;
     use mooshroom_core::io::*;
+
+    use super::*;
 
     fn check_packet_number<T: mooshroom_core::io::MooshroomPacket>(_: T, id: i32) {
         assert_eq!(T::PACKET_ID, id);
@@ -24,7 +25,9 @@ mod tests {
     #[test]
     fn test_server_status_no_body() {
         let mut b = Vec::new();
-        StatusRequest::default().write(&mut b, mooshroom_core::ProtocolVersion::V1_16_5).unwrap();
+        StatusRequest::default()
+            .write(&mut b, mooshroom_core::ProtocolVersion::V1_16_5)
+            .unwrap();
         assert!(b.is_empty())
     }
 }

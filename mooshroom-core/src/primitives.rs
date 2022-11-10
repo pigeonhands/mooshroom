@@ -1,3 +1,5 @@
+use std::mem::MaybeUninit;
+
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 
 use crate::{
@@ -39,8 +41,33 @@ impl_rw_primitive!(
     u16, i16, u64, i64, u128, i128
 );
 
+impl MooshroomReadable for bool {
+    fn read(
+        reader: &mut impl std::io::Read,
+        _: crate::ProtocolVersion,
+    ) -> crate::error::Result<Self> {
+        reader
+            .read_i8()
+            .map(|i| i != 0)
+            .map_err(MoshroomError::IoError)
+    }
+}
+
+impl MooshroomWritable for bool {
+    fn write(
+        &self,
+        writer: &mut impl std::io::Write,
+        _: crate::ProtocolVersion,
+    ) -> crate::error::Result<()> {
+        writer.write_u8(*self as u8).map_err(MoshroomError::IoError)
+    }
+}
+
 impl MooshroomReadable for i8 {
-    fn read(reader: &mut impl std::io::Read, _: crate::ProtocolVersion) -> crate::error::Result<Self>{
+    fn read(
+        reader: &mut impl std::io::Read,
+        _: crate::ProtocolVersion,
+    ) -> crate::error::Result<Self> {
         reader.read_i8().map_err(MoshroomError::IoError)
     }
 }
@@ -56,7 +83,10 @@ impl MooshroomWritable for i8 {
 }
 
 impl MooshroomReadable for u8 {
-    fn read(reader: &mut impl std::io::Read, _: crate::ProtocolVersion) -> crate::error::Result<Self>{
+    fn read(
+        reader: &mut impl std::io::Read,
+        _: crate::ProtocolVersion,
+    ) -> crate::error::Result<Self> {
         reader.read_u8().map_err(MoshroomError::IoError)
     }
 }
@@ -71,8 +101,11 @@ impl MooshroomWritable for u8 {
     }
 }
 
-impl MooshroomReadable for String{
-    fn read(reader: &mut impl std::io::Read, version: crate::ProtocolVersion) -> crate::error::Result<Self>{
+impl MooshroomReadable for String {
+    fn read(
+        reader: &mut impl std::io::Read,
+        version: crate::ProtocolVersion,
+    ) -> crate::error::Result<Self> {
         let len = VarInt::read(reader, version)?;
 
         let s = {
@@ -93,5 +126,97 @@ impl MooshroomWritable for String {
         VarInt(self.len() as i32).write(writer, version)?;
         writer.write_all(self.as_bytes())?;
         Ok(())
+    }
+}
+
+impl<T> MooshroomReadable for Vec<T>
+where
+    T: MooshroomReadable,
+{
+    fn read(
+        reader: &mut impl std::io::Read,
+        version: crate::ProtocolVersion,
+    ) -> crate::error::Result<Self> {
+        let len = VarInt::read(reader, version)?.0 as usize;
+
+        let mut buffer = Vec::with_capacity(len);
+        for _ in 0..len {
+            buffer.push(T::read(reader, version)?);
+        }
+        Ok(buffer)
+    }
+}
+
+impl<T> MooshroomWritable for Vec<T>
+where
+    T: MooshroomWritable,
+{
+    fn write(
+        &self,
+        writer: &mut impl std::io::Write,
+        version: crate::ProtocolVersion,
+    ) -> crate::error::Result<()> {
+        VarInt(self.len() as i32).write(writer, version)?;
+        for p in self.iter() {
+            p.write(writer, version)?;
+        }
+        Ok(())
+    }
+}
+
+impl<T, const N: usize> MooshroomReadable for [T; N]
+where
+    T: MooshroomReadable + Sized,
+{
+    fn read(
+        reader: &mut impl std::io::Read,
+        version: crate::ProtocolVersion,
+    ) -> crate::error::Result<Self> {
+        unsafe {
+            let mut buffer: [MaybeUninit<T>; N] = MaybeUninit::uninit().assume_init();
+            for i in buffer.iter_mut() {
+                i.write(T::read(reader, version)?);
+            }
+            Ok(buffer.as_ptr().cast::<[T; N]>().read())
+        }
+    }
+}
+
+impl<T, const N: usize> MooshroomWritable for [T; N]
+where
+    T: MooshroomWritable,
+{
+    fn write(
+        &self,
+        writer: &mut impl std::io::Write,
+        version: crate::ProtocolVersion,
+    ) -> crate::error::Result<()> {
+        for i in self.iter() {
+            i.write(writer, version)?;
+        }
+        Ok(())
+    }
+}
+
+#[cfg(feature = "uuid")]
+impl MooshroomReadable for uuid::Uuid {
+    fn read(
+        reader: &mut impl std::io::Read,
+        version: crate::ProtocolVersion,
+    ) -> crate::error::Result<Self> {
+        let s = String::read(reader, version)?;
+        Ok(uuid::Uuid::parse_str(&s)?)
+    }
+}
+
+#[cfg(feature = "uuid")]
+impl MooshroomWritable for uuid::Uuid {
+    fn write(
+        &self,
+        writer: &mut impl std::io::Write,
+        version: crate::ProtocolVersion,
+    ) -> crate::error::Result<()> {
+        let s = self.to_string();
+        s.write(writer, version)
     }
 }

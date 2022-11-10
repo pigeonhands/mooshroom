@@ -1,6 +1,7 @@
+use std::ops::{Deref, DerefMut};
+
 use mooshroom_core::io::{MooshroomReadable, MooshroomWritable};
-use serde::{Serialize, Deserialize};
-use std::{ops::{Deref, DerefMut}};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Json<T> {
@@ -8,9 +9,14 @@ pub struct Json<T> {
     data: T,
 }
 
-impl<T> Default for Json<T> where T: Default {
+impl<T> Default for Json<T>
+where
+    T: Default,
+{
     fn default() -> Self {
-        Self { data: Default::default() }
+        Self {
+            data: Default::default(),
+        }
     }
 }
 
@@ -40,22 +46,26 @@ impl<T> DerefMut for Json<T> {
     }
 }
 
-impl <T> PartialEq<T> for Json<T>
-where T: PartialEq {
+impl<T> PartialEq<T> for Json<T>
+where
+    T: PartialEq,
+{
     fn eq(&self, other: &T) -> bool {
         self.data == *other
     }
 }
 
-impl<T> PartialOrd<T> for Json<T> 
-where T: PartialOrd<T> {
+impl<T> PartialOrd<T> for Json<T>
+where
+    T: PartialOrd<T>,
+{
     fn partial_cmp(&self, other: &T) -> Option<std::cmp::Ordering> {
         self.data.partial_cmp(other)
     }
 }
 
-impl<T> Json<T>  {
-    pub fn new(v: T) -> Self{
+impl<T> Json<T> {
+    pub fn new(v: T) -> Self {
         Self { data: v }
     }
 
@@ -64,19 +74,108 @@ impl<T> Json<T>  {
     }
 }
 
-impl<T> MooshroomReadable for Json<T> 
-where T: for <'de> Deserialize<'de>{
-    fn read(reader: &mut impl std::io::Read, version: mooshroom_core::ProtocolVersion) -> mooshroom_core::error::Result<Self>{
+impl<T> MooshroomReadable for Json<T>
+where
+    T: for<'de> Deserialize<'de>,
+{
+    fn read(
+        reader: &mut impl std::io::Read,
+        version: mooshroom_core::ProtocolVersion,
+    ) -> mooshroom_core::error::Result<Self> {
         let s = String::read(reader, version)?;
-        serde_json::from_str(&s).map_err(|_| mooshroom_core::error::MoshroomError::InvalidJson)
-
+        serde_json::from_str(&s)
+            .map_err(|e| mooshroom_core::error::MoshroomError::InvalidJson(e.to_string()))
     }
 }
 
-impl<T> MooshroomWritable for Json<T> 
-where T: Serialize {
-    fn write(&self, writer: &mut impl std::io::Write, version: mooshroom_core::ProtocolVersion) -> mooshroom_core::error::Result<()> {
-        let s = serde_json::to_string(&self).map_err(|_| mooshroom_core::error::MoshroomError::InvalidJson)?;
+impl<T> MooshroomWritable for Json<T>
+where
+    T: Serialize,
+{
+    fn write(
+        &self,
+        writer: &mut impl std::io::Write,
+        version: mooshroom_core::ProtocolVersion,
+    ) -> mooshroom_core::error::Result<()> {
+        let s = serde_json::to_string(&self)
+            .map_err(|e| mooshroom_core::error::MoshroomError::InvalidJson(e.to_string()))?;
         s.write(writer, version)
+    }
+}
+
+// Tagged option
+#[derive(Debug, Clone, Default)]
+pub struct TOption<T>(Option<T>);
+
+impl<T> From<Option<T>> for TOption<T> {
+    fn from(i: Option<T>) -> Self {
+        Self(i)
+    }
+}
+
+impl<T> Into<Option<T>> for TOption<T> {
+    fn into(self) -> Option<T> {
+        self.0
+    }
+}
+
+impl<T> AsRef<Option<T>> for TOption<T> {
+    fn as_ref(&self) -> &Option<T> {
+        &self.0
+    }
+}
+
+impl<T> AsMut<Option<T>> for TOption<T> {
+    fn as_mut(&mut self) -> &mut Option<T> {
+        &mut self.0
+    }
+}
+
+impl<T> Deref for TOption<T> {
+    type Target = Option<T>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl<T> DerefMut for TOption<T> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
+impl<T> MooshroomReadable for TOption<T>
+where
+    T: MooshroomReadable,
+{
+    fn read(
+        reader: &mut impl std::io::Read,
+        version: mooshroom_core::ProtocolVersion,
+    ) -> mooshroom_core::error::Result<Self> {
+        if bool::read(reader, version)? {
+            Ok(Self(Some(T::read(reader, version)?)))
+        } else {
+            Ok(Self(None))
+        }
+    }
+}
+
+impl<T> MooshroomWritable for TOption<T>
+where
+    T: MooshroomWritable,
+{
+    fn write(
+        &self,
+        writer: &mut impl std::io::Write,
+        version: mooshroom_core::ProtocolVersion,
+    ) -> mooshroom_core::error::Result<()> {
+        if let Some(t) = &self.0 {
+            true.write(writer, version)?;
+            t.write(writer, version)?;
+        } else {
+            false.write(writer, version)?;
+        }
+        Ok(())
     }
 }

@@ -5,7 +5,7 @@ use mooshroom_core::{
 };
 use mooshroom_macros::Mooshroom;
 
-#[derive(Debug, Clone,Default, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, Copy, PartialEq, Eq)]
 #[repr(u8)]
 pub enum HandshakeState {
     #[default]
@@ -37,7 +37,10 @@ impl TryFrom<VarInt> for HandshakeState {
 }
 
 impl MooshroomReadable for HandshakeState {
-    fn read(reader: &mut impl std::io::Read, version: mooshroom_core::ProtocolVersion) -> Result<Self>{
+    fn read(
+        reader: &mut impl std::io::Read,
+        version: mooshroom_core::ProtocolVersion,
+    ) -> Result<Self> {
         let val = VarInt::read(reader, version)?;
         val.try_into()
     }
@@ -56,7 +59,7 @@ impl MooshroomWritable for HandshakeState {
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]
-#[packet_id(1)]
+#[packet_id(0)]
 pub struct Handshake {
     pub protocol_version: VarInt,
     pub server_address: String,

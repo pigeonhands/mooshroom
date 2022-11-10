@@ -63,6 +63,7 @@ dependencies = [
  "byteorder",
  "paste",
  "thiserror",
+ "uuid",
 ]
 
 [[package]]

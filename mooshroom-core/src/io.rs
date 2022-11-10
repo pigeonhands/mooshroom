@@ -14,6 +14,6 @@ pub trait MooshroomPacket: MooshroomReadable + MooshroomWritable {
     const PACKET_ID: VarInt;
 }
 
-pub trait MooshroomCommand {
-    type Response : MooshroomPacket;
+pub trait MooshroomCommand: MooshroomPacket {
+    type Response: MooshroomPacket;
 }
