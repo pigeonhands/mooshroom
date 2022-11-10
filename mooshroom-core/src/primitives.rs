@@ -38,7 +38,9 @@ macro_rules! impl_rw_primitive {
 impl_rw_primitive!(
     //u8,
     //i8,
-    u16, i16, u64, i64, u128, i128
+    u16, i16, i32,u32, u64, i64, u128, i128,
+    f32,
+    f64
 );
 
 impl MooshroomReadable for bool {
@@ -100,6 +102,7 @@ impl MooshroomWritable for u8 {
         writer.write_u8(*self).map_err(MoshroomError::IoError)
     }
 }
+
 
 impl MooshroomReadable for String {
     fn read(
@@ -204,8 +207,8 @@ impl MooshroomReadable for uuid::Uuid {
         reader: impl std::io::Read,
         version: crate::ProtocolVersion,
     ) -> crate::error::Result<Self> {
-        let s = String::read(reader, version)?;
-        Ok(uuid::Uuid::parse_str(&s)?)
+        let b = <[u8;16]>::read(reader, version)?;
+        Ok(uuid::Uuid::from_bytes(b))
     }
 }
 
@@ -216,7 +219,7 @@ impl MooshroomWritable for uuid::Uuid {
         writer: impl std::io::Write,
         version: crate::ProtocolVersion,
     ) -> crate::error::Result<()> {
-        let s = self.to_string();
+        let s = self.as_bytes();
         s.write(writer, version)
     }
 }

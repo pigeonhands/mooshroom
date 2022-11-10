@@ -16,6 +16,10 @@ pub enum MoshroomError {
     InvalidJson(String),
     #[error("Unexpected packet. Expected {0}, got {1}")]
     UnexpectedPacket(i32, i32),
+    #[error("Packet id {0} is not in collection")]
+    NotInCollection(i32),
+    #[error("Failed to parse nbt tag of type {0}")]
+    InvalidNbtTag(u8),
 
     #[cfg(feature = "uuid")]
     #[error("Invalid uuid. {0}")]

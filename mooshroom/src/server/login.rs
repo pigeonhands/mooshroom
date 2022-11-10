@@ -1,9 +1,8 @@
 use mooshroom_core::{
-    error::{MoshroomError, Result},
-    io::{MooshroomReadable, MooshroomWritable},
+    io::{MooshroomPacket, MooshroomReadable},
     varint::VarInt,
 };
-use mooshroom_macros::Mooshroom;
+use mooshroom_macros::{Mooshroom, MooshroomCollection};
 
 use crate::containers::TOption;
 
@@ -15,10 +14,30 @@ pub struct Properties {
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]
+#[packet_id(0)]
+pub struct Disconnect {
+    pub reason: String,
+}
+
+#[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(2)]
 pub struct LoginSuccess {
     pub uuid: uuid::Uuid,
     pub username: String,
-    pub player_uuid: TOption<uuid::Uuid>,
     pub properties: Vec<Properties>,
+}
+
+#[derive(Debug, Clone, Default, Mooshroom)]
+#[packet_id(3)]
+pub struct SetCompression {
+    pub threshold: VarInt,
+}
+
+
+
+#[derive(Debug, Clone, MooshroomCollection)]
+pub enum LoginStage {
+    Disconnect(Disconnect),
+    SetCompression(SetCompression),
+    Success(LoginSuccess),
 }

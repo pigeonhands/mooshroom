@@ -23,6 +23,11 @@ impl VarInt {
         let i = Self::read(&mut cur, version)?;
         Ok((i, cur.position() as usize))
     }
+    pub fn write_with_size(&self, buffer: &mut [u8], version: ProtocolVersion) -> Result<usize> {
+        let mut cur = std::io::Cursor::new(buffer);
+        self.write(&mut cur, version)?;
+        Ok(cur.position() as usize)
+    }
 }
 
 impl PartialEq<i32> for VarInt {
@@ -145,41 +150,41 @@ mod tests {
     #[test]
     fn varint_read() {
         assert_eq!(
-            VarInt::read(&mut [0x0].as_ref(), ProtocolVersion::V1_20).unwrap(),
+            VarInt::read(&mut [0x0].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
             VarInt(0)
         );
         assert_eq!(
-            VarInt::read(&mut [0x1].as_ref(), ProtocolVersion::V1_20).unwrap(),
+            VarInt::read(&mut [0x1].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
             VarInt(1)
         );
         assert_eq!(
-            VarInt::read(&mut [0x2].as_ref(), ProtocolVersion::V1_20).unwrap(),
+            VarInt::read(&mut [0x2].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
             VarInt(2)
         );
         assert_eq!(
-            VarInt::read(&mut [0x7f].as_ref(), ProtocolVersion::V1_20).unwrap(),
+            VarInt::read(&mut [0x7f].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
             VarInt(127)
         );
         assert_eq!(
-            VarInt::read(&mut [0x80, 0x01].as_ref(), ProtocolVersion::V1_20).unwrap(),
+            VarInt::read(&mut [0x80, 0x01].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
             VarInt(128)
         );
         assert_eq!(
-            VarInt::read(&mut [0xff, 0x01].as_ref(), ProtocolVersion::V1_20).unwrap(),
+            VarInt::read(&mut [0xff, 0x01].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
             VarInt(255)
         );
         assert_eq!(
-            VarInt::read(&mut [0xdd, 0xc7, 0x01].as_ref(), ProtocolVersion::V1_20).unwrap(),
+            VarInt::read(&mut [0xdd, 0xc7, 0x01].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
             VarInt(25565)
         );
         assert_eq!(
-            VarInt::read(&mut [0xff, 0xff, 0x7f].as_ref(), ProtocolVersion::V1_20).unwrap(),
+            VarInt::read(&mut [0xff, 0xff, 0x7f].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
             VarInt(2097151)
         );
         assert_eq!(
             VarInt::read(
                 &mut [0xff, 0xff, 0xff, 0xff, 0x07].as_ref(),
-                ProtocolVersion::V1_20
+                ProtocolVersion::V1_19_2
             )
             .unwrap(),
             VarInt(2147483647)
@@ -187,7 +192,7 @@ mod tests {
         assert_eq!(
             VarInt::read(
                 &mut [0xff, 0xff, 0xff, 0xff, 0x0f].as_ref(),
-                ProtocolVersion::V1_20
+                ProtocolVersion::V1_19_2
             )
             .unwrap(),
             VarInt(-1)
@@ -195,7 +200,7 @@ mod tests {
         assert_eq!(
             VarInt::read(
                 &mut [0x80, 0x80, 0x80, 0x80, 0x08].as_ref(),
-                ProtocolVersion::V1_20
+                ProtocolVersion::V1_19_2
             )
             .unwrap(),
             VarInt(-2147483648)
@@ -207,7 +212,7 @@ mod tests {
         fn check_varint<const N: usize>(value: i32, expected: [u8; N]) {
             let mut buffer = Vec::new();
             VarInt(value)
-                .write(&mut buffer, ProtocolVersion::V1_20)
+                .write(&mut buffer, ProtocolVersion::V1_19_2)
                 .unwrap();
             let out: [u8; N] = buffer.try_into().unwrap();
 
@@ -246,9 +251,9 @@ mod tests {
         for i in tests {
             buffer.clear();
             let vi = VarInt(i);
-            vi.write(&mut buffer, ProtocolVersion::V1_20).unwrap();
+            vi.write(&mut buffer, ProtocolVersion::V1_19_2).unwrap();
 
-            let vo = VarInt::read(&mut buffer.as_slice(), ProtocolVersion::V1_20).unwrap();
+            let vo = VarInt::read(&mut buffer.as_slice(), ProtocolVersion::V1_19_2).unwrap();
             assert_eq!(vi, vo);
         }
     }
@@ -256,41 +261,41 @@ mod tests {
     #[test]
     fn varlong_read() {
         assert_eq!(
-            VarLong::read(&mut [0x0].as_ref(), ProtocolVersion::V1_20).unwrap(),
+            VarLong::read(&mut [0x0].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
             VarLong(0)
         );
         assert_eq!(
-            VarLong::read(&mut [0x1].as_ref(), ProtocolVersion::V1_20).unwrap(),
+            VarLong::read(&mut [0x1].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
             VarLong(1)
         );
         assert_eq!(
-            VarLong::read(&mut [0x2].as_ref(), ProtocolVersion::V1_20).unwrap(),
+            VarLong::read(&mut [0x2].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
             VarLong(2)
         );
         assert_eq!(
-            VarLong::read(&mut [0x7f].as_ref(), ProtocolVersion::V1_20).unwrap(),
+            VarLong::read(&mut [0x7f].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
             VarLong(127)
         );
         assert_eq!(
-            VarLong::read(&mut [0x80, 0x01].as_ref(), ProtocolVersion::V1_20).unwrap(),
+            VarLong::read(&mut [0x80, 0x01].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
             VarLong(128)
         );
         assert_eq!(
-            VarLong::read(&mut [0xff, 0x01].as_ref(), ProtocolVersion::V1_20).unwrap(),
+            VarLong::read(&mut [0xff, 0x01].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
             VarLong(255)
         );
         assert_eq!(
-            VarLong::read(&mut [0xdd, 0xc7, 0x01].as_ref(), ProtocolVersion::V1_20).unwrap(),
+            VarLong::read(&mut [0xdd, 0xc7, 0x01].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
             VarLong(25565)
         );
         assert_eq!(
-            VarLong::read(&mut [0xff, 0xff, 0x7f].as_ref(), ProtocolVersion::V1_20).unwrap(),
+            VarLong::read(&mut [0xff, 0xff, 0x7f].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
             VarLong(2097151)
         );
         assert_eq!(
             VarLong::read(
                 &mut [0xff, 0xff, 0xff, 0xff, 0x07].as_ref(),
-                ProtocolVersion::V1_20
+                ProtocolVersion::V1_19_2
             )
             .unwrap(),
             VarLong(2147483647)
@@ -298,7 +303,7 @@ mod tests {
         assert_eq!(
             VarLong::read(
                 &mut [0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x7f].as_ref(),
-                ProtocolVersion::V1_20
+                ProtocolVersion::V1_19_2
             )
             .unwrap(),
             VarLong(9223372036854775807)
@@ -306,7 +311,7 @@ mod tests {
         assert_eq!(
             VarLong::read(
                 &mut [0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01].as_ref(),
-                ProtocolVersion::V1_20
+                ProtocolVersion::V1_19_2
             )
             .unwrap(),
             VarLong(-1)
@@ -314,7 +319,7 @@ mod tests {
         assert_eq!(
             VarLong::read(
                 &mut [0x80, 0x80, 0x80, 0x80, 0xf8, 0xff, 0xff, 0xff, 0xff, 0x01].as_ref(),
-                ProtocolVersion::V1_20
+                ProtocolVersion::V1_19_2
             )
             .unwrap(),
             VarLong(-2147483648)
@@ -322,7 +327,7 @@ mod tests {
         assert_eq!(
             VarLong::read(
                 &mut [0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x01].as_ref(),
-                ProtocolVersion::V1_20
+                ProtocolVersion::V1_19_2
             )
             .unwrap(),
             VarLong(-9223372036854775808)
@@ -334,7 +339,7 @@ mod tests {
         fn check_varlong<const N: usize>(value: i64, expected: [u8; N]) {
             let mut buffer = Vec::new();
             VarLong(value)
-                .write(&mut buffer, ProtocolVersion::V1_20)
+                .write(&mut buffer, ProtocolVersion::V1_19_2)
                 .unwrap();
             assert_eq!(buffer.len(), N, "Value: {}", value);
             let out: [u8; N] = buffer.try_into().unwrap();
@@ -390,9 +395,9 @@ mod tests {
         for i in tests {
             buffer.clear();
             let vi = VarLong(i);
-            vi.write(&mut buffer, ProtocolVersion::V1_20).unwrap();
+            vi.write(&mut buffer, ProtocolVersion::V1_19_2).unwrap();
 
-            let vo = VarLong::read(&mut buffer.as_slice(), ProtocolVersion::V1_20).unwrap();
+            let vo = VarLong::read(&mut buffer.as_slice(), ProtocolVersion::V1_19_2).unwrap();
             assert_eq!(vi, vo);
         }
     }

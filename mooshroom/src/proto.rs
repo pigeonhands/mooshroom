@@ -5,7 +5,7 @@ use crate::{
 
 pub struct MooshroomProto<T> {
     inner: T,
-    codec: MooshroomCodec,
+    pub codec: MooshroomCodec,
 }
 
 impl<T> MooshroomProto<T> {
@@ -21,10 +21,33 @@ impl<R> MooshroomProto<R>
 where
     R: std::io::Read,
 {
+    pub fn buffer_read(&mut self) -> Result<()> {
+        let mut buffer = [0; 1024];
+        loop {
+            let n = self.inner.read(&mut buffer)?;
+            if n > 0 {
+                self.codec.add_bytes(&buffer[..n]);
+                return Ok(());
+            }
+        }
+    }
     pub fn read_packet<T: MooshroomPacket>(&mut self) -> Result<T> {
         let mut buffer = [0; 1024];
         loop {
             if let Some(p) = self.codec.read_packet()? {
+                return Ok(p);
+            }
+            let n = self.inner.read(&mut buffer)?;
+            if n > 0 {
+                self.codec.add_bytes(&buffer[..n]);
+            }
+        }
+    }
+
+    pub fn read_one_of<T: MooshroomCollection>(&mut self) -> Result<T> {
+        let mut buffer = [0; 1024];
+        loop {
+            if let Some(p) = self.codec.read_one_of()? {
                 return Ok(p);
             }
             let n = self.inner.read(&mut buffer)?;

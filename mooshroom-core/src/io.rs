@@ -17,3 +17,7 @@ pub trait MooshroomPacket: MooshroomReadable + MooshroomWritable {
 pub trait MooshroomCommand: MooshroomPacket {
     type Response: MooshroomPacket;
 }
+
+pub trait MooshroomCollection: Sized {
+    fn read_one_of(id: VarInt, reader: impl io::Read, version: ProtocolVersion) -> Result<Self>;
+}

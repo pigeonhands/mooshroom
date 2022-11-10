@@ -8,7 +8,10 @@ use mooshroom::{
     },
     core::ProtocolVersion,
     proto::MooshroomProto,
-    server::login::LoginSuccess,
+    server::{
+        play::PlayStage,
+        login::{LoginStage, SetCompression},
+    }
 };
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -24,7 +27,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     m.write_packet(&Handshake {
         server_address: "127.0.0.1".into(),
         server_port: 25565,
-        protocol_version: (ProtocolVersion::V1_13_2 as i32).into(),
+        protocol_version: (ProtocolVersion::V1_19_2 as i32).into(),
         next_state: HandshakeState::Login,
     })?;
 
@@ -32,18 +35,34 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     m.write_packet(&LoginStart {
         name: "mooshroom".into(),
-        player_uuid: Some(uuid::Uuid::parse_str(
-            "156062c2-952f-3cd3-b877-c03b38f69c30",
-        )?)
-        .into(),
+        player_uuid: None.into(),
         sig_data: None.into(),
     })?;
 
     println!("Waiting for response");
 
-    let resp: LoginSuccess = m.read_packet()?;
+    loop {
+        let resp: LoginStage = m.read_one_of()?;
+        println!("{:?}", resp);
 
-    println!("{:?}", resp);
+        match resp {
+            LoginStage::SetCompression(n) => m.codec.set_compression(n.threshold.0),
+            LoginStage::Success(_) => break,
+            _ => {}
+        }
+    }
+
+    println!("going to play stage");
+
+    loop {
+        let resp: PlayStage = m.read_one_of()?;
+        println!("{:?}", resp);
+
+        match resp {
+            
+            _ => {}
+        }
+    }
 
     Ok(())
 }
