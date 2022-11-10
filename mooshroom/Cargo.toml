@@ -1,0 +1,17 @@
+[package]
+name = "mooshroom"
+version = "0.1.0"
+edition = "2021"
+description = "mc"
+license = "MIT"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+byteorder = "1.4.3"
+bytes = "1.2.1"
+mooshroom-core = { path = "../mooshroom-core"}
+mooshroom-macros = { path = "../mooshroom-macros"}
+serde = { version = "1.0.147", features = ["derive"] }
+serde_json = "1.0.87"
+uuid = { version = "1.2.1", features = ["serde", "v4"] }

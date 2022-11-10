@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "mooshroom",
+    "mooshroom-core",
+    "mooshroom-macros",
+]
