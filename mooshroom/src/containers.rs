@@ -74,32 +74,25 @@ impl<T> Json<T> {
     }
 }
 
-impl<T> MooshroomReadable for Json<T>
+impl<const PV: usize, T> MooshroomReadable<PV> for Json<T>
 where
     T: for<'de> Deserialize<'de>,
 {
-    fn read(
-        reader: impl std::io::Read,
-        version: mooshroom_core::ProtocolVersion,
-    ) -> mooshroom_core::error::Result<Self> {
-        let s = String::read(reader, version)?;
+    fn read(reader: impl std::io::Read) -> mooshroom_core::error::Result<Self> {
+        let s = <String as MooshroomReadable<PV>>::read(reader)?;
         serde_json::from_str(&s)
             .map_err(|e| mooshroom_core::error::MoshroomError::InvalidJson(e.to_string()))
     }
 }
 
-impl<T> MooshroomWritable for Json<T>
+impl<const PV: usize, T> MooshroomWritable<PV> for Json<T>
 where
     T: Serialize,
 {
-    fn write(
-        &self,
-        writer: impl std::io::Write,
-        version: mooshroom_core::ProtocolVersion,
-    ) -> mooshroom_core::error::Result<()> {
+    fn write(&self, writer: impl std::io::Write) -> mooshroom_core::error::Result<()> {
         let s = serde_json::to_string(&self)
             .map_err(|e| mooshroom_core::error::MoshroomError::InvalidJson(e.to_string()))?;
-        s.write(writer, version)
+        <String as MooshroomWritable<PV>>::write(&s, writer)
     }
 }
 
@@ -145,36 +138,29 @@ impl<T> DerefMut for TOption<T> {
     }
 }
 
-impl<T> MooshroomReadable for TOption<T>
+impl<const PV: usize, T> MooshroomReadable<PV> for TOption<T>
 where
-    T: MooshroomReadable,
+    T: MooshroomReadable<PV>,
 {
-    fn read(
-        mut reader: impl std::io::Read,
-        version: mooshroom_core::ProtocolVersion,
-    ) -> mooshroom_core::error::Result<Self> {
-        if bool::read(&mut reader, version)? {
-            Ok(Self(Some(T::read(reader, version)?)))
+    fn read(mut reader: impl std::io::Read) -> mooshroom_core::error::Result<Self> {
+        if <bool as MooshroomReadable<PV>>::read(&mut reader)? {
+            Ok(Self(Some(T::read(reader)?)))
         } else {
             Ok(Self(None))
         }
     }
 }
 
-impl<T> MooshroomWritable for TOption<T>
+impl<const PV: usize, T> MooshroomWritable<PV> for TOption<T>
 where
-    T: MooshroomWritable,
+    T: MooshroomWritable<PV>,
 {
-    fn write(
-        &self,
-        mut writer: impl std::io::Write,
-        version: mooshroom_core::ProtocolVersion,
-    ) -> mooshroom_core::error::Result<()> {
+    fn write(&self, mut writer: impl std::io::Write) -> mooshroom_core::error::Result<()> {
         if let Some(t) = &self.0 {
-            true.write(&mut writer, version)?;
-            t.write(writer, version)?;
+            <bool as MooshroomWritable<PV>>::write(&true, &mut writer)?;
+            t.write(writer)?;
         } else {
-            false.write(writer, version)?;
+            <bool as MooshroomWritable<PV>>::write(&false, &mut writer)?;
         }
         Ok(())
     }

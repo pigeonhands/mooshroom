@@ -1,11 +1,13 @@
-use crate::{
-    codec::MooshroomCodec,
-    core::{error::*, io::*},
-};
+pub mod codec;
+pub mod connection;
+
+use codec::MooshroomCodec;
+
+use crate::core::{error::*, io::*};
 
 pub struct MooshroomProto<T> {
     inner: T,
-    pub codec: MooshroomCodec,
+    pub codec: MooshroomCodec<DEFAULT_PROTOCAL_VERSION>,
 }
 
 impl<T> MooshroomProto<T> {
@@ -14,6 +16,10 @@ impl<T> MooshroomProto<T> {
             inner,
             codec: MooshroomCodec::new(),
         }
+    }
+
+    pub const fn protocal_version(&self) -> i32 {
+        self.codec.protocal_version()
     }
 }
 
@@ -31,7 +37,7 @@ where
             }
         }
     }
-    pub fn read_packet<T: MooshroomPacket>(&mut self) -> Result<T> {
+    pub fn read_packet<T: MooshroomPacket<DEFAULT_PROTOCAL_VERSION>>(&mut self) -> Result<T> {
         let mut buffer = [0; 1024];
         loop {
             if let Some(p) = self.codec.read_packet()? {
@@ -44,7 +50,7 @@ where
         }
     }
 
-    pub fn read_one_of<T: MooshroomCollection>(&mut self) -> Result<T> {
+    pub fn read_one_of<T: MooshroomCollection<DEFAULT_PROTOCAL_VERSION>>(&mut self) -> Result<T> {
         let mut buffer = [0; 1024];
         loop {
             if let Some(p) = self.codec.read_one_of()? {
@@ -62,7 +68,10 @@ impl<T> MooshroomProto<T>
 where
     T: std::io::Write,
 {
-    pub fn write_packet(&mut self, p: &impl MooshroomPacket) -> Result<()> {
+    pub fn write_packet(
+        &mut self,
+        p: &impl MooshroomPacket<DEFAULT_PROTOCAL_VERSION>,
+    ) -> Result<()> {
         let bytes = self.codec.encode(p)?;
         self.inner.write_all(&bytes)?;
         Ok(())
@@ -73,7 +82,10 @@ impl<T> MooshroomProto<T>
 where
     T: std::io::Read + std::io::Write,
 {
-    pub fn send_command<P: MooshroomCommand>(&mut self, p: &P) -> Result<P::Response> {
+    pub fn send_command<P: MooshroomCommand<DEFAULT_PROTOCAL_VERSION>>(
+        &mut self,
+        p: &P,
+    ) -> Result<P::Response> {
         self.write_packet(p)?;
         self.read_packet()
     }

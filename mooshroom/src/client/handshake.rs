@@ -36,21 +36,17 @@ impl TryFrom<VarInt> for HandshakeState {
     }
 }
 
-impl MooshroomReadable for HandshakeState {
-    fn read(reader: impl std::io::Read, version: mooshroom_core::ProtocolVersion) -> Result<Self> {
-        let val = VarInt::read(reader, version)?;
+impl<const PV: usize> MooshroomReadable<PV> for HandshakeState {
+    fn read(reader: impl std::io::Read) -> Result<Self> {
+        let val = <VarInt as MooshroomReadable<PV>>::read(reader)?;
         val.try_into()
     }
 }
 
-impl MooshroomWritable for HandshakeState {
-    fn write(
-        &self,
-        writer: impl std::io::Write,
-        version: mooshroom_core::ProtocolVersion,
-    ) -> Result<()> {
+impl<const PV: usize> MooshroomWritable<PV> for HandshakeState {
+    fn write(&self, writer: impl std::io::Write) -> Result<()> {
         let vi: VarInt = self.into();
-        vi.write(writer, version)?;
+        <VarInt as MooshroomWritable<PV>>::write(&vi, writer)?;
         Ok(())
     }
 }
@@ -66,14 +62,19 @@ pub struct Handshake {
 
 #[cfg(test)]
 mod tests {
+    use mooshroom_core::io::DEFAULT_PROTOCAL_VERSION;
+
     use super::*;
 
-    fn check_packet_number<R, T: mooshroom_core::io::MooshroomPacket>(_: T, id: i32) {
+    fn check_packet_number<R, T: mooshroom_core::io::MooshroomPacket<DEFAULT_PROTOCAL_VERSION>>(
+        _: T,
+        id: i32,
+    ) {
         assert_eq!(T::PACKET_ID, id);
     }
 
     #[test]
     fn test_derive_handshake() {
-        check_packet_number::<Vec<i8>, _>(Handshake::default(), 1);
+        check_packet_number::<Vec<i8>, _>(Handshake::default(), 0);
     }
 }

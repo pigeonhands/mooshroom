@@ -1,5 +1,6 @@
+use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{Attribute, Data, DataStruct, Fields, FieldsNamed, LitInt};
+use syn::{Attribute, Data, DataStruct, Fields, FieldsNamed, FieldsUnnamed, LitInt};
 
 #[derive(Default)]
 struct MooshroomAttrs {
@@ -47,17 +48,14 @@ fn impl_mooshroom_packet_struct(
 
     let (read, write) = match &data.fields {
         Fields::Named(fields) => handle_named_fields(fields),
-        Fields::Unit => (
-            proc_macro2::TokenStream::new(),
-            proc_macro2::TokenStream::new(),
-        ),
-        _ => unimplemented!("impl_mooshroom_packet_struct"),
+        Fields::Unit => (quote! { Self }, proc_macro2::TokenStream::new()),
+        Fields::Unnamed(fields) => handle_unnamed_fields(fields),
     };
 
     let packet = attrs.packet_id.map(|id| {
         quote! {
             #[automatically_derived]
-            impl ::mooshroom_core::io::MooshroomPacket for #name {
+            impl<const PV: usize> ::mooshroom_core::io::MooshroomPacket<PV> for #name {
                 const PACKET_ID : ::mooshroom_core::varint::VarInt = ::mooshroom_core::varint::VarInt(#id);
             }
         }
@@ -66,7 +64,7 @@ fn impl_mooshroom_packet_struct(
     let response = attrs.response.map(|r| {
         quote! {
             #[automatically_derived]
-            impl ::mooshroom_core::io::MooshroomCommand for #name {
+            impl<const PV: usize> ::mooshroom_core::io::MooshroomCommand<PV> for #name {
                 type Response = #r;
             }
         }
@@ -74,19 +72,17 @@ fn impl_mooshroom_packet_struct(
 
     quote! {
         #[automatically_derived]
-        impl ::mooshroom_core::io::MooshroomReadable for #name {
-            fn read(mut reader: impl ::std::io::Read, version: ::mooshroom_core::ProtocolVersion) -> ::mooshroom_core::error::Result<Self> {
+        impl<const PV: usize> ::mooshroom_core::io::MooshroomReadable<PV> for #name {
+            fn read(mut reader: impl ::std::io::Read) -> ::mooshroom_core::error::Result<Self> {
                 Ok(
-                    Self{
-                        #read
-                    }
+                    #read
                 )
             }
         }
 
         #[automatically_derived]
-        impl ::mooshroom_core::io::MooshroomWritable for #name {
-            fn write(&self, mut writer: impl ::std::io::Write, version: ::mooshroom_core::ProtocolVersion) -> ::mooshroom_core::error::Result<()> {
+        impl<const PV: usize> ::mooshroom_core::io::MooshroomWritable<PV> for #name {
+            fn write(&self, mut writer: impl ::std::io::Write) -> ::mooshroom_core::error::Result<()> {
                 #write
                 Ok(())
             }
@@ -97,10 +93,46 @@ fn impl_mooshroom_packet_struct(
     }
 }
 
+fn handle_unnamed_fields(
+    fields: &FieldsUnnamed,
+) -> (proc_macro2::TokenStream, proc_macro2::TokenStream) {
+    let read: Vec<TokenStream> = fields
+        .unnamed
+        .iter()
+        .map(|f| {
+            let ty = &f.ty;
+            quote! {
+                <#ty as ::mooshroom_core::io::MooshroomReadable<PV>>::read(&mut reader)?
+            }
+        })
+        .collect();
+
+    let write: Vec<TokenStream> = fields
+        .unnamed
+        .iter()
+        .enumerate()
+        .map(|(i, _)| {
+            let i = syn::Index::from(i);
+            quote! {
+                ::mooshroom_core::io::MooshroomWritable::<PV>::write(&self.#i, &mut writer)?;
+            }
+        })
+        .collect();
+
+    let read = quote! {
+       Self( #( #read ), * )
+    };
+    let write = quote! {
+        #( #write ) *
+    };
+
+    (read, write)
+}
+
 fn handle_named_fields(
     fields: &FieldsNamed,
 ) -> (proc_macro2::TokenStream, proc_macro2::TokenStream) {
-    let read: Vec<proc_macro2::TokenStream> = fields
+    let read: Vec<TokenStream> = fields
         .named
         .iter()
         .filter_map(|it| {
@@ -109,28 +141,28 @@ fn handle_named_fields(
                 let ty = &it.ty;
 
                 quote! {
-                    #ident: <#ty as ::mooshroom_core::io::MooshroomReadable>::read(&mut reader, version)?
+                    #ident: <#ty as ::mooshroom_core::io::MooshroomReadable<PV>>::read(&mut reader)?
                 }
             })
         })
         .collect();
 
-    let write: Vec<proc_macro2::TokenStream> = fields
+    let write: Vec<TokenStream> = fields
         .named
         .iter()
         .filter_map(|it| {
             it.ident.as_ref().map(|i| {
-                let ident = i;
+            let ident = i;
 
-                quote! {
-                    ::mooshroom_core::io::MooshroomWritable::write(&self.#ident, &mut writer, version)?;
-                }
-            })
+            quote! {
+                ::mooshroom_core::io::MooshroomWritable::<PV>::write(&self.#ident, &mut writer)?;
+            }
+        })
         })
         .collect();
 
     let read = quote! {
-        #( #read ), *
+       Self{ #( #read ), * }
     };
     let write = quote! {
         #( #write ) *

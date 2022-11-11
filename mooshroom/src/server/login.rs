@@ -1,7 +1,4 @@
-use mooshroom_core::{
-    io::{MooshroomPacket, MooshroomReadable},
-    varint::VarInt,
-};
+use mooshroom_core::varint::VarInt;
 use mooshroom_macros::{Mooshroom, MooshroomCollection};
 
 use crate::containers::TOption;
@@ -32,8 +29,6 @@ pub struct LoginSuccess {
 pub struct SetCompression {
     pub threshold: VarInt,
 }
-
-
 
 #[derive(Debug, Clone, MooshroomCollection)]
 pub enum LoginStage {

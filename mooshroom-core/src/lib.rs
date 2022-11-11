@@ -1,6 +1,6 @@
 pub mod error;
 pub mod io;
-mod primitives;
+pub mod primitives;
 pub mod varint;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

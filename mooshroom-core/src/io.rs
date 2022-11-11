@@ -1,23 +1,58 @@
 use std::io;
 
-use super::{varint::VarInt, ProtocolVersion};
+use super::varint::VarInt;
 use crate::error::Result;
 
-pub trait MooshroomReadable: Sized {
-    fn read(reader: impl io::Read, version: ProtocolVersion) -> Result<Self>;
+pub const DEFAULT_PROTOCAL_VERSION: usize = 760;
+pub type Protocal = usize;
+
+pub trait MooshroomReadable<const PV: Protocal>: Sized {
+    fn read(reader: impl io::Read) -> Result<Self>;
 }
-pub trait MooshroomWritable {
-    fn write(&self, writer: impl io::Write, version: ProtocolVersion) -> Result<()>;
+pub trait MooshroomWritable<const PV: Protocal> {
+    fn write(&self, writer: impl io::Write) -> Result<()>;
 }
 
-pub trait MooshroomPacket: MooshroomReadable + MooshroomWritable {
+pub trait MooshroomPacket<const PV: Protocal>:
+    MooshroomReadable<PV> + MooshroomWritable<PV>
+{
     const PACKET_ID: VarInt;
 }
 
-pub trait MooshroomCommand: MooshroomPacket {
-    type Response: MooshroomPacket;
+pub trait MooshroomCommand<const PV: Protocal>: MooshroomPacket<PV> {
+    type Response: MooshroomPacket<PV>;
 }
 
-pub trait MooshroomCollection: Sized {
-    fn read_one_of(id: VarInt, reader: impl io::Read, version: ProtocolVersion) -> Result<Self>;
+pub trait MooshroomCollection<const PV: Protocal>: Sized {
+    fn read_one_of(id: VarInt, reader: impl io::Read) -> Result<Self>;
+}
+
+pub trait MooshroomReadProto: Sized {
+    fn read_proto<const PV: usize>(reader: impl io::Read) -> Result<Self>
+    where
+        Self: MooshroomReadable<PV>;
+}
+
+impl<T> MooshroomReadProto for T {
+    fn read_proto<const PV: usize>(reader: impl io::Read) -> Result<Self>
+    where
+        Self: MooshroomReadable<PV>,
+    {
+        <Self as MooshroomReadable<PV>>::read(reader)
+    }
+}
+
+pub trait MooshroomWriteProto {
+    fn write_proto<const PV: usize>(&self, writer: impl io::Write) -> Result<()>
+    where
+        Self: MooshroomWritable<PV>;
+}
+
+impl<T> MooshroomWriteProto for T {
+    fn write_proto<const PV: usize>(&self, writer: impl io::Write) -> Result<()>
+    where
+        Self: MooshroomWritable<PV>,
+    {
+        <Self as MooshroomWritable<PV>>::write(self, writer)
+    }
 }

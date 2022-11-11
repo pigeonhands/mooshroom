@@ -2,10 +2,7 @@ use std::io;
 
 use byteorder::{ReadBytesExt, WriteBytesExt};
 
-use super::{
-    io::{MooshroomReadable, MooshroomWritable},
-    ProtocolVersion,
-};
+use super::io::{MooshroomReadable, MooshroomWritable};
 use crate::error::{MoshroomError, Result};
 
 #[derive(Copy, Clone, Default, Debug, PartialEq, Eq)]
@@ -18,14 +15,14 @@ impl VarInt {
     pub fn as_i32(&self) -> i32 {
         self.0
     }
-    pub fn read_with_size(buffer: &[u8], version: ProtocolVersion) -> Result<(VarInt, usize)> {
+    pub fn read_with_size<const PV: usize>(buffer: &[u8]) -> Result<(VarInt, usize)> {
         let mut cur = std::io::Cursor::new(buffer);
-        let i = Self::read(&mut cur, version)?;
+        let i = <Self as MooshroomReadable<PV>>::read(&mut cur)?;
         Ok((i, cur.position() as usize))
     }
-    pub fn write_with_size(&self, buffer: &mut [u8], version: ProtocolVersion) -> Result<usize> {
+    pub fn write_with_size<const PV: usize>(&self, buffer: &mut [u8]) -> Result<usize> {
         let mut cur = std::io::Cursor::new(buffer);
-        self.write(&mut cur, version)?;
+        <Self as MooshroomWritable<PV>>::write(&self, &mut cur)?;
         Ok(cur.position() as usize)
     }
 }
@@ -42,11 +39,8 @@ impl From<i32> for VarInt {
     }
 }
 
-impl MooshroomReadable for VarInt {
-    fn read(
-        mut reader: impl std::io::Read,
-        _: crate::ProtocolVersion,
-    ) -> crate::error::Result<Self> {
+impl<const PV: usize> MooshroomReadable<PV> for VarInt {
+    fn read(mut reader: impl std::io::Read) -> crate::error::Result<Self> {
         let mut num_read = 0;
         let mut result = 0;
 
@@ -68,8 +62,8 @@ impl MooshroomReadable for VarInt {
     }
 }
 
-impl MooshroomWritable for VarInt {
-    fn write(&self, mut writer: impl io::Write, _: ProtocolVersion) -> Result<()> {
+impl<const PV: usize> MooshroomWritable<PV> for VarInt {
+    fn write(&self, mut writer: impl io::Write) -> Result<()> {
         let mut x = self.0 as u32;
         loop {
             let mut temp = (x & 0b0111_1111) as u8;
@@ -91,11 +85,8 @@ impl MooshroomWritable for VarInt {
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub struct VarLong(pub i64);
 
-impl MooshroomReadable for VarLong {
-    fn read(
-        mut reader: impl std::io::Read,
-        _: crate::ProtocolVersion,
-    ) -> crate::error::Result<Self> {
+impl<const PV: usize> MooshroomReadable<PV> for VarLong {
+    fn read(mut reader: impl std::io::Read) -> crate::error::Result<Self> {
         let mut num_read = 0;
         let mut result = 0;
 
@@ -118,8 +109,8 @@ impl MooshroomReadable for VarLong {
     }
 }
 
-impl MooshroomWritable for VarLong {
-    fn write(&self, mut writer: impl io::Write, _: ProtocolVersion) -> Result<()> {
+impl<const PV: usize> MooshroomWritable<PV> for VarLong {
+    fn write(&self, mut writer: impl io::Write) -> Result<()> {
         let mut x = self.0 as u64;
         writer
             .write_u8(((x & 0b0111_1111) | (0b1000_0000 * ((x >> 7 != 0) as u64))) as u8)
@@ -146,61 +137,61 @@ impl MooshroomWritable for VarLong {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::io::{MooshroomReadProto, MooshroomWriteProto, DEFAULT_PROTOCAL_VERSION};
 
     #[test]
     fn varint_read() {
         assert_eq!(
-            VarInt::read(&mut [0x0].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
+            VarInt::read_proto::<DEFAULT_PROTOCAL_VERSION>(&mut [0x0].as_ref()).unwrap(),
             VarInt(0)
         );
         assert_eq!(
-            VarInt::read(&mut [0x1].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
+            VarInt::read_proto::<DEFAULT_PROTOCAL_VERSION>(&mut [0x1].as_ref()).unwrap(),
             VarInt(1)
         );
         assert_eq!(
-            VarInt::read(&mut [0x2].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
+            VarInt::read_proto::<DEFAULT_PROTOCAL_VERSION>(&mut [0x2].as_ref()).unwrap(),
             VarInt(2)
         );
         assert_eq!(
-            VarInt::read(&mut [0x7f].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
+            VarInt::read_proto::<DEFAULT_PROTOCAL_VERSION>(&mut [0x7f].as_ref()).unwrap(),
             VarInt(127)
         );
         assert_eq!(
-            VarInt::read(&mut [0x80, 0x01].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
+            VarInt::read_proto::<DEFAULT_PROTOCAL_VERSION>(&mut [0x80, 0x01].as_ref()).unwrap(),
             VarInt(128)
         );
         assert_eq!(
-            VarInt::read(&mut [0xff, 0x01].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
+            VarInt::read_proto::<DEFAULT_PROTOCAL_VERSION>(&mut [0xff, 0x01].as_ref()).unwrap(),
             VarInt(255)
         );
         assert_eq!(
-            VarInt::read(&mut [0xdd, 0xc7, 0x01].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
+            VarInt::read_proto::<DEFAULT_PROTOCAL_VERSION>(&mut [0xdd, 0xc7, 0x01].as_ref())
+                .unwrap(),
             VarInt(25565)
         );
         assert_eq!(
-            VarInt::read(&mut [0xff, 0xff, 0x7f].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
+            VarInt::read_proto::<DEFAULT_PROTOCAL_VERSION>(&mut [0xff, 0xff, 0x7f].as_ref())
+                .unwrap(),
             VarInt(2097151)
         );
         assert_eq!(
-            VarInt::read(
-                &mut [0xff, 0xff, 0xff, 0xff, 0x07].as_ref(),
-                ProtocolVersion::V1_19_2
+            VarInt::read_proto::<DEFAULT_PROTOCAL_VERSION>(
+                &mut [0xff, 0xff, 0xff, 0xff, 0x07].as_ref()
             )
             .unwrap(),
             VarInt(2147483647)
         );
         assert_eq!(
-            VarInt::read(
-                &mut [0xff, 0xff, 0xff, 0xff, 0x0f].as_ref(),
-                ProtocolVersion::V1_19_2
+            VarInt::read_proto::<DEFAULT_PROTOCAL_VERSION>(
+                &mut [0xff, 0xff, 0xff, 0xff, 0x0f].as_ref()
             )
             .unwrap(),
             VarInt(-1)
         );
         assert_eq!(
-            VarInt::read(
-                &mut [0x80, 0x80, 0x80, 0x80, 0x08].as_ref(),
-                ProtocolVersion::V1_19_2
+            VarInt::read_proto::<DEFAULT_PROTOCAL_VERSION>(
+                &mut [0x80, 0x80, 0x80, 0x80, 0x08].as_ref()
             )
             .unwrap(),
             VarInt(-2147483648)
@@ -211,9 +202,11 @@ mod tests {
     fn varint_write() {
         fn check_varint<const N: usize>(value: i32, expected: [u8; N]) {
             let mut buffer = Vec::new();
-            VarInt(value)
-                .write(&mut buffer, ProtocolVersion::V1_19_2)
-                .unwrap();
+            <VarInt as MooshroomWritable<DEFAULT_PROTOCAL_VERSION>>::write(
+                &VarInt(value),
+                &mut buffer,
+            )
+            .unwrap();
             let out: [u8; N] = buffer.try_into().unwrap();
 
             assert_eq!(expected, out);
@@ -251,9 +244,10 @@ mod tests {
         for i in tests {
             buffer.clear();
             let vi = VarInt(i);
-            vi.write(&mut buffer, ProtocolVersion::V1_19_2).unwrap();
-
-            let vo = VarInt::read(&mut buffer.as_slice(), ProtocolVersion::V1_19_2).unwrap();
+            <VarInt as MooshroomWritable<DEFAULT_PROTOCAL_VERSION>>::write(&vi, &mut buffer)
+                .unwrap();
+            let vo =
+                VarInt::read_proto::<DEFAULT_PROTOCAL_VERSION>(&mut buffer.as_slice()).unwrap();
             assert_eq!(vi, vo);
         }
     }
@@ -261,73 +255,70 @@ mod tests {
     #[test]
     fn varlong_read() {
         assert_eq!(
-            VarLong::read(&mut [0x0].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
+            VarLong::read_proto::<DEFAULT_PROTOCAL_VERSION>(&mut [0x0].as_ref()).unwrap(),
             VarLong(0)
         );
         assert_eq!(
-            VarLong::read(&mut [0x1].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
+            VarLong::read_proto::<DEFAULT_PROTOCAL_VERSION>(&mut [0x1].as_ref()).unwrap(),
             VarLong(1)
         );
         assert_eq!(
-            VarLong::read(&mut [0x2].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
+            VarLong::read_proto::<DEFAULT_PROTOCAL_VERSION>(&mut [0x2].as_ref()).unwrap(),
             VarLong(2)
         );
         assert_eq!(
-            VarLong::read(&mut [0x7f].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
+            VarLong::read_proto::<DEFAULT_PROTOCAL_VERSION>(&mut [0x7f].as_ref()).unwrap(),
             VarLong(127)
         );
         assert_eq!(
-            VarLong::read(&mut [0x80, 0x01].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
+            VarLong::read_proto::<DEFAULT_PROTOCAL_VERSION>(&mut [0x80, 0x01].as_ref()).unwrap(),
             VarLong(128)
         );
         assert_eq!(
-            VarLong::read(&mut [0xff, 0x01].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
+            VarLong::read_proto::<DEFAULT_PROTOCAL_VERSION>(&mut [0xff, 0x01].as_ref()).unwrap(),
             VarLong(255)
         );
         assert_eq!(
-            VarLong::read(&mut [0xdd, 0xc7, 0x01].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
+            VarLong::read_proto::<DEFAULT_PROTOCAL_VERSION>(&mut [0xdd, 0xc7, 0x01].as_ref())
+                .unwrap(),
             VarLong(25565)
         );
         assert_eq!(
-            VarLong::read(&mut [0xff, 0xff, 0x7f].as_ref(), ProtocolVersion::V1_19_2).unwrap(),
+            VarLong::read_proto::<DEFAULT_PROTOCAL_VERSION>(&mut [0xff, 0xff, 0x7f].as_ref())
+                .unwrap(),
             VarLong(2097151)
         );
         assert_eq!(
-            VarLong::read(
-                &mut [0xff, 0xff, 0xff, 0xff, 0x07].as_ref(),
-                ProtocolVersion::V1_19_2
+            VarLong::read_proto::<DEFAULT_PROTOCAL_VERSION>(
+                &mut [0xff, 0xff, 0xff, 0xff, 0x07].as_ref()
             )
             .unwrap(),
             VarLong(2147483647)
         );
         assert_eq!(
-            VarLong::read(
-                &mut [0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x7f].as_ref(),
-                ProtocolVersion::V1_19_2
+            VarLong::read_proto::<DEFAULT_PROTOCAL_VERSION>(
+                &mut [0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x7f].as_ref()
             )
             .unwrap(),
             VarLong(9223372036854775807)
         );
         assert_eq!(
-            VarLong::read(
-                &mut [0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01].as_ref(),
-                ProtocolVersion::V1_19_2
+            VarLong::read_proto::<DEFAULT_PROTOCAL_VERSION>(
+                &mut [0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01].as_ref()
             )
             .unwrap(),
             VarLong(-1)
         );
         assert_eq!(
-            VarLong::read(
-                &mut [0x80, 0x80, 0x80, 0x80, 0xf8, 0xff, 0xff, 0xff, 0xff, 0x01].as_ref(),
-                ProtocolVersion::V1_19_2
+            VarLong::read_proto::<DEFAULT_PROTOCAL_VERSION>(
+                &mut [0x80, 0x80, 0x80, 0x80, 0xf8, 0xff, 0xff, 0xff, 0xff, 0x01].as_ref()
             )
             .unwrap(),
             VarLong(-2147483648)
         );
         assert_eq!(
-            VarLong::read(
-                &mut [0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x01].as_ref(),
-                ProtocolVersion::V1_19_2
+            VarLong::read_proto::<DEFAULT_PROTOCAL_VERSION>(
+                &mut [0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x01].as_ref()
             )
             .unwrap(),
             VarLong(-9223372036854775808)
@@ -338,9 +329,11 @@ mod tests {
     fn varlong_write() {
         fn check_varlong<const N: usize>(value: i64, expected: [u8; N]) {
             let mut buffer = Vec::new();
-            VarLong(value)
-                .write(&mut buffer, ProtocolVersion::V1_19_2)
-                .unwrap();
+            <VarLong as MooshroomWritable<DEFAULT_PROTOCAL_VERSION>>::write(
+                &VarLong(value),
+                &mut buffer,
+            )
+            .unwrap();
             assert_eq!(buffer.len(), N, "Value: {}", value);
             let out: [u8; N] = buffer.try_into().unwrap();
 
@@ -395,9 +388,11 @@ mod tests {
         for i in tests {
             buffer.clear();
             let vi = VarLong(i);
-            vi.write(&mut buffer, ProtocolVersion::V1_19_2).unwrap();
+            vi.write_proto::<DEFAULT_PROTOCAL_VERSION>(&mut buffer)
+                .unwrap();
 
-            let vo = VarLong::read(&mut buffer.as_slice(), ProtocolVersion::V1_19_2).unwrap();
+            let vo =
+                VarLong::read_proto::<DEFAULT_PROTOCAL_VERSION>(&mut buffer.as_slice()).unwrap();
             assert_eq!(vi, vo);
         }
     }

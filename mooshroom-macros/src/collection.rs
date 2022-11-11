@@ -25,14 +25,14 @@ fn impl_collection_enum(ast: &syn::DeriveInput, data: &DataEnum) -> proc_macro2:
             let f = data.unnamed.first().unwrap();
             let ty = &f.ty;
             quote! {
-                <#ty as ::mooshroom_core::io::MooshroomPacket>::PACKET_ID => Ok(Self::#name(<#ty as ::mooshroom_core::io::MooshroomReadable>::read(reader, version)?)),
+                <#ty as ::mooshroom_core::io::MooshroomPacket<PV>>::PACKET_ID => Ok(Self::#name(<#ty as ::mooshroom_core::io::MooshroomReadable<PV>>::read(reader)?)),
             }
         });
 
     quote! {
         #[automatically_derived]
-        impl ::mooshroom_core::io::MooshroomCollection for #name {
-            fn read_one_of(id: ::mooshroom_core::varint::VarInt, mut reader: impl ::std::io::Read, version: ::mooshroom_core::ProtocolVersion) -> ::mooshroom_core::error::Result<Self>{
+        impl<const PV: ::mooshroom_core::io::Protocal> ::mooshroom_core::io::MooshroomCollection<PV> for #name {
+            fn read_one_of(id: ::mooshroom_core::varint::VarInt, mut reader: impl ::std::io::Read) -> ::mooshroom_core::error::Result<Self>{
                 match id {
                     #( #selector ) *
                     i => Err(::mooshroom_core::error::MoshroomError::NotInCollection(i.0))

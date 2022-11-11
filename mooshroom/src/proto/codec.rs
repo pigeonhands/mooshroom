@@ -1,11 +1,11 @@
-use std::io::{Read};
+use std::io::Read;
 
 use bytes::BytesMut;
 use flate2::{
     read::{ZlibDecoder, ZlibEncoder},
     Compression,
 };
-use mooshroom_core::{varint::VarInt, ProtocolVersion};
+use mooshroom_core::varint::VarInt;
 
 use crate::core::{
     error::{MoshroomError, Result},
@@ -30,39 +30,39 @@ pub struct PacketData<'a> {
     pub body: PacketBody<'a>,
 }
 
-pub struct MooshroomCodec {
-    protocol: ProtocolVersion,
-
+pub struct MooshroomCodec<const PV: usize> {
     compression: Option<i32>,
     write_buffer: Vec<u8>,
     compress_buffer: Vec<u8>,
     rx_buffer: BytesMut,
 }
 
-impl MooshroomCodec {
+impl<const PV: usize> MooshroomCodec<PV> {
     pub fn new() -> Self {
         Self {
             write_buffer: Vec::new(),
             compress_buffer: Vec::new(),
-            protocol: ProtocolVersion::V1_19_2,
             compression: None,
 
             rx_buffer: BytesMut::new(),
         }
     }
-}
 
-impl MooshroomCodec {
+    pub const fn protocal_version(&self) -> i32 {
+        PV as i32
+    }
+
     pub fn set_compression(&mut self, th: i32) {
         if th < 0 {
             self.compression = None;
-        }else{
+        } else {
             self.compression = Some(th);
         }
     }
     pub fn finalize_compressed(&mut self) -> Result<Vec<u8>> {
-        let compressed_bytes : &[u8] = {
-            let mut compress = ZlibEncoder::new(self.write_buffer.as_slice(), Compression::default());
+        let compressed_bytes: &[u8] = {
+            let mut compress =
+                ZlibEncoder::new(self.write_buffer.as_slice(), Compression::default());
             compress.read_to_end(&mut self.compress_buffer)?;
             self.compress_buffer.as_ref()
         };
@@ -71,12 +71,12 @@ impl MooshroomCodec {
 
         let uncompressed_len = {
             let n = VarInt(self.write_buffer.len() as i32)
-                .write_with_size(&mut uncompressed_len_buffer[..], self.protocol)?;
+                .write_with_size::<PV>(&mut uncompressed_len_buffer[..])?;
             &uncompressed_len_buffer[..n]
         };
         let total_len = {
             let n = VarInt((uncompressed_len.len() + compressed_bytes.len()) as i32)
-                .write_with_size(&mut total_len_buffer[..], self.protocol)?;
+                .write_with_size::<PV>(&mut total_len_buffer[..])?;
             &total_len_buffer[..n]
         };
 
@@ -90,8 +90,8 @@ impl MooshroomCodec {
 
     fn finalize_uncompressed(&mut self) -> Result<Vec<u8>> {
         let mut len_buffer = [0; 10];
-        let len_bytes = VarInt(self.write_buffer.len() as i32)
-            .write_with_size(&mut len_buffer[..], self.protocol)?;
+        let len_bytes =
+            VarInt(self.write_buffer.len() as i32).write_with_size::<PV>(&mut len_buffer[..])?;
 
         let mut buffer = Vec::with_capacity(self.write_buffer.len() + len_bytes);
         buffer.extend_from_slice(&len_buffer[..len_bytes]);
@@ -99,12 +99,11 @@ impl MooshroomCodec {
         Ok(buffer)
     }
 
-    pub fn encode<T: MooshroomPacket>(&mut self, packet: &T) -> Result<Vec<u8>> {
+    pub fn encode<T: MooshroomPacket<PV>>(&mut self, packet: &T) -> Result<Vec<u8>> {
         self.write_buffer.clear();
         self.compress_buffer.clear();
-
-        T::PACKET_ID.write(&mut self.write_buffer, self.protocol)?;
-        packet.write(&mut self.write_buffer, self.protocol)?;
+        T::PACKET_ID.write_proto::<PV>(&mut self.write_buffer)?;
+        packet.write(&mut self.write_buffer)?;
 
         let buffer = if let Some(_) = self.compression {
             self.finalize_compressed()?
@@ -120,8 +119,7 @@ impl MooshroomCodec {
     }
 
     pub fn peek_packet(&mut self) -> Option<(VarInt, usize)> {
-        let (length, lenght_bytes_n) =
-            VarInt::read_with_size(&self.rx_buffer, self.protocol).ok()?;
+        let (length, lenght_bytes_n) = VarInt::read_with_size::<PV>(&self.rx_buffer).ok()?;
 
         let required_size = lenght_bytes_n + length.0 as usize;
         if self.rx_buffer.len() < required_size {
@@ -137,7 +135,6 @@ impl MooshroomCodec {
             None => return Ok(None),
         };
 
-
         let required_size = lenght_bytes_n + length.0 as usize;
 
         let mut raw_data = {
@@ -148,40 +145,34 @@ impl MooshroomCodec {
         };
 
         let decompressed_size = if self.compression.is_some() {
-            let (decompressed_size, decompressed_size_n) =
-                VarInt::read_with_size(&raw_data, self.protocol)?;
+            let (decompressed_size, decompressed_size_n) = VarInt::read_with_size::<PV>(&raw_data)?;
             raw_data = raw_data.split_off(decompressed_size_n);
             if decompressed_size.0 > 0 {
                 Some(decompressed_size.0 as usize)
-            }else{
+            } else {
                 None
             }
-        }else{
+        } else {
             None
         };
 
         if let Some(decompressed_size) = decompressed_size {
-            
             self.compress_buffer.clear();
-            self.compress_buffer
-                .reserve_exact(decompressed_size);
+            self.compress_buffer.reserve_exact(decompressed_size);
 
             let decompressed_bytes = {
-                let mut decompress =
-                    ZlibDecoder::new(&raw_data[..]);
+                let mut decompress = ZlibDecoder::new(&raw_data[..]);
                 decompress.read_to_end(&mut self.compress_buffer)?;
                 self.compress_buffer.as_ref()
             };
 
-
-            let (packet_id, packet_id_n) =
-                VarInt::read_with_size(&decompressed_bytes, self.protocol)?;
+            let (packet_id, packet_id_n) = VarInt::read_with_size::<PV>(&decompressed_bytes)?;
             Ok(Some(PacketData {
                 packet_id: packet_id,
                 body: PacketBody::Borrowed(&decompressed_bytes[packet_id_n..]),
             }))
         } else {
-            let (packet_id, packet_id_n) = VarInt::read_with_size(&raw_data, self.protocol)?;
+            let (packet_id, packet_id_n) = VarInt::read_with_size::<PV>(&raw_data)?;
             let raw_data = raw_data.split_off(packet_id_n);
 
             Ok(Some(PacketData {
@@ -191,8 +182,7 @@ impl MooshroomCodec {
         }
     }
 
-    pub fn read_packet<'a, P: MooshroomPacket>(&mut self) -> Result<Option<P>> {
-        let protocol = self.protocol;
+    pub fn read_packet<'a, P: MooshroomPacket<PV>>(&mut self) -> Result<Option<P>> {
         let data = match self.read_packet_data()? {
             Some(e) => e,
             None => return Ok(None),
@@ -205,16 +195,15 @@ impl MooshroomCodec {
             ));
         }
         let mut b = data.body.as_ref();
-        P::read(&mut b, protocol).map(Some)
+        P::read(&mut b).map(Some)
     }
 
-    pub fn read_one_of<P: MooshroomCollection>(&mut self) -> Result<Option<P>> {
-        let protocol = self.protocol;
+    pub fn read_one_of<P: MooshroomCollection<PV>>(&mut self) -> Result<Option<P>> {
         let data = match self.read_packet_data()? {
             Some(e) => e,
             None => return Ok(None),
         };
-        let resp = P::read_one_of(data.packet_id, data.body.as_ref(), protocol)?;
+        let resp = P::read_one_of(data.packet_id, data.body.as_ref())?;
         Ok(Some(resp))
     }
 }
