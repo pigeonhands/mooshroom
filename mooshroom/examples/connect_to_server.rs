@@ -1,10 +1,9 @@
 use std::net::TcpStream;
 
-use mooshroom::{
-    proto::connection::MooshroomConnection,
-};
+use mooshroom::{proto::connection::MooshroomConnection, server::play::{PlayStage}};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    env_logger::init();
     println!("Connecting to 127.0.0.1:25565");
 
     let mut c = {
@@ -19,7 +18,30 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("reading play packets...");
 
     loop {
-        let resp = c.next_play_packet()?;
-        println!("{:?}", resp);
+        let packet = c.next_play_packet()?;
+
+        match packet {
+            PlayStage::KeepAlive(id) => {
+                println!("Sent keepalive");
+                c.respond_to_keep_alive(id.0)?;
+            },
+            PlayStage::SetHealth(p) => {
+                println!("{:#?}", p);
+                if p.health <= 0. {
+                    println!("respawning...");
+                    c.respawn()?;
+                }
+            },
+            PlayStage::PlayerChatMessage(c) => {
+                println!("{}", c.plain_message)
+            },
+            PlayStage::Respawn(p) => {
+                println!("{:#?}", p);
+            },
+            PlayStage::CombatDeath(p) => {
+                println!("{:#?}", p);
+            },
+            _ => {}
+        }
     }
 }

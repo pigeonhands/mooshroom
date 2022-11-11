@@ -82,7 +82,7 @@ impl<const PV: usize> MooshroomWritable<PV> for VarInt {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Default, Debug, PartialEq, Eq)]
 pub struct VarLong(pub i64);
 
 impl<const PV: usize> MooshroomReadable<PV> for VarLong {

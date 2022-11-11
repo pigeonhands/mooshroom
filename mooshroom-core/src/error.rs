@@ -20,6 +20,8 @@ pub enum MoshroomError {
     NotInCollection(i32),
     #[error("Failed to parse nbt tag of type {0}")]
     InvalidNbtTag(u8),
+    #[error("Invalid enum variant {0}")]
+    InvalidEnumVariant(i32),
 
     #[cfg(feature = "uuid")]
     #[error("Invalid uuid. {0}")]

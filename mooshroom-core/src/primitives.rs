@@ -4,7 +4,7 @@ use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 
 use crate::{
     error::MoshroomError,
-    io::{MooshroomReadProto, MooshroomReadable, MooshroomWritable},
+    io::{MooshroomReadProto, MooshroomReadable, MooshroomWritable, MooshroomWriteProto},
     varint::VarInt,
 };
 
@@ -198,5 +198,35 @@ impl<const PV: usize> MooshroomWritable<PV> for Position {
         buffer[26 + 26..].copy_from_slice(&self.y.to_be_bytes()[4..]);
         writer.write_all(&buffer)?;
         Ok(())
+    }
+}
+
+#[derive(Default, Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Vec3<T> {
+    pub x: T,
+    pub y: T,
+    pub z: T,
+}
+impl<const PV: usize, T> MooshroomWritable<PV> for Vec3<T>
+where
+    T: MooshroomWritable<PV>,
+{
+    fn write(&self, mut writer: impl std::io::Write) -> crate::error::Result<()> {
+        self.x.write_proto::<PV>(&mut writer)?;
+        self.y.write_proto::<PV>(&mut writer)?;
+        self.z.write_proto::<PV>(&mut writer)
+    }
+}
+
+impl<const PV: usize, T> MooshroomReadable<PV> for Vec3<T>
+where
+    T: MooshroomReadable<PV>,
+{
+    fn read(mut reader: impl std::io::Read) -> crate::error::Result<Self> {
+        Ok(Self {
+            x: T::read_proto::<PV>(&mut reader)?,
+            y: T::read_proto::<PV>(&mut reader)?,
+            z: T::read_proto::<PV>(&mut reader)?,
+        })
     }
 }

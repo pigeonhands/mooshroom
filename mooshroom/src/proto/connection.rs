@@ -4,7 +4,8 @@ use super::MooshroomProto;
 use crate::{
     client::{
         handshake::{Handshake, HandshakeState},
-        login::LoginStart,
+        login::LoginStart, metadata::KeepAliveResponse,
+        player
     },
     core::error::Result,
     server::{
@@ -70,5 +71,13 @@ impl MooshroomConnection {
 
     pub fn next_play_packet(&mut self) -> Result<PlayStage> {
         self.sock.read_one_of()
+    }
+
+    pub fn respond_to_keep_alive(&mut self, id: i64) -> Result<()> {
+       self.sock.write_packet(&KeepAliveResponse(id))
+    }
+
+    pub fn respawn(&mut self) -> Result<()> {
+        self.sock.write_packet(&player::Action::Respawn)
     }
 }

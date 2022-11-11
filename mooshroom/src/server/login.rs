@@ -12,9 +12,7 @@ pub struct Properties {
 
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0)]
-pub struct Disconnect {
-    pub reason: String,
-}
+pub struct Disconnect(String);
 
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(2)]

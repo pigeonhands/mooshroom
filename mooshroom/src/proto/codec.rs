@@ -5,6 +5,7 @@ use flate2::{
     read::{ZlibDecoder, ZlibEncoder},
     Compression,
 };
+use log::error;
 use mooshroom_core::varint::VarInt;
 
 use crate::core::{
@@ -59,32 +60,43 @@ impl<const PV: usize> MooshroomCodec<PV> {
             self.compression = Some(th);
         }
     }
-    pub fn finalize_compressed(&mut self) -> Result<Vec<u8>> {
-        let compressed_bytes: &[u8] = {
-            let mut compress =
-                ZlibEncoder::new(self.write_buffer.as_slice(), Compression::default());
-            compress.read_to_end(&mut self.compress_buffer)?;
-            self.compress_buffer.as_ref()
+    pub fn finalize_compressed(&mut self, threshold: i32) -> Result<Vec<u8>> {
+
+        let (uncompressed_size, body) = if self.write_buffer.len() >= threshold as usize {
+            let compressed_bytes: &[u8] = {
+                let mut compress =
+                    ZlibEncoder::new(self.write_buffer.as_slice(), Compression::default());
+                compress.read_to_end(&mut self.compress_buffer)?;
+                self.compress_buffer.as_ref()
+            };
+           
+            (self.write_buffer.len() as i32, compressed_bytes)
+        }else{
+            (0, self.write_buffer.as_slice())
         };
+
         let mut uncompressed_len_buffer = [0; 10];
         let mut total_len_buffer = [0; 10];
 
         let uncompressed_len = {
-            let n = VarInt(self.write_buffer.len() as i32)
+            let n = VarInt(uncompressed_size)
                 .write_with_size::<PV>(&mut uncompressed_len_buffer[..])?;
             &uncompressed_len_buffer[..n]
         };
+       
         let total_len = {
-            let n = VarInt((uncompressed_len.len() + compressed_bytes.len()) as i32)
+            let n = VarInt((uncompressed_len.len() + body.len()) as i32)
                 .write_with_size::<PV>(&mut total_len_buffer[..])?;
             &total_len_buffer[..n]
         };
 
+      
+
         let mut buffer =
-            Vec::with_capacity(total_len.len() + uncompressed_len.len() + compressed_bytes.len());
+            Vec::with_capacity(total_len.len() + uncompressed_len.len() + body.len());
         buffer.extend_from_slice(total_len);
         buffer.extend_from_slice(uncompressed_len);
-        buffer.extend_from_slice(compressed_bytes);
+        buffer.extend_from_slice(body);
         Ok(buffer)
     }
 
@@ -105,8 +117,8 @@ impl<const PV: usize> MooshroomCodec<PV> {
         T::PACKET_ID.write_proto::<PV>(&mut self.write_buffer)?;
         packet.write(&mut self.write_buffer)?;
 
-        let buffer = if let Some(_) = self.compression {
-            self.finalize_compressed()?
+        let buffer = if let Some(c) = self.compression {
+            self.finalize_compressed(c)?
         } else {
             self.finalize_uncompressed()?
         };
@@ -203,7 +215,16 @@ impl<const PV: usize> MooshroomCodec<PV> {
             Some(e) => e,
             None => return Ok(None),
         };
-        let resp = P::read_one_of(data.packet_id, data.body.as_ref())?;
-        Ok(Some(resp))
+        match P::read_one_of(data.packet_id, data.body.as_ref()) {
+            Ok(p) => Ok(Some(p)),
+            Err(e) => {
+                error!("Failed to read one of {} with packet id 0x{:x}. {}",
+                    std::any::type_name::<P>(),
+                    data.packet_id.0,
+                    e
+                );
+                Err(e)
+            }
+        }
     }
 }

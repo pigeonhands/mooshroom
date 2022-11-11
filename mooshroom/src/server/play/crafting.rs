@@ -1,18 +1,19 @@
-use mooshroom_core::{varint::VarInt, primitives::Identifier, io::{MooshroomReadProto, MooshroomReadable, MooshroomWritable, MooshroomWriteProto}};
+use mooshroom_core::varint::VarInt;
 use mooshroom_macros::Mooshroom;
-use crate::core::{
-    error::Result,
-};
 
-use super::npt;
+use super::nbt;
 use crate::containers::TOption;
+
+#[derive(Debug, Clone, Default, Mooshroom)]
+#[packet_id(0x10)]
+pub struct CloseContainer(pub u8);
 
 
 #[derive(Debug, Clone, Default, Mooshroom)]
 pub struct SlotData {
     pub item_id: VarInt,
     pub item_count: u8,
-    pub nbt: npt::NptCompound,
+    pub nbt: nbt::NptCompound,
 }
 
 pub type Slot = TOption<SlotData>;
@@ -25,5 +26,3 @@ pub struct SetContainerContent {
     pub slot_data: Vec<Slot>,
     pub carried_item: Slot,
 }
-
-
