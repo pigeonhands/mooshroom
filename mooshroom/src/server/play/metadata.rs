@@ -6,7 +6,7 @@ use mooshroom_core::{
 use mooshroom_macros::Mooshroom;
 
 use super::crafting::Slot;
-use crate::{core::error::Result, containers::TOption};
+use crate::{core::error::Result};
 
 pub type Ingredient = Vec<Slot>;
 pub type Ingredients = Vec<Ingredient>;
@@ -21,8 +21,8 @@ pub struct Node {
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x0f)]
 pub struct Commands {
-    pub motd: TOption<String>,
-    pub icon: TOption<String>,
+    pub motd: Option<String>,
+    pub icon: Option<String>,
     pub previews_chat: bool,
     pub enforce_secure_chat: bool,
     //TODO
@@ -35,8 +35,8 @@ pub struct KeepAlive(pub i64);
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x42)]
 pub struct ServerData {
-    pub motd: TOption<String>,
-    pub icon: TOption<String>,
+    pub motd: Option<String>,
+    pub icon: Option<String>,
     pub previews_chat: bool,
     pub enforce_secure_chat: bool
 }

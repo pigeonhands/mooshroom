@@ -49,8 +49,8 @@ impl MooshroomConnection {
 
         self.sock.write_packet(&LoginStart {
             name: "mooshroom".into(),
-            player_uuid: None.into(),
-            sig_data: None.into(),
+            player_uuid: None,
+            sig_data: None,
         })?;
 
         loop {

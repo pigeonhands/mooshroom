@@ -230,3 +230,33 @@ where
         })
     }
 }
+
+
+
+impl<const PV: usize, T> MooshroomReadable<PV> for Option<T>
+where
+    T: MooshroomReadable<PV>,
+{
+    fn read(reader: &mut impl std::io::Read) -> crate::error::Result<Self> {
+        if <bool as MooshroomReadable<PV>>::read(reader)? {
+            Ok(Some(T::read(reader)?))
+        } else {
+            Ok(None)
+        }
+    }
+}
+
+impl<const PV: usize, T> MooshroomWritable<PV> for Option<T>
+where
+    T: MooshroomWritable<PV>,
+{
+    fn write(&self, writer: &mut impl std::io::Write) -> crate::error::Result<()> {
+        if let Some(t) = &self {
+            <bool as MooshroomWritable<PV>>::write(&true, writer)?;
+            t.write(writer)?;
+        } else {
+            <bool as MooshroomWritable<PV>>::write(&false, writer)?;
+        }
+        Ok(())
+    }
+}

@@ -2,7 +2,6 @@ use mooshroom_core::varint::VarInt;
 use mooshroom_macros::Mooshroom;
 
 use super::nbt;
-use crate::containers::TOption;
 
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x10)]
@@ -16,7 +15,7 @@ pub struct SlotData {
     pub nbt: nbt::NptCompound,
 }
 
-pub type Slot = TOption<SlotData>;
+pub type Slot = Option<SlotData>;
 
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x11)]

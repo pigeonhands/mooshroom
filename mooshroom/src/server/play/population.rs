@@ -12,7 +12,7 @@ use mooshroom_macros::Mooshroom;
 use super::nbt;
 use super::world::{WorldPosition};
 
-use crate::{containers::TOption, shared::SignatureData};
+use crate::{shared::SignatureData};
 
 use super::{world::Angle, crafting::Slot};
 
@@ -71,7 +71,7 @@ pub struct RemoveEntity {
 pub struct PlayerProperty {
     pub name: String,
     pub value: String,
-    pub signature: TOption<String>,
+    pub signature: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]
@@ -80,8 +80,8 @@ pub struct AddPlayer {
     pub properties: Vec<PlayerProperty>,
     pub gamemode: VarInt,
     pub ping: VarInt,
-    pub display_name: TOption<String>,
-    pub signature_data: TOption<SignatureData>,
+    pub display_name: Option<String>,
+    pub signature_data: Option<SignatureData>,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -118,7 +118,7 @@ pub enum PlayerAction {
     AddPlayer(Vec<ActionFor<AddPlayer>>),
     UpdateGamemode(Vec<ActionFor<VarInt>>),
     UpdateLatency(Vec<ActionFor<VarInt>>),
-    UpdateDisplayName(Vec<ActionFor<TOption<String>>>),
+    UpdateDisplayName(Vec<ActionFor<Option<String>>>),
     RemovePlayer,
     #[default]
     Unknown,
@@ -263,5 +263,5 @@ pub struct EntityEffect {
     pub aplifier: i8,
     pub duration: VarInt,
     pub flags: i8,
-    pub factor_codec: TOption<nbt::NptCompound>
+    pub factor_codec: Option<nbt::NptCompound>
 }

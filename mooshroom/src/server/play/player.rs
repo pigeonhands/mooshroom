@@ -1,7 +1,7 @@
 use mooshroom_core::{varint::VarInt, primitives::{Position, Identifier}, io::{MooshroomReadable, MooshroomReadProto, MooshroomWritable, MooshroomWriteProto}};
 use mooshroom_macros::Mooshroom;
 
-use crate::{containers::TOption, types::Chat};
+use crate::{types::Chat};
 
 use super::{world::Angle, crafting::Slot};
 
@@ -74,7 +74,7 @@ pub struct Respawn {
     pub is_debug: bool,
     pub is_flat: bool,
     pub copy_metadata: bool,
-    pub death_location: TOption<DeathLocation>
+    pub death_location: Option<DeathLocation>
 }
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x4A)]
@@ -114,7 +114,7 @@ pub struct AdvancementDisplay{
     pub icon: Slot,
     pub frame_type: VarInt,
     pub flags: i32,
-    pub backdround_texture: TOption<Identifier>,
+    pub backdround_texture: Option<Identifier>,
     pub x_coord: f32,
     pub y_coord: f32,
 }
@@ -175,8 +175,8 @@ type AdvancementRequirement = Vec<String>;
 
 #[derive(Debug, Clone, Default, Mooshroom)]
 pub struct Advancement {
-    pub parent_id: TOption<Identifier>,
-    pub display_data: TOption<AdvancementDisplay>,
+    pub parent_id: Option<Identifier>,
+    pub display_data: Option<AdvancementDisplay>,
     pub criteria: Vec<Identifier>,
     pub requirements: Vec<AdvancementRequirement>,
 }

@@ -3,7 +3,6 @@ use mooshroom_macros::Mooshroom;
 
 use super::nbt;
 use crate::{
-    containers::TOption,
     core::primitives::{Identifier, Position, Vec3}, types::Chat,
 };
 
@@ -174,7 +173,7 @@ pub struct LoginPlay {
     pub enable_respawn_screen: bool,
     pub is_debug: bool,
     pub is_flat: bool,
-    pub death_location: TOption<DeathLocation>,
+    pub death_location: Option<DeathLocation>,
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]
@@ -185,15 +184,15 @@ pub struct PreviousMessage {
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x33)]
 pub struct PlayerChatMessage {
-    pub message_signature: TOption<Vec<u8>>,
+    pub message_signature: Option<Vec<u8>>,
     pub sender: uuid::Uuid,
-    pub header_signature: TOption<Vec<u8>>,
+    pub header_signature: Option<Vec<u8>>,
     pub plain_message: String,
-    pub formatted_message: TOption<Chat>,
+    pub formatted_message: Option<Chat>,
     pub timestamp: i64,
     pub salt: i64,
     pub previous_messages: Vec<PreviousMessage>,
-    pub unsigned_content: TOption<Chat>,
+    pub unsigned_content: Option<Chat>,
     pub filter_type: VarInt,
     //TODO
 }

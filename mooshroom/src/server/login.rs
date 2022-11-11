@@ -1,13 +1,11 @@
 use mooshroom_core::varint::VarInt;
 use mooshroom_macros::{Mooshroom, MooshroomCollection};
 
-use crate::containers::TOption;
-
 #[derive(Debug, Clone, Default, Mooshroom)]
 pub struct Properties {
     pub name: String,
     pub value: String,
-    pub signature: TOption<String>,
+    pub signature: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]
