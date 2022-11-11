@@ -215,7 +215,7 @@ impl<const PV: usize> MooshroomCodec<PV> {
             Some(e) => e,
             None => return Ok(None),
         };
-        match P::read_one_of(data.packet_id, data.body.as_ref()) {
+        match P::read_one_of(data.packet_id, &mut data.body.as_ref()) {
             Ok(p) => Ok(Some(p)),
             Err(e) => {
                 error!("Failed to read one of {} with packet id 0x{:x}. {}",

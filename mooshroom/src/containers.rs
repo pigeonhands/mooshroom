@@ -78,7 +78,7 @@ impl<const PV: usize, T> MooshroomReadable<PV> for Json<T>
 where
     T: for<'de> Deserialize<'de>,
 {
-    fn read(reader: impl std::io::Read) -> mooshroom_core::error::Result<Self> {
+    fn read(reader: &mut impl std::io::Read) -> mooshroom_core::error::Result<Self> {
         let s = <String as MooshroomReadable<PV>>::read(reader)?;
         serde_json::from_str(&s)
             .map_err(|e| mooshroom_core::error::MoshroomError::InvalidJson(e.to_string()))
@@ -89,7 +89,7 @@ impl<const PV: usize, T> MooshroomWritable<PV> for Json<T>
 where
     T: Serialize,
 {
-    fn write(&self, writer: impl std::io::Write) -> mooshroom_core::error::Result<()> {
+    fn write(&self, writer: &mut impl std::io::Write) -> mooshroom_core::error::Result<()> {
         let s = serde_json::to_string(&self)
             .map_err(|e| mooshroom_core::error::MoshroomError::InvalidJson(e.to_string()))?;
         <String as MooshroomWritable<PV>>::write(&s, writer)
@@ -142,8 +142,8 @@ impl<const PV: usize, T> MooshroomReadable<PV> for TOption<T>
 where
     T: MooshroomReadable<PV>,
 {
-    fn read(mut reader: impl std::io::Read) -> mooshroom_core::error::Result<Self> {
-        if <bool as MooshroomReadable<PV>>::read(&mut reader)? {
+    fn read(reader: &mut impl std::io::Read) -> mooshroom_core::error::Result<Self> {
+        if <bool as MooshroomReadable<PV>>::read(reader)? {
             Ok(Self(Some(T::read(reader)?)))
         } else {
             Ok(Self(None))
@@ -155,12 +155,12 @@ impl<const PV: usize, T> MooshroomWritable<PV> for TOption<T>
 where
     T: MooshroomWritable<PV>,
 {
-    fn write(&self, mut writer: impl std::io::Write) -> mooshroom_core::error::Result<()> {
+    fn write(&self, writer: &mut impl std::io::Write) -> mooshroom_core::error::Result<()> {
         if let Some(t) = &self.0 {
-            <bool as MooshroomWritable<PV>>::write(&true, &mut writer)?;
+            <bool as MooshroomWritable<PV>>::write(&true, writer)?;
             t.write(writer)?;
         } else {
-            <bool as MooshroomWritable<PV>>::write(&false, &mut writer)?;
+            <bool as MooshroomWritable<PV>>::write(&false, writer)?;
         }
         Ok(())
     }

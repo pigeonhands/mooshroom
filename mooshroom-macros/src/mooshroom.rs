@@ -73,7 +73,7 @@ fn impl_mooshroom_packet_struct(
     quote! {
         #[automatically_derived]
         impl<const PV: usize> ::mooshroom_core::io::MooshroomReadable<PV> for #name {
-            fn read(mut reader: impl ::std::io::Read) -> ::mooshroom_core::error::Result<Self> {
+            fn read(reader: &mut impl ::std::io::Read) -> ::mooshroom_core::error::Result<Self> {
                 Ok(
                     #read
                 )
@@ -82,7 +82,7 @@ fn impl_mooshroom_packet_struct(
 
         #[automatically_derived]
         impl<const PV: usize> ::mooshroom_core::io::MooshroomWritable<PV> for #name {
-            fn write(&self, mut writer: impl ::std::io::Write) -> ::mooshroom_core::error::Result<()> {
+            fn write(&self, writer: &mut impl ::std::io::Write) -> ::mooshroom_core::error::Result<()> {
                 #write
                 Ok(())
             }
@@ -102,7 +102,7 @@ fn handle_unnamed_fields(
         .map(|f| {
             let ty = &f.ty;
             quote! {
-                <#ty as ::mooshroom_core::io::MooshroomReadable<PV>>::read(&mut reader)?
+                <#ty as ::mooshroom_core::io::MooshroomReadable<PV>>::read(reader)?
             }
         })
         .collect();
@@ -114,7 +114,7 @@ fn handle_unnamed_fields(
         .map(|(i, _)| {
             let i = syn::Index::from(i);
             quote! {
-                ::mooshroom_core::io::MooshroomWritable::<PV>::write(&self.#i, &mut writer)?;
+                ::mooshroom_core::io::MooshroomWritable::<PV>::write(&self.#i, writer)?;
             }
         })
         .collect();
@@ -141,7 +141,7 @@ fn handle_named_fields(
                 let ty = &it.ty;
 
                 quote! {
-                    #ident: <#ty as ::mooshroom_core::io::MooshroomReadable<PV>>::read(&mut reader)?
+                    #ident: <#ty as ::mooshroom_core::io::MooshroomReadable<PV>>::read(reader)?
                 }
             })
         })
@@ -155,7 +155,7 @@ fn handle_named_fields(
             let ident = i;
 
             quote! {
-                ::mooshroom_core::io::MooshroomWritable::<PV>::write(&self.#ident, &mut writer)?;
+                ::mooshroom_core::io::MooshroomWritable::<PV>::write(&self.#ident, writer)?;
             }
         })
         })

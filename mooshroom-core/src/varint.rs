@@ -39,8 +39,14 @@ impl From<i32> for VarInt {
     }
 }
 
+impl AsRef<i32> for VarInt {
+    fn as_ref(&self) -> &i32 {
+        &self.0
+    }
+}
+
 impl<const PV: usize> MooshroomReadable<PV> for VarInt {
-    fn read(mut reader: impl std::io::Read) -> crate::error::Result<Self> {
+    fn read(reader: &mut impl std::io::Read) -> crate::error::Result<Self> {
         let mut num_read = 0;
         let mut result = 0;
 
@@ -63,7 +69,7 @@ impl<const PV: usize> MooshroomReadable<PV> for VarInt {
 }
 
 impl<const PV: usize> MooshroomWritable<PV> for VarInt {
-    fn write(&self, mut writer: impl io::Write) -> Result<()> {
+    fn write(&self, writer: &mut impl io::Write) -> Result<()> {
         let mut x = self.0 as u32;
         loop {
             let mut temp = (x & 0b0111_1111) as u8;
@@ -86,7 +92,7 @@ impl<const PV: usize> MooshroomWritable<PV> for VarInt {
 pub struct VarLong(pub i64);
 
 impl<const PV: usize> MooshroomReadable<PV> for VarLong {
-    fn read(mut reader: impl std::io::Read) -> crate::error::Result<Self> {
+    fn read(reader: &mut impl std::io::Read) -> crate::error::Result<Self> {
         let mut num_read = 0;
         let mut result = 0;
 
@@ -110,7 +116,7 @@ impl<const PV: usize> MooshroomReadable<PV> for VarLong {
 }
 
 impl<const PV: usize> MooshroomWritable<PV> for VarLong {
-    fn write(&self, mut writer: impl io::Write) -> Result<()> {
+    fn write(&self, writer: &mut impl io::Write) -> Result<()> {
         let mut x = self.0 as u64;
         writer
             .write_u8(((x & 0b0111_1111) | (0b1000_0000 * ((x >> 7 != 0) as u64))) as u8)

@@ -120,14 +120,14 @@ pub struct AdvancementDisplay{
 }
 
 impl<const PV:usize> MooshroomReadable<PV> for AdvancementDisplay {
-    fn read(mut reader: impl std::io::Read) -> mooshroom_core::error::Result<Self> {
-        let title = Chat::read_proto::<PV>(&mut reader)?;
-        let description = Chat::read_proto::<PV>(&mut reader)?;
-        let icon = Slot::read_proto::<PV>(&mut reader)?;
-        let frame_type = VarInt::read_proto::<PV>(&mut reader)?;
-        let flags = i32::read_proto::<PV>(&mut reader)?;
+    fn read(reader: &mut impl std::io::Read) -> mooshroom_core::error::Result<Self> {
+        let title = Chat::read_proto::<PV>(reader)?;
+        let description = Chat::read_proto::<PV>(reader)?;
+        let icon = Slot::read_proto::<PV>(reader)?;
+        let frame_type = VarInt::read_proto::<PV>(reader)?;
+        let flags = i32::read_proto::<PV>(reader)?;
         let backdround_texture = if (flags & 0x01) != 0 {
-            Some(Identifier::read_proto::<PV>(&mut reader)?)
+            Some(Identifier::read_proto::<PV>(reader)?)
         }else{
             None
         }.into();
@@ -139,22 +139,22 @@ impl<const PV:usize> MooshroomReadable<PV> for AdvancementDisplay {
             frame_type,
             flags,
             backdround_texture,
-            x_coord: f32::read_proto::<PV>(&mut reader)?,
-            y_coord: f32::read_proto::<PV>(&mut reader)?,
+            x_coord: f32::read_proto::<PV>(reader)?,
+            y_coord: f32::read_proto::<PV>(reader)?,
         })
     }
 }
 
 impl<const PV:usize> MooshroomWritable<PV> for AdvancementDisplay {
-    fn write(&self, mut writer: impl std::io::Write) -> mooshroom_core::error::Result<()> {
-        self.title.write_proto::<PV>(&mut writer)?;
-        self.description.write_proto::<PV>(&mut writer)?;
-        self.icon.write_proto::<PV>(&mut writer)?;
-        self.frame_type.write_proto::<PV>(&mut writer)?;
-        (self.flags & self.backdround_texture.is_some() as i32).write_proto::<PV>(&mut writer)?;
-        self.backdround_texture.write_proto::<PV>(&mut writer)?;
-        self.x_coord.write_proto::<PV>(&mut writer)?;
-        self.y_coord.write_proto::<PV>(&mut writer)?;
+    fn write(&self, writer: &mut impl std::io::Write) -> mooshroom_core::error::Result<()> {
+        self.title.write_proto::<PV>(writer)?;
+        self.description.write_proto::<PV>(writer)?;
+        self.icon.write_proto::<PV>(writer)?;
+        self.frame_type.write_proto::<PV>(writer)?;
+        (self.flags & self.backdround_texture.is_some() as i32).write_proto::<PV>(writer)?;
+        self.backdround_texture.write_proto::<PV>(writer)?;
+        self.x_coord.write_proto::<PV>(writer)?;
+        self.y_coord.write_proto::<PV>(writer)?;
         Ok(())
     }
 }

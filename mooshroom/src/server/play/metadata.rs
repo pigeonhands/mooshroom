@@ -108,22 +108,22 @@ pub enum RecipeData {
 
 impl RecipeData {
     pub fn read_crafting_shapeless<const PV: usize>(
-        mut reader: impl std::io::Read,
+        reader: &mut impl std::io::Read,
     ) -> Result<Self> {
         Ok(Self::CraftingShapeless {
-            group: String::read_proto::<PV>(&mut reader)?,
-            ingredients: Ingredients::read_proto::<PV>(&mut reader)?,
-            result: Slot::read_proto::<PV>(&mut reader)?,
+            group: String::read_proto::<PV>(reader)?,
+            ingredients: Ingredients::read_proto::<PV>(reader)?,
+            result: Slot::read_proto::<PV>(reader)?,
         })
     }
-    pub fn read_crafting_shaped<const PV: usize>(mut reader: impl std::io::Read) -> Result<Self> {
-        let width = VarInt::read_proto::<PV>(&mut reader)?;
-        let height = VarInt::read_proto::<PV>(&mut reader)?;
-        let group = String::read_proto::<PV>(&mut reader)?;
+    pub fn read_crafting_shaped<const PV: usize>(mut reader: &mut impl std::io::Read) -> Result<Self> {
+        let width = VarInt::read_proto::<PV>(reader)?;
+        let height = VarInt::read_proto::<PV>(reader)?;
+        let group = String::read_proto::<PV>(reader)?;
         let ingredients = {
             let mut ing = Ingredients::new();
             for _ in 0..(width.0 * height.0) {
-                ing.push(Ingredient::read_proto::<PV>(&mut reader)?);
+                ing.push(Ingredient::read_proto::<PV>(reader)?);
             }
             ing
         };
@@ -136,18 +136,18 @@ impl RecipeData {
         })
     }
 
-    pub fn read_stone_cutting<const PV: usize>(mut reader: impl std::io::Read) -> Result<Self> {
+    pub fn read_stone_cutting<const PV: usize>(reader: &mut impl std::io::Read) -> Result<Self> {
         Ok(Self::StoneCutting {
-            group: String::read_proto::<PV>(&mut reader)?,
-            ingredients: Ingredient::read_proto::<PV>(&mut reader)?,
-            result: Slot::read_proto::<PV>(&mut reader)?,
+            group: String::read_proto::<PV>(reader)?,
+            ingredients: Ingredient::read_proto::<PV>(reader)?,
+            result: Slot::read_proto::<PV>(reader)?,
         })
     }
-    pub fn read_smithing<const PV: usize>(mut reader: impl std::io::Read) -> Result<Self> {
+    pub fn read_smithing<const PV: usize>(reader: &mut impl std::io::Read) -> Result<Self> {
         Ok(Self::Smithing {
-            base: Ingredient::read_proto::<PV>(&mut reader)?,
-            addition: Ingredient::read_proto::<PV>(&mut reader)?,
-            result: Slot::read_proto::<PV>(&mut reader)?,
+            base: Ingredient::read_proto::<PV>(reader)?,
+            addition: Ingredient::read_proto::<PV>(reader)?,
+            result: Slot::read_proto::<PV>(reader)?,
         })
     }
 }
@@ -160,15 +160,15 @@ pub struct Recipe {
 }
 
 impl<const PV: usize> MooshroomReadable<PV> for Recipe {
-    fn read(mut reader: impl std::io::Read) -> Result<Self> {
-        let recipe_type = String::read_proto::<PV>(&mut reader)?;
-        let recipe_id = String::read_proto::<PV>(&mut reader)?;
+    fn read(reader: &mut impl std::io::Read) -> Result<Self> {
+        let recipe_type = String::read_proto::<PV>(reader)?;
+        let recipe_id = String::read_proto::<PV>(reader)?;
 
         let data = match recipe_type.as_str() {
             "minecraft:crafting_shapeless" => {
-                RecipeData::read_crafting_shapeless::<PV>(&mut reader)?
+                RecipeData::read_crafting_shapeless::<PV>(reader)?
             }
-            "minecraft:crafting_shaped" => RecipeData::read_crafting_shaped::<PV>(&mut reader)?,
+            "minecraft:crafting_shaped" => RecipeData::read_crafting_shaped::<PV>(reader)?,
             "minecraft:crafting_special_armordye" => RecipeData::CraftingSpecialArmorDye,
             "minecraft:crafting_special_bookcloning" => RecipeData::CraftingSpecialBookCloning,
             "minecraft:crafting_special_mapcloning" => RecipeData::CraftingSpecialMapCloning,
@@ -198,19 +198,19 @@ impl<const PV: usize> MooshroomReadable<PV> for Recipe {
                 RecipeData::CraftingSpecialSuspiciousStew
             }
             "minecraft:smelting" => {
-                RecipeData::Smelting(RecipeWithExp::read_proto::<PV>(&mut reader)?)
+                RecipeData::Smelting(RecipeWithExp::read_proto::<PV>(reader)?)
             }
             "minecraft:blasting" => {
-                RecipeData::Blasting(RecipeWithExp::read_proto::<PV>(&mut reader)?)
+                RecipeData::Blasting(RecipeWithExp::read_proto::<PV>(reader)?)
             }
             "minecraft:smoking" => {
-                RecipeData::Smoking(RecipeWithExp::read_proto::<PV>(&mut reader)?)
+                RecipeData::Smoking(RecipeWithExp::read_proto::<PV>(reader)?)
             }
             "minecraft:campfire_cooking" => {
-                RecipeData::CampfireCooking(RecipeWithExp::read_proto::<PV>(&mut reader)?)
+                RecipeData::CampfireCooking(RecipeWithExp::read_proto::<PV>(reader)?)
             }
-            "minecraft:stonecutting" => RecipeData::read_stone_cutting::<PV>(&mut reader)?,
-            "minecraft:smithing" => RecipeData::read_smithing::<PV>(&mut reader)?,
+            "minecraft:stonecutting" => RecipeData::read_stone_cutting::<PV>(reader)?,
+            "minecraft:smithing" => RecipeData::read_smithing::<PV>(reader)?,
             _ => RecipeData::Unknown,
         };
 
@@ -223,18 +223,18 @@ impl<const PV: usize> MooshroomReadable<PV> for Recipe {
 }
 
 impl<const PV: usize> MooshroomWritable<PV> for Recipe {
-    fn write(&self, mut writer: impl std::io::Write) -> Result<()> {
-        self.recipe_type.write_proto::<PV>(&mut writer)?;
-        self.recipe_id.write_proto::<PV>(&mut writer)?;
+    fn write(&self, writer: &mut impl std::io::Write) -> Result<()> {
+        self.recipe_type.write_proto::<PV>(writer)?;
+        self.recipe_id.write_proto::<PV>(writer)?;
         match &self.data {
             RecipeData::CraftingShapeless {
                 group,
                 ingredients,
                 result,
             } => {
-                group.write_proto::<PV>(&mut writer)?;
-                ingredients.write_proto::<PV>(&mut writer)?;
-                result.write_proto::<PV>(&mut writer)?;
+                group.write_proto::<PV>(writer)?;
+                ingredients.write_proto::<PV>(writer)?;
+                result.write_proto::<PV>(writer)?;
             }
             RecipeData::CraftingShaped {
                 width,
@@ -243,33 +243,33 @@ impl<const PV: usize> MooshroomWritable<PV> for Recipe {
                 ingredients,
                 result,
             } => {
-                width.write_proto::<PV>(&mut writer)?;
-                height.write_proto::<PV>(&mut writer)?;
-                group.write_proto::<PV>(&mut writer)?;
-                ingredients.write_proto::<PV>(&mut writer)?;
-                result.write_proto::<PV>(&mut writer)?;
+                width.write_proto::<PV>(writer)?;
+                height.write_proto::<PV>(writer)?;
+                group.write_proto::<PV>(writer)?;
+                ingredients.write_proto::<PV>(writer)?;
+                result.write_proto::<PV>(writer)?;
             }
             RecipeData::Smelting(d)
             | RecipeData::Blasting(d)
             | RecipeData::Smoking(d)
-            | RecipeData::CampfireCooking(d) => d.write_proto::<PV>(&mut writer)?,
+            | RecipeData::CampfireCooking(d) => d.write_proto::<PV>(writer)?,
             RecipeData::StoneCutting {
                 group,
                 ingredients,
                 result,
             } => {
-                group.write_proto::<PV>(&mut writer)?;
-                ingredients.write_proto::<PV>(&mut writer)?;
-                result.write_proto::<PV>(&mut writer)?;
+                group.write_proto::<PV>(writer)?;
+                ingredients.write_proto::<PV>(writer)?;
+                result.write_proto::<PV>(writer)?;
             }
             RecipeData::Smithing {
                 base,
                 addition,
                 result,
             } => {
-                base.write_proto::<PV>(&mut writer)?;
-                addition.write_proto::<PV>(&mut writer)?;
-                result.write_proto::<PV>(&mut writer)?;
+                base.write_proto::<PV>(writer)?;
+                addition.write_proto::<PV>(writer)?;
+                result.write_proto::<PV>(writer)?;
             }
             _ => {}
         }

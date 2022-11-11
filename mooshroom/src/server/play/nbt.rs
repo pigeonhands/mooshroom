@@ -14,14 +14,14 @@ use mooshroom_core::{
 pub struct NptCompound(NptNamedTag<DEFAULT_PROTOCAL_VERSION>);
 
 impl<const PV: Protocal> MooshroomReadable<PV> for NptCompound {
-    fn read(mut reader: impl std::io::Read) -> mooshroom_core::error::Result<Self> {
-        let d = NptTagData::read_compound_body(&mut reader)?;
+    fn read(reader: &mut impl std::io::Read) -> mooshroom_core::error::Result<Self> {
+        let d = NptTagData::read_compound_body(reader)?;
         Ok(Self(d))
     }
 }
 
 impl<const PV: Protocal> MooshroomWritable<PV> for NptCompound {
-    fn write(&self, _: impl std::io::Write) -> mooshroom_core::error::Result<()> {
+    fn write(&self, _: &mut impl std::io::Write) -> mooshroom_core::error::Result<()> {
         todo!()
     }
 }
@@ -30,14 +30,14 @@ impl<const PV: Protocal> MooshroomWritable<PV> for NptCompound {
 pub struct NptTagDataDefault(NptTagData<DEFAULT_PROTOCAL_VERSION>);
 
 impl<const PV: Protocal> MooshroomReadable<PV> for NptTagDataDefault {
-    fn read(mut reader: impl std::io::Read) -> mooshroom_core::error::Result<Self> {
-        let ty = <u8 as MooshroomReadable<PV>>::read(&mut reader)?;
-        Ok(Self(NptTagData::read_type(ty, &mut reader)?))
+    fn read(reader: &mut impl std::io::Read) -> mooshroom_core::error::Result<Self> {
+        let ty = <u8 as MooshroomReadable<PV>>::read(reader)?;
+        Ok(Self(NptTagData::read_type(ty, reader)?))
     }
 }
 
 impl<const PV: Protocal> MooshroomWritable<PV> for NptTagDataDefault {
-    fn write(&self, _: impl std::io::Write) -> mooshroom_core::error::Result<()> {
+    fn write(&self, _: &mut impl std::io::Write) -> mooshroom_core::error::Result<()> {
         todo!()
     }
 }
@@ -64,14 +64,14 @@ pub enum NptTagData<const PV: Protocal> {
 }
 
 impl<const PV: Protocal> MooshroomReadable<PV> for NptTagData<PV> {
-    fn read(mut reader: impl std::io::Read) -> mooshroom_core::error::Result<Self> {
-        let ty = <u8 as MooshroomReadable<PV>>::read(&mut reader)?;
-        Self::read_type(ty, &mut reader)
+    fn read(reader: &mut impl std::io::Read) -> mooshroom_core::error::Result<Self> {
+        let ty = <u8 as MooshroomReadable<PV>>::read(reader)?;
+        Self::read_type(ty, reader)
     }
 }
 
 impl<const PV: Protocal> MooshroomWritable<PV> for NptTagData<PV> {
-    fn write(&self, _: impl std::io::Write) -> mooshroom_core::error::Result<()> {
+    fn write(&self, _: &mut impl std::io::Write) -> mooshroom_core::error::Result<()> {
         todo!()
     }
 }
@@ -97,25 +97,25 @@ impl<const PV: Protocal> NptTagData<PV> {
         Ok(r)
     }
     fn read_byte_array(
-        mut reader: &mut impl std::io::Read,
+        reader: &mut impl std::io::Read,
     ) -> mooshroom_core::error::Result<Vec<u8>> {
-        let len = <i32 as MooshroomReadable<PV>>::read(&mut reader)?;
+        let len = <i32 as MooshroomReadable<PV>>::read(reader)?;
         let mut buffer = vec![0; len as usize];
         reader.read_exact(&mut buffer[..])?;
         Ok(buffer)
     }
-    fn read_string(mut reader: &mut impl std::io::Read) -> mooshroom_core::error::Result<String> {
-        let len = u16::read_proto::<PV>(&mut reader)?;
+    fn read_string(reader: &mut impl std::io::Read) -> mooshroom_core::error::Result<String> {
+        let len = u16::read_proto::<PV>(reader)?;
         let mut buffer = vec![0; len as usize];
         reader.read_exact(&mut buffer[..])?;
         let s = from_cesu8(&buffer).map_err(|_| MoshroomError::InvalidNbtTag(8))?;
         Ok(s.into_owned())
     }
     fn read_list(
-        mut reader: &mut impl std::io::Read,
+        reader: &mut impl std::io::Read,
     ) -> mooshroom_core::error::Result<Vec<NptTagData<PV>>> {
-        let ty = <u8 as MooshroomReadable<PV>>::read(&mut reader)?;
-        let len = <u32 as MooshroomReadable<PV>>::read(&mut reader)?;
+        let ty = <u8 as MooshroomReadable<PV>>::read(reader)?;
+        let len = <u32 as MooshroomReadable<PV>>::read(reader)?;
         let mut items = Vec::with_capacity(len as usize);
         for _ in 0..len {
             items.push(Self::read_type(ty, reader)?);
@@ -123,13 +123,13 @@ impl<const PV: Protocal> NptTagData<PV> {
         Ok(items)
     }
     fn read_compound_body(
-        mut reader: &mut impl std::io::Read,
+        reader: &mut impl std::io::Read,
     ) -> mooshroom_core::error::Result<NptNamedTag<PV>> {
-        let ty = <u8 as MooshroomReadable<PV>>::read(&mut reader)?;
+        let ty = <u8 as MooshroomReadable<PV>>::read(reader)?;
         if ty == 0 {
             Ok(NptNamedTag(String::new(), Self::End))
         } else {
-            let cp_name = Self::read_string(&mut reader)?;
+            let cp_name = Self::read_string(reader)?;
             Ok(NptNamedTag(cp_name, Self::read_type(ty, reader)?))
         }
     }
@@ -146,12 +146,12 @@ impl<const PV: Protocal> NptTagData<PV> {
     }
 
     fn read_array<D: MooshroomReadable<PV>>(
-        mut reader: &mut impl std::io::Read,
+        reader: &mut impl std::io::Read,
     ) -> mooshroom_core::error::Result<Vec<D>> {
-        let len = <i32 as MooshroomReadable<PV>>::read(&mut reader)?;
+        let len = <i32 as MooshroomReadable<PV>>::read(reader)?;
         let mut items = Vec::with_capacity(len as usize);
         for _ in 0..len {
-            items.push(D::read(&mut reader)?);
+            items.push(D::read(reader)?);
         }
         Ok(items)
     }

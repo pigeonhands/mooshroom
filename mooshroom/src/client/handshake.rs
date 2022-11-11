@@ -37,14 +37,14 @@ impl TryFrom<VarInt> for HandshakeState {
 }
 
 impl<const PV: usize> MooshroomReadable<PV> for HandshakeState {
-    fn read(reader: impl std::io::Read) -> Result<Self> {
+    fn read(reader: &mut impl std::io::Read) -> Result<Self> {
         let val = <VarInt as MooshroomReadable<PV>>::read(reader)?;
         val.try_into()
     }
 }
 
 impl<const PV: usize> MooshroomWritable<PV> for HandshakeState {
-    fn write(&self, writer: impl std::io::Write) -> Result<()> {
+    fn write(&self, writer: &mut impl std::io::Write) -> Result<()> {
         let vi: VarInt = self.into();
         <VarInt as MooshroomWritable<PV>>::write(&vi, writer)?;
         Ok(())

@@ -4,3 +4,7 @@ members = [
     "mooshroom-core",
     "mooshroom-macros",
 ]
+[workspace.ignore]
+members = [
+    "mooshroom-client"
+]

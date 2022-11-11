@@ -94,10 +94,10 @@ impl<const PV: usize, T> MooshroomReadable<PV> for ActionFor<T>
 where
     T: MooshroomReadable<PV>,
 {
-    fn read(mut reader: impl std::io::Read) -> mooshroom_core::error::Result<Self> {
+    fn read(reader: &mut impl std::io::Read) -> mooshroom_core::error::Result<Self> {
         Ok(Self {
-            uuid: uuid::Uuid::read_proto::<PV>(&mut reader)?,
-            action: T::read_proto::<PV>(&mut reader)?,
+            uuid: uuid::Uuid::read_proto::<PV>(reader)?,
+            action: T::read_proto::<PV>(reader)?,
         })
     }
 }
@@ -106,9 +106,9 @@ impl<const PV: usize, T> MooshroomWritable<PV> for ActionFor<T>
 where
     T: MooshroomWritable<PV>,
 {
-    fn write(&self, mut writer: impl std::io::Write) -> mooshroom_core::error::Result<()> {
-        self.uuid.write_proto::<PV>(&mut writer)?;
-        self.action.write_proto::<PV>(&mut writer)?;
+    fn write(&self, writer: &mut impl std::io::Write) -> mooshroom_core::error::Result<()> {
+        self.uuid.write_proto::<PV>(writer)?;
+        self.action.write_proto::<PV>(writer)?;
         Ok(())
     }
 }
@@ -131,8 +131,8 @@ impl<const PV: usize> MooshroomPacket<PV> for PlayerInfo {
 }
 
 impl<const PV: usize> MooshroomReadable<PV> for PlayerInfo {
-    fn read(mut reader: impl std::io::Read) -> mooshroom_core::error::Result<Self> {
-        let action = VarInt::read_proto::<PV>(&mut reader)?;
+    fn read(reader: &mut impl std::io::Read) -> mooshroom_core::error::Result<Self> {
+        let action = VarInt::read_proto::<PV>(reader)?;
         let ser_action = match action.0 {
             0 => PlayerAction::AddPlayer(Vec::read_proto::<PV>(reader)?),
             1 => PlayerAction::UpdateGamemode(Vec::read_proto::<PV>(reader)?),
@@ -146,26 +146,26 @@ impl<const PV: usize> MooshroomReadable<PV> for PlayerInfo {
 }
 
 impl<const PV: usize> MooshroomWritable<PV> for PlayerInfo {
-    fn write(&self, mut writer: impl std::io::Write) -> mooshroom_core::error::Result<()> {
+    fn write(&self, writer: &mut impl std::io::Write) -> mooshroom_core::error::Result<()> {
         match &self.0 {
             PlayerAction::AddPlayer(p) => {
-                VarInt(0).write_proto::<PV>(&mut writer)?;
+                VarInt(0).write_proto::<PV>(writer)?;
                 p.write_proto::<PV>(writer)?;
             }
             PlayerAction::UpdateGamemode(p) => {
-                VarInt(1).write_proto::<PV>(&mut writer)?;
+                VarInt(1).write_proto::<PV>(writer)?;
                 p.write_proto::<PV>(writer)?;
             }
             PlayerAction::UpdateLatency(p) => {
-                VarInt(2).write_proto::<PV>(&mut writer)?;
+                VarInt(2).write_proto::<PV>(writer)?;
                 p.write_proto::<PV>(writer)?;
             }
             PlayerAction::UpdateDisplayName(p) => {
-                VarInt(3).write_proto::<PV>(&mut writer)?;
+                VarInt(3).write_proto::<PV>(writer)?;
                 p.write_proto::<PV>(writer)?;
             }
             PlayerAction::RemovePlayer => {
-                VarInt(4).write_proto::<PV>(&mut writer)?;
+                VarInt(4).write_proto::<PV>(writer)?;
             }
             _ => {}
         }
