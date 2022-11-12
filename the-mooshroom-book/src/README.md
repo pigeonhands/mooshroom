@@ -8,15 +8,15 @@ Packet documentation will only contain the structure of the packets body. The ou
 
 This is documentation on the minecraft protocal centered around rust development. Each page will have a table of the raw segments with data types, followed by a rust example.
 
-| field_name |  type     | condition |
-|------------|-----------|  |
-| entity_id  |    `u16` ||
-| entity_name_length| `VarInt` ||
-| entity_name | `[char;entity_name_length]` string ||
-| has_position | bool ||
-| x | `f32` |`has_position`|
-| y | `f32` |`has_position`|
-| z | `f32` |`has_position`|
+| field_name         | type                               | condition      |
+| ------------------ | ---------------------------------- | -------------- |
+| entity_id          | `u16`                              |                |
+| entity_name_length | `VarInt`                           |                |
+| entity_name        | `[char;entity_name_length]` string |                |
+| has_position       | bool                               |                |
+| x                  | `f32`                              | `has_position` |
+| y                  | `f32`                              | `has_position` |
+| z                  | `f32`                              | `has_position` |
 
 if `condition` is not met, the field is 0 bytes. If `condition` is not specified, it is always in the packet.
 
