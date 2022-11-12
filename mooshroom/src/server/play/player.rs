@@ -1,9 +1,15 @@
-use mooshroom_core::{varint::VarInt, primitives::{Position, Identifier}, io::{MooshroomReadable, MooshroomReadProto, MooshroomWritable, MooshroomWriteProto}};
+use std::io;
+
+use mooshroom_core::{
+    error::Result,
+    io::MooshroomReadProto,
+    primitives::{Identifier, Position},
+    varint::VarInt,
+};
 use mooshroom_macros::Mooshroom;
 
-use crate::{types::Chat};
-
-use super::{world::Angle, crafting::Slot};
+use super::{crafting::Slot, world::Angle};
+use crate::types::Chat;
 
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x16)]
@@ -29,13 +35,12 @@ pub struct PlayerAbilities {
 #[packet_id(0x34)]
 pub struct EndCombat {
     pub duration: VarInt,
-    pub entity_id: i32
+    pub entity_id: i32,
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x35)]
 pub struct EnterCombat;
-
 
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x36)]
@@ -61,20 +66,20 @@ pub struct SynchronizePlayerPosition {
 #[derive(Debug, Clone, Default, Mooshroom)]
 pub struct DeathLocation {
     pub dimention: Identifier,
-    pub location: Position
+    pub location: Position,
 }
 #[derive(Debug, Clone, Default, Mooshroom)]
-#[packet_id( 0x3e)]
+#[packet_id(0x3e)]
 pub struct Respawn {
     pub dimention: Identifier,
     pub dimention_name: Identifier,
     pub hash_seed: i64,
-    pub gamemode: u8,
-    pub previous_gamemode: u8,
+    pub gamemode: super::world::GameMode,
+    pub previous_gamemode: super::world::GameMode,
     pub is_debug: bool,
     pub is_flat: bool,
     pub copy_metadata: bool,
-    pub death_location: Option<DeathLocation>
+    pub death_location: Option<DeathLocation>,
 }
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x4A)]
@@ -86,16 +91,15 @@ pub struct SetHeldItem {
 #[packet_id(0x4D)]
 pub struct SetDefaultSpawnPosition {
     pub location: Position,
-    pub angle: Angle
+    pub angle: Angle,
 }
-
 
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x54)]
 pub struct SetExperience {
     pub experience_bar: f32,
     pub level: VarInt,
-    pub total_experience: VarInt
+    pub total_experience: VarInt,
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]
@@ -103,70 +107,41 @@ pub struct SetExperience {
 pub struct SetHealth {
     pub health: f32,
     pub food: VarInt,
-    pub food_saturation: f32
+    pub food_saturation: f32,
 }
 
-
-#[derive(Debug, Clone, Default)]
-pub struct AdvancementDisplay{
+#[derive(Debug, Clone, Default, Mooshroom)]
+pub struct AdvancementDisplay {
     pub title: Chat,
     pub description: Chat,
     pub icon: Slot,
     pub frame_type: VarInt,
     pub flags: i32,
+    #[parse(read_background_texture, flags)]
     pub backdround_texture: Option<Identifier>,
     pub x_coord: f32,
     pub y_coord: f32,
 }
-
-impl<const PV:usize> MooshroomReadable<PV> for AdvancementDisplay {
-    fn read(reader: &mut impl std::io::Read) -> mooshroom_core::error::Result<Self> {
-        let title = Chat::read_proto::<PV>(reader)?;
-        let description = Chat::read_proto::<PV>(reader)?;
-        let icon = Slot::read_proto::<PV>(reader)?;
-        let frame_type = VarInt::read_proto::<PV>(reader)?;
-        let flags = i32::read_proto::<PV>(reader)?;
-        let backdround_texture = if (flags & 0x01) != 0 {
-            Some(Identifier::read_proto::<PV>(reader)?)
-        }else{
-            None
-        }.into();
-
-        Ok(Self{
-            title,
-            description,
-            icon,
-            frame_type,
-            flags,
-            backdround_texture,
-            x_coord: f32::read_proto::<PV>(reader)?,
-            y_coord: f32::read_proto::<PV>(reader)?,
-        })
-    }
-}
-
-impl<const PV:usize> MooshroomWritable<PV> for AdvancementDisplay {
-    fn write(&self, writer: &mut impl std::io::Write) -> mooshroom_core::error::Result<()> {
-        self.title.write_proto::<PV>(writer)?;
-        self.description.write_proto::<PV>(writer)?;
-        self.icon.write_proto::<PV>(writer)?;
-        self.frame_type.write_proto::<PV>(writer)?;
-        (self.flags & self.backdround_texture.is_some() as i32).write_proto::<PV>(writer)?;
-        self.backdround_texture.write_proto::<PV>(writer)?;
-        self.x_coord.write_proto::<PV>(writer)?;
-        self.y_coord.write_proto::<PV>(writer)?;
-        Ok(())
-    }
+fn read_background_texture<const PV: usize>(
+    reader: &mut impl io::Read,
+    flags: &i32,
+) -> Result<Option<Identifier>> {
+    let r = if (flags & 0x01) != 0 {
+        Some(Identifier::read_proto::<PV>(reader)?)
+    } else {
+        None
+    };
+    Ok(r)
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]
 pub struct AdvancementCriteria {
     pub achieved: bool,
-    pub date_of_achieving: i64
+    pub date_of_achieving: i64,
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]
-pub struct ProgressMapping{
+pub struct ProgressMapping {
     pub key: Identifier,
     pub value: AdvancementCriteria,
 }
@@ -182,7 +157,7 @@ pub struct Advancement {
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]
-pub struct AdvancementMapping{
+pub struct AdvancementMapping {
     pub key: Identifier,
     pub value: Advancement,
 }
@@ -192,5 +167,5 @@ pub struct UpdateAdvancements {
     pub clear: bool,
     pub advancement_mapping: Vec<AdvancementMapping>,
     pub identifiers: Vec<Identifier>,
-    pub progress_mapping: Vec<ProgressMapping>
+    pub progress_mapping: Vec<ProgressMapping>,
 }

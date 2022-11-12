@@ -56,6 +56,7 @@ pub enum PlayStage {
     TeleportEntity(population::TeleportEntity),
     SetPassengers(population::SetPassengers),
     LinkEntities(population::LinkEntities),
+    EntityEffect(population::EntityEffect),
 
     CloseContainer(crafting::CloseContainer),
     SetContainerContent(crafting::SetContainerContent),

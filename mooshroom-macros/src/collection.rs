@@ -35,7 +35,7 @@ fn impl_collection_enum(ast: &syn::DeriveInput, data: &DataEnum) -> proc_macro2:
             fn read_one_of(id: ::mooshroom_core::varint::VarInt, reader: &mut impl ::std::io::Read) -> ::mooshroom_core::error::Result<Self>{
                 match id {
                     #( #selector ) *
-                    i => Err(::mooshroom_core::error::MoshroomError::NotInCollection(i.0))
+                    i => Err(::mooshroom_core::error::MooshroomError::NotInCollection(i.0))
                 }
             }
         }

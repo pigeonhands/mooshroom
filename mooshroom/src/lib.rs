@@ -10,7 +10,7 @@ pub use mooshroom_macros as macros;
 
 pub mod prelude {
     pub use mooshroom_core::{
-        error::MoshroomError,
+        error::MooshroomError,
         io::{MooshroomCommand, MooshroomPacket, MooshroomReadable, MooshroomWritable},
     };
 }

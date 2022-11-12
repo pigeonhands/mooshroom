@@ -1,11 +1,7 @@
-use mooshroom_core::{
-    error::{MoshroomError, Result},
-    io::{MooshroomReadable, MooshroomWritable},
-    varint::VarInt,
-};
+use mooshroom_core::{error::MooshroomError, varint::VarInt};
 use mooshroom_macros::Mooshroom;
 
-#[derive(Debug, Clone, Default, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, Copy, PartialEq, Eq, Mooshroom)]
 #[repr(u8)]
 pub enum HandshakeState {
     #[default]
@@ -25,29 +21,14 @@ impl From<&HandshakeState> for VarInt {
 }
 
 impl TryFrom<VarInt> for HandshakeState {
-    type Error = MoshroomError;
+    type Error = MooshroomError;
 
     fn try_from(value: VarInt) -> std::result::Result<Self, Self::Error> {
         Ok(match value.0 {
             1 => Self::Status,
             2 => Self::Login,
-            i => return Err(MoshroomError::InvalidHandshakeState(i)),
+            i => return Err(MooshroomError::InvalidHandshakeState(i)),
         })
-    }
-}
-
-impl<const PV: usize> MooshroomReadable<PV> for HandshakeState {
-    fn read(reader: &mut impl std::io::Read) -> Result<Self> {
-        let val = <VarInt as MooshroomReadable<PV>>::read(reader)?;
-        val.try_into()
-    }
-}
-
-impl<const PV: usize> MooshroomWritable<PV> for HandshakeState {
-    fn write(&self, writer: &mut impl std::io::Write) -> Result<()> {
-        let vi: VarInt = self.into();
-        <VarInt as MooshroomWritable<PV>>::write(&vi, writer)?;
-        Ok(())
     }
 }
 

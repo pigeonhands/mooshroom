@@ -1,6 +1,6 @@
 use cesu8::from_cesu8;
 use mooshroom_core::{
-    error::MoshroomError,
+    error::MooshroomError,
     io::{
         MooshroomReadProto,
         MooshroomReadable,
@@ -96,9 +96,7 @@ impl<const PV: Protocal> NptTagData<PV> {
         };
         Ok(r)
     }
-    fn read_byte_array(
-        reader: &mut impl std::io::Read,
-    ) -> mooshroom_core::error::Result<Vec<u8>> {
+    fn read_byte_array(reader: &mut impl std::io::Read) -> mooshroom_core::error::Result<Vec<u8>> {
         let len = <i32 as MooshroomReadable<PV>>::read(reader)?;
         let mut buffer = vec![0; len as usize];
         reader.read_exact(&mut buffer[..])?;
@@ -108,7 +106,7 @@ impl<const PV: Protocal> NptTagData<PV> {
         let len = u16::read_proto::<PV>(reader)?;
         let mut buffer = vec![0; len as usize];
         reader.read_exact(&mut buffer[..])?;
-        let s = from_cesu8(&buffer).map_err(|_| MoshroomError::InvalidNbtTag(8))?;
+        let s = from_cesu8(&buffer).map_err(|_| MooshroomError::InvalidNbtTag(8))?;
         Ok(s.into_owned())
     }
     fn read_list(

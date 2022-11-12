@@ -3,7 +3,7 @@ use std::mem::MaybeUninit;
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 
 use crate::{
-    error::MoshroomError,
+    error::MooshroomError,
     io::{MooshroomReadProto, MooshroomReadable, MooshroomWritable, MooshroomWriteProto},
     varint::VarInt,
 };
@@ -15,7 +15,7 @@ macro_rules! impl_rw_primitive {
             paste::expr! {
             impl<const PV : usize> MooshroomReadable<PV> for $e {
                 fn read(reader: &mut impl std::io::Read) -> crate::error::Result<Self> {
-                    reader.[<  read_ $e >]::<BigEndian>().map_err(MoshroomError::IoError)
+                    reader.[<  read_ $e >]::<BigEndian>().map_err(MooshroomError::IoError)
                 }
             }
 
@@ -24,7 +24,7 @@ macro_rules! impl_rw_primitive {
                     &self,
                     writer: &mut impl std::io::Write
                 ) -> crate::error::Result<()> {
-                    writer.[< write_ $e >]::<BigEndian>(*self).map_err(MoshroomError::IoError)?;
+                    writer.[< write_ $e >]::<BigEndian>(*self).map_err(MooshroomError::IoError)?;
                     Ok(())
                 }
             }
@@ -43,37 +43,39 @@ impl<const PV: usize> MooshroomReadable<PV> for bool {
         reader
             .read_i8()
             .map(|i| i != 0)
-            .map_err(MoshroomError::IoError)
+            .map_err(MooshroomError::IoError)
     }
 }
 
 impl<const PV: usize> MooshroomWritable<PV> for bool {
     fn write(&self, writer: &mut impl std::io::Write) -> crate::error::Result<()> {
-        writer.write_u8(*self as u8).map_err(MoshroomError::IoError)
+        writer
+            .write_u8(*self as u8)
+            .map_err(MooshroomError::IoError)
     }
 }
 
 impl<const PV: usize> MooshroomReadable<PV> for i8 {
     fn read(reader: &mut impl std::io::Read) -> crate::error::Result<Self> {
-        reader.read_i8().map_err(MoshroomError::IoError)
+        reader.read_i8().map_err(MooshroomError::IoError)
     }
 }
 
 impl<const PV: usize> MooshroomWritable<PV> for i8 {
     fn write(&self, writer: &mut impl std::io::Write) -> crate::error::Result<()> {
-        writer.write_i8(*self).map_err(MoshroomError::IoError)
+        writer.write_i8(*self).map_err(MooshroomError::IoError)
     }
 }
 
 impl<const PV: usize> MooshroomReadable<PV> for u8 {
     fn read(reader: &mut impl std::io::Read) -> crate::error::Result<Self> {
-        reader.read_u8().map_err(MoshroomError::IoError)
+        reader.read_u8().map_err(MooshroomError::IoError)
     }
 }
 
 impl<const PV: usize> MooshroomWritable<PV> for u8 {
     fn write(&self, writer: &mut impl std::io::Write) -> crate::error::Result<()> {
-        writer.write_u8(*self).map_err(MoshroomError::IoError)
+        writer.write_u8(*self).map_err(MooshroomError::IoError)
     }
 }
 
@@ -84,7 +86,7 @@ impl<const PV: usize> MooshroomReadable<PV> for String {
         let s = {
             let mut buffer: Vec<u8> = vec![0; len.0 as usize];
             reader.read_exact(&mut buffer)?;
-            String::from_utf8(buffer).map_err(MoshroomError::InvalidString)?
+            String::from_utf8(buffer).map_err(MooshroomError::InvalidString)?
         };
         Ok(s)
     }
@@ -231,14 +233,12 @@ where
     }
 }
 
-
-
 impl<const PV: usize, T> MooshroomReadable<PV> for Option<T>
 where
     T: MooshroomReadable<PV>,
 {
     fn read(reader: &mut impl std::io::Read) -> crate::error::Result<Self> {
-        if <bool as MooshroomReadable<PV>>::read(reader)? {
+        if bool::read_proto::<PV>(reader)? {
             Ok(Some(T::read(reader)?))
         } else {
             Ok(None)
@@ -252,10 +252,10 @@ where
 {
     fn write(&self, writer: &mut impl std::io::Write) -> crate::error::Result<()> {
         if let Some(t) = &self {
-            <bool as MooshroomWritable<PV>>::write(&true, writer)?;
+            true.write_proto::<PV>(writer)?;
             t.write(writer)?;
         } else {
-            <bool as MooshroomWritable<PV>>::write(&false, writer)?;
+            false.write_proto::<PV>(writer)?;
         }
         Ok(())
     }

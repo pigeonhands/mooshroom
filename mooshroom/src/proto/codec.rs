@@ -9,7 +9,7 @@ use log::error;
 use mooshroom_core::varint::VarInt;
 
 use crate::core::{
-    error::{MoshroomError, Result},
+    error::{MooshroomError, Result},
     io::*,
 };
 
@@ -61,7 +61,6 @@ impl<const PV: usize> MooshroomCodec<PV> {
         }
     }
     pub fn finalize_compressed(&mut self, threshold: i32) -> Result<Vec<u8>> {
-
         let (uncompressed_size, body) = if self.write_buffer.len() >= threshold as usize {
             let compressed_bytes: &[u8] = {
                 let mut compress =
@@ -69,9 +68,9 @@ impl<const PV: usize> MooshroomCodec<PV> {
                 compress.read_to_end(&mut self.compress_buffer)?;
                 self.compress_buffer.as_ref()
             };
-           
+
             (self.write_buffer.len() as i32, compressed_bytes)
-        }else{
+        } else {
             (0, self.write_buffer.as_slice())
         };
 
@@ -83,17 +82,14 @@ impl<const PV: usize> MooshroomCodec<PV> {
                 .write_with_size::<PV>(&mut uncompressed_len_buffer[..])?;
             &uncompressed_len_buffer[..n]
         };
-       
+
         let total_len = {
             let n = VarInt((uncompressed_len.len() + body.len()) as i32)
                 .write_with_size::<PV>(&mut total_len_buffer[..])?;
             &total_len_buffer[..n]
         };
 
-      
-
-        let mut buffer =
-            Vec::with_capacity(total_len.len() + uncompressed_len.len() + body.len());
+        let mut buffer = Vec::with_capacity(total_len.len() + uncompressed_len.len() + body.len());
         buffer.extend_from_slice(total_len);
         buffer.extend_from_slice(uncompressed_len);
         buffer.extend_from_slice(body);
@@ -201,7 +197,7 @@ impl<const PV: usize> MooshroomCodec<PV> {
         };
 
         if P::PACKET_ID != data.packet_id {
-            return Err(MoshroomError::UnexpectedPacket(
+            return Err(MooshroomError::UnexpectedPacket(
                 P::PACKET_ID.0,
                 data.packet_id.0,
             ));
@@ -218,7 +214,8 @@ impl<const PV: usize> MooshroomCodec<PV> {
         match P::read_one_of(data.packet_id, &mut data.body.as_ref()) {
             Ok(p) => Ok(Some(p)),
             Err(e) => {
-                error!("Failed to read one of {} with packet id 0x{:x}. {}",
+                error!(
+                    "Failed to read one of {} with packet id 0x{:x}. {}",
                     std::any::type_name::<P>(),
                     data.packet_id.0,
                     e

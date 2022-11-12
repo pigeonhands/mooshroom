@@ -1,7 +1,7 @@
 use thiserror::Error;
 
 #[derive(Error, Debug)]
-pub enum MoshroomError {
+pub enum MooshroomError {
     #[error("Problem with io")]
     IoError(std::io::Error),
     #[error("VarInt may be up to 5 bytes")]
@@ -28,17 +28,17 @@ pub enum MoshroomError {
     UuidError(uuid::Error),
 }
 
-impl From<std::io::Error> for MoshroomError {
+impl From<std::io::Error> for MooshroomError {
     fn from(e: std::io::Error) -> Self {
         Self::IoError(e)
     }
 }
 
 #[cfg(feature = "uuid")]
-impl From<uuid::Error> for MoshroomError {
+impl From<uuid::Error> for MooshroomError {
     fn from(e: uuid::Error) -> Self {
         Self::UuidError(e)
     }
 }
 
-pub type Result<T> = std::result::Result<T, MoshroomError>;
+pub type Result<T> = std::result::Result<T, MooshroomError>;

@@ -3,7 +3,7 @@ use std::io;
 use byteorder::{ReadBytesExt, WriteBytesExt};
 
 use super::io::{MooshroomReadable, MooshroomWritable};
-use crate::error::{MoshroomError, Result};
+use crate::error::{MooshroomError, Result};
 
 #[derive(Copy, Clone, Default, Debug, PartialEq, Eq)]
 pub struct VarInt(pub i32);
@@ -45,6 +45,12 @@ impl AsRef<i32> for VarInt {
     }
 }
 
+impl Into<i32> for VarInt {
+    fn into(self) -> i32 {
+        self.0
+    }
+}
+
 impl<const PV: usize> MooshroomReadable<PV> for VarInt {
     fn read(reader: &mut impl std::io::Read) -> crate::error::Result<Self> {
         let mut num_read = 0;
@@ -58,7 +64,7 @@ impl<const PV: usize> MooshroomReadable<PV> for VarInt {
             num_read += 1;
 
             if num_read > 5 {
-                return Err(MoshroomError::VarIntTooLong);
+                return Err(MooshroomError::VarIntTooLong);
             }
             if read & 0b1000_0000 == 0 {
                 break;
@@ -108,7 +114,7 @@ impl<const PV: usize> MooshroomReadable<PV> for VarLong {
             }
 
             if num_read > 10 {
-                return Err(MoshroomError::VarIntTooLong);
+                return Err(MooshroomError::VarIntTooLong);
             }
         }
         Ok(Self(result))
@@ -120,7 +126,7 @@ impl<const PV: usize> MooshroomWritable<PV> for VarLong {
         let mut x = self.0 as u64;
         writer
             .write_u8(((x & 0b0111_1111) | (0b1000_0000 * ((x >> 7 != 0) as u64))) as u8)
-            .map_err(MoshroomError::IoError)?;
+            .map_err(MooshroomError::IoError)?;
         x >>= 7;
         loop {
             if x == 0 {
@@ -133,7 +139,7 @@ impl<const PV: usize> MooshroomWritable<PV> for VarLong {
                 temp |= 0b1000_0000;
             }
 
-            writer.write_u8(temp).map_err(MoshroomError::IoError)?;
+            writer.write_u8(temp).map_err(MooshroomError::IoError)?;
         }
 
         Ok(())

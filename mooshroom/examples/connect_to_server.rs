@@ -1,6 +1,6 @@
 use std::net::TcpStream;
 
-use mooshroom::{proto::connection::MooshroomConnection, server::play::{PlayStage}};
+use mooshroom::{proto::connection::MooshroomConnection, server::play::PlayStage};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::init();
@@ -24,23 +24,23 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             PlayStage::KeepAlive(id) => {
                 println!("Sent keepalive");
                 c.respond_to_keep_alive(id.0)?;
-            },
+            }
             PlayStage::SetHealth(p) => {
                 println!("{:#?}", p);
                 if p.health <= 0. {
                     println!("respawning...");
                     c.respawn()?;
                 }
-            },
+            }
             PlayStage::PlayerChatMessage(c) => {
                 println!("{}", c.plain_message)
-            },
+            }
             PlayStage::Respawn(p) => {
                 println!("{:#?}", p);
-            },
+            }
             PlayStage::CombatDeath(p) => {
                 println!("{:#?}", p);
-            },
+            }
             _ => {}
         }
     }

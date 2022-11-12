@@ -7,7 +7,6 @@ use super::nbt;
 #[packet_id(0x10)]
 pub struct CloseContainer(pub u8);
 
-
 #[derive(Debug, Clone, Default, Mooshroom)]
 pub struct SlotData {
     pub item_id: VarInt,

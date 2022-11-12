@@ -1,6 +1,6 @@
 use mooshroom_macros::Mooshroom;
 
-use crate::{shared::SignatureData};
+use crate::shared::SignatureData;
 
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0)]

@@ -6,15 +6,17 @@ use mooshroom_core::{
         MooshroomWritable,
         MooshroomWriteProto,
     },
-    varint::VarInt, primitives::{Identifier, Vec3},
+    primitives::{Identifier, Vec3},
+    varint::VarInt,
 };
 use mooshroom_macros::Mooshroom;
-use super::nbt;
-use super::world::{WorldPosition};
 
-use crate::{shared::SignatureData};
-
-use super::{world::Angle, crafting::Slot};
+use super::{
+    crafting::Slot,
+    nbt,
+    world::{Angle, WorldPosition},
+};
+use crate::shared::SignatureData;
 
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x02)]
@@ -38,7 +40,7 @@ pub struct EntityAnimation {
 pub struct UpdateEntityPosition {
     pub entity_id: VarInt,
     pub delta: Vec3<i16>,
-    pub on_ground: bool
+    pub on_ground: bool,
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]
@@ -48,7 +50,7 @@ pub struct UpdateEntityPositionAndRotation {
     pub delta: Vec3<i16>,
     pub yaw: Angle,
     pub pitch: Angle,
-    pub on_ground: bool
+    pub on_ground: bool,
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]
@@ -63,9 +65,8 @@ pub struct UpdateEntityRotation {
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x3B)]
 pub struct RemoveEntity {
-    pub entities: Vec<VarInt>
+    pub entities: Vec<VarInt>,
 }
-
 
 #[derive(Debug, Clone, Default, Mooshroom)]
 pub struct PlayerProperty {
@@ -78,7 +79,7 @@ pub struct PlayerProperty {
 pub struct AddPlayer {
     pub name: String,
     pub properties: Vec<PlayerProperty>,
-    pub gamemode: VarInt,
+    pub gamemode: super::world::GameMode, //Possably should be varInt?
     pub ping: VarInt,
     pub display_name: Option<String>,
     pub signature_data: Option<SignatureData>,
@@ -180,8 +181,6 @@ pub struct SetHeadRotation {
     pub head_yaw: Angle,
 }
 
-
-
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x52)]
 pub struct SetEntityVelocity {
@@ -190,9 +189,9 @@ pub struct SetEntityVelocity {
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]
-pub struct Equipment{
+pub struct Equipment {
     pub slot: u8,
-    pub item: Slot
+    pub item: Slot,
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]
@@ -215,8 +214,6 @@ pub struct SetPassengers {
     pub passengers: Vec<VarInt>,
 }
 
-
-
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x62)]
 pub struct SystemChatMessage {
@@ -231,22 +228,21 @@ pub struct TeleportEntity {
     pub location: WorldPosition,
     pub yaw: Angle,
     pub pitch: Angle,
-    pub on_ground: bool
+    pub on_ground: bool,
 }
-
 
 #[derive(Debug, Clone, Default, Mooshroom)]
 pub struct Modifier {
     pub uuid: uuid::Uuid,
     pub amount: f64,
-    pub operaion: u8
+    pub operaion: u8,
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]
 pub struct AttributeProperty {
     pub key: Identifier,
     pub value: f64,
-    pub modifiers: Vec<Modifier>
+    pub modifiers: Vec<Modifier>,
 }
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x68)]
@@ -263,5 +259,5 @@ pub struct EntityEffect {
     pub aplifier: i8,
     pub duration: VarInt,
     pub flags: i8,
-    pub factor_codec: Option<nbt::NptCompound>
+    pub factor_codec: Option<nbt::NptCompound>,
 }

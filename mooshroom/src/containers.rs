@@ -81,7 +81,7 @@ where
     fn read(reader: &mut impl std::io::Read) -> mooshroom_core::error::Result<Self> {
         let s = <String as MooshroomReadable<PV>>::read(reader)?;
         serde_json::from_str(&s)
-            .map_err(|e| mooshroom_core::error::MoshroomError::InvalidJson(e.to_string()))
+            .map_err(|e| mooshroom_core::error::MooshroomError::InvalidJson(e.to_string()))
     }
 }
 
@@ -91,7 +91,7 @@ where
 {
     fn write(&self, writer: &mut impl std::io::Write) -> mooshroom_core::error::Result<()> {
         let s = serde_json::to_string(&self)
-            .map_err(|e| mooshroom_core::error::MoshroomError::InvalidJson(e.to_string()))?;
+            .map_err(|e| mooshroom_core::error::MooshroomError::InvalidJson(e.to_string()))?;
         <String as MooshroomWritable<PV>>::write(&s, writer)
     }
 }

@@ -6,7 +6,7 @@ use mooshroom_core::{
 use mooshroom_macros::Mooshroom;
 
 use super::crafting::Slot;
-use crate::{core::error::Result};
+use crate::core::error::Result;
 
 pub type Ingredient = Vec<Slot>;
 pub type Ingredients = Vec<Ingredient>;
@@ -15,7 +15,6 @@ pub type Ingredients = Vec<Ingredient>;
 pub struct Node {
     pub flag: u8,
     pub children: Vec<VarInt>,
-
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]
@@ -38,9 +37,8 @@ pub struct ServerData {
     pub motd: Option<String>,
     pub icon: Option<String>,
     pub previews_chat: bool,
-    pub enforce_secure_chat: bool
+    pub enforce_secure_chat: bool,
 }
-
 
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x50)]
@@ -48,8 +46,6 @@ pub struct SetEntityMetadata {
     pub entity_id: VarInt,
     // TODO
 }
-
-
 
 #[derive(Debug, Clone, Default, Mooshroom)]
 pub struct RecipeWithExp {
@@ -116,7 +112,9 @@ impl RecipeData {
             result: Slot::read_proto::<PV>(reader)?,
         })
     }
-    pub fn read_crafting_shaped<const PV: usize>(mut reader: &mut impl std::io::Read) -> Result<Self> {
+    pub fn read_crafting_shaped<const PV: usize>(
+        mut reader: &mut impl std::io::Read,
+    ) -> Result<Self> {
         let width = VarInt::read_proto::<PV>(reader)?;
         let height = VarInt::read_proto::<PV>(reader)?;
         let group = String::read_proto::<PV>(reader)?;
@@ -165,9 +163,7 @@ impl<const PV: usize> MooshroomReadable<PV> for Recipe {
         let recipe_id = String::read_proto::<PV>(reader)?;
 
         let data = match recipe_type.as_str() {
-            "minecraft:crafting_shapeless" => {
-                RecipeData::read_crafting_shapeless::<PV>(reader)?
-            }
+            "minecraft:crafting_shapeless" => RecipeData::read_crafting_shapeless::<PV>(reader)?,
             "minecraft:crafting_shaped" => RecipeData::read_crafting_shaped::<PV>(reader)?,
             "minecraft:crafting_special_armordye" => RecipeData::CraftingSpecialArmorDye,
             "minecraft:crafting_special_bookcloning" => RecipeData::CraftingSpecialBookCloning,
@@ -197,15 +193,9 @@ impl<const PV: usize> MooshroomReadable<PV> for Recipe {
             "minecraft:crafting_special_suspiciousstew" => {
                 RecipeData::CraftingSpecialSuspiciousStew
             }
-            "minecraft:smelting" => {
-                RecipeData::Smelting(RecipeWithExp::read_proto::<PV>(reader)?)
-            }
-            "minecraft:blasting" => {
-                RecipeData::Blasting(RecipeWithExp::read_proto::<PV>(reader)?)
-            }
-            "minecraft:smoking" => {
-                RecipeData::Smoking(RecipeWithExp::read_proto::<PV>(reader)?)
-            }
+            "minecraft:smelting" => RecipeData::Smelting(RecipeWithExp::read_proto::<PV>(reader)?),
+            "minecraft:blasting" => RecipeData::Blasting(RecipeWithExp::read_proto::<PV>(reader)?),
+            "minecraft:smoking" => RecipeData::Smoking(RecipeWithExp::read_proto::<PV>(reader)?),
             "minecraft:campfire_cooking" => {
                 RecipeData::CampfireCooking(RecipeWithExp::read_proto::<PV>(reader)?)
             }
@@ -302,5 +292,3 @@ pub struct UpdateTags(Vec<GroupedTag>);
 pub struct UpdateRecipeBook {
     //TODO
 }
-
-

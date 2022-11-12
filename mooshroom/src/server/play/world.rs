@@ -1,9 +1,13 @@
-use mooshroom_core::varint::{VarInt, VarLong};
+use mooshroom_core::{
+    io::MooshroomReadProto,
+    varint::{VarInt, VarLong},
+};
 use mooshroom_macros::Mooshroom;
 
 use super::nbt;
 use crate::{
-    core::primitives::{Identifier, Position, Vec3}, types::Chat,
+    core::primitives::{Identifier, Position, Vec3},
+    types::Chat,
 };
 
 pub enum Difficulty {
@@ -73,14 +77,7 @@ pub struct InitializeWorldBorder {
     pub speed: VarLong,
     pub portal_teleport_boundry: VarInt,
     pub warning_blocks: VarInt,
-    pub warning_timer: VarInt
-}
-
-pub enum GameMode {
-    Survival = 0,
-    Creative = 1,
-    Adventure = 2,
-    Spectator = 3,
+    pub warning_timer: VarInt,
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]
@@ -100,7 +97,7 @@ pub struct BlockEntity {
     pub block_type: VarInt,
     pub data: nbt::NptCompound,
 }
-// type BitSet = Vec<u64>;
+pub type BitSet = Vec<u64>;
 // type LightArray = [u8;2048];
 
 #[derive(Debug, Clone, Default, Mooshroom)]
@@ -111,7 +108,7 @@ pub struct LightingData {
     //pub empty_sky_mask: BitSet,
     //pub empty_block_mask: BitSet,
     //pub sky_light_arrays: Vec<LightArray>,
-     //pub block_light_n: VarLong,
+    //pub block_light_n: VarLong,
     //pub block_light_arrays: Vec<LightArray>,
 }
 #[derive(Debug, Clone, Default, Mooshroom)]
@@ -145,7 +142,6 @@ pub struct Particle {
     //TODO: data
 }
 
-
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x24)]
 pub struct UpdateLight {
@@ -155,12 +151,23 @@ pub struct UpdateLight {
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]
+#[repr(i8)]
+pub enum GameMode {
+    #[default]
+    None = -1,
+    Survival = 0,
+    Creative = 1,
+    Adventure = 2,
+    Spectator = 3,
+}
+
+#[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x25)]
 pub struct LoginPlay {
     pub entity_id: i32,
     pub is_hardcore: bool,
-    pub gamemode: u8,
-    pub previous_gamemode: i8,
+    pub gamemode: GameMode,
+    pub previous_gamemode: GameMode,
     pub dimention_names: Vec<String>,
     pub npt: nbt::NptCompound,
     pub dimention_type: Identifier,
@@ -181,6 +188,17 @@ pub struct PreviousMessage {
     pub sender: uuid::Uuid,
     pub signature: Vec<u8>,
 }
+
+#[derive(Debug, Clone, Default, Mooshroom)]
+#[repr(i32)]
+#[value_type(VarInt)]
+pub enum FilterType {
+    #[default]
+    PassThrough = 0,
+    FullyFiltered = 1,
+    PartiallyFiltered = 2,
+}
+
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x33)]
 pub struct PlayerChatMessage {
@@ -193,17 +211,32 @@ pub struct PlayerChatMessage {
     pub salt: i64,
     pub previous_messages: Vec<PreviousMessage>,
     pub unsigned_content: Option<Chat>,
-    pub filter_type: VarInt,
-    //TODO
-}
+    pub filter_type: FilterType,
 
+    #[parse(read_filter_mask, filter_type)]
+    pub filter_mask: Option<BitSet>,
+
+    pub chat_type: VarInt,
+    pub network_name: Chat,
+    pub target_network_name: Option<Chat>,
+}
+fn read_filter_mask<const PV: usize>(
+    reader: &mut impl std::io::Read,
+    filter_type: &FilterType,
+) -> crate::core::error::Result<Option<BitSet>> {
+    let r = match filter_type {
+        FilterType::FullyFiltered => Some(BitSet::read_proto::<PV>(reader)?),
+        _ => None,
+    };
+    Ok(r)
+}
 
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x40)]
 pub struct UpdateSectionBlocks {
     pub chunk_section_position: i64,
     pub suppress_light_updates: bool,
-    pub blocks: Vec<VarLong>
+    pub blocks: Vec<VarLong>,
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]
@@ -220,13 +253,11 @@ pub struct SetRenderDistance(VarInt);
 #[packet_id(0x5A)]
 pub struct SetSimulationDistance(VarInt);
 
-
-
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x5C)]
 pub struct UpdateTime {
     pub world_age: u64,
-    pub time_of_day: u64
+    pub time_of_day: u64,
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]
@@ -237,5 +268,5 @@ pub struct SoundEffect {
     pub position: Vec3<i32>,
     pub volume: f32,
     pub pitch: f32,
-    pub speed: i64
+    pub speed: i64,
 }
