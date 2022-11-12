@@ -24,8 +24,8 @@
 ---------
 
 ```rust,noplayground
+#[repr(u8)]
 pub enum Animation {
-    #[default]
     SwingMainArm = 0,
     TakeDamage = 1,
     LeaveBed = 2,
