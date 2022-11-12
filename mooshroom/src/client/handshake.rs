@@ -1,39 +1,17 @@
-use mooshroom_core::{error::MooshroomError, varint::VarInt};
+use mooshroom_core::{ varint::VarInt};
 use mooshroom_macros::Mooshroom;
 
 #[derive(Debug, Clone, Default, Copy, PartialEq, Eq, Mooshroom)]
-#[repr(u8)]
+#[repr(i32)]
+#[value_type(VarInt)]
 pub enum HandshakeState {
     #[default]
     Status = 1,
     Login = 2,
 }
 
-impl From<HandshakeState> for VarInt {
-    fn from(h: HandshakeState) -> Self {
-        Self(h as i32)
-    }
-}
-impl From<&HandshakeState> for VarInt {
-    fn from(h: &HandshakeState) -> Self {
-        Self(*h as i32)
-    }
-}
-
-impl TryFrom<VarInt> for HandshakeState {
-    type Error = MooshroomError;
-
-    fn try_from(value: VarInt) -> std::result::Result<Self, Self::Error> {
-        Ok(match value.0 {
-            1 => Self::Status,
-            2 => Self::Login,
-            i => return Err(MooshroomError::InvalidHandshakeState(i)),
-        })
-    }
-}
-
 #[derive(Debug, Clone, Default, Mooshroom)]
-#[packet_id(0)]
+#[packet_id(0x00)]
 pub struct Handshake {
     pub protocol_version: VarInt,
     pub server_address: String,

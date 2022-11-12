@@ -14,25 +14,52 @@ use mooshroom_macros::Mooshroom;
 use super::{
     crafting::Slot,
     nbt,
-    world::{Angle, WorldPosition},
+    world::{Angle},
 };
 use crate::shared::SignatureData;
+
+pub type WorldPosition = Vec3<f64>;
+
+#[derive(Debug, Clone, Default, Mooshroom)]
+#[packet_id(0x0)]
+pub struct SpawnEntity {
+    pub entity_id: VarInt,
+    pub entity_uuid: uuid::Uuid,
+    pub entity_type: VarInt,
+    pub position: WorldPosition,
+    pub pitch: Angle,
+    pub yaw: Angle,
+    pub data: VarInt,
+    pub velocity: Vec3<i16>,
+}
 
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x02)]
 pub struct SpawnPlayer {
     pub entity_id: VarInt,
     pub player_uuid: uuid::Uuid,
-    pub location: WorldPosition,
+    pub position: WorldPosition,
     pub yaw: Angle,
     pub pitch: Angle,
+}
+
+#[derive(Debug, Clone, Default, Mooshroom)]
+#[repr(u8)]
+pub enum Animation {
+    #[default]
+    SwingMainArm = 0,
+    TakeDamage = 1,
+    LeaveBed = 2,
+    SwingOffhand = 3,
+    CriticalEffect=4,
+    MagicCriticalEfect = 5
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x03)]
 pub struct EntityAnimation {
     pub entity_id: VarInt,
-    pub animation: u8,
+    pub animation: Animation,
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]

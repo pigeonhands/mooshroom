@@ -43,34 +43,32 @@ impl MooshroomAttrs {
     }
 }
 
-struct ManualParse {
+struct ManualRead {
     func: syn::Ident,
     args: Vec<syn::Ident>,
 }
 
-impl Parse for ManualParse {
+impl Parse for ManualRead {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         // parses a,b,c, or a,b,c where a,b and c are Indent
         let mut vars = Punctuated::<syn::Ident, Token![,]>::parse_terminated(input)?.into_iter();
         Ok(Self {
-            func: vars
-                .next()
-                .expect("Missing func for #[from_context(fn, args..)]"),
+            func: vars.next().expect("Missing func for #[read(fn, args..)]"),
             args: vars.collect(),
         })
     }
 }
 
 struct FieldAttributes {
-    from_context: Option<ManualParse>,
+    from_context: Option<ManualRead>,
 }
 
 impl FieldAttributes {
     pub fn parse(attributes: &[Attribute]) -> Self {
-        let mut from_context: Option<ManualParse> = None;
+        let mut from_context: Option<ManualRead> = None;
 
         for attr in attributes {
-            if attr.path.is_ident("parse") {
+            if attr.path.is_ident("read") {
                 from_context = Some(attr.parse_args().unwrap())
             }
         }

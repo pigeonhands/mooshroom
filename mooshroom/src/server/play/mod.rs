@@ -15,7 +15,6 @@ pub enum PlayStage {
     SetRenderDistance(world::SetRenderDistance),
     SetSimulationDistance(world::SetSimulationDistance),
     SetCenterChunk(world::SetCenterChunk),
-    SpawnEntity(world::SpawnEntity),
     InitializeWorldBorder(world::InitializeWorldBorder),
     UpdateTime(world::UpdateTime),
     ChunkData(world::ChunkData),
@@ -41,8 +40,9 @@ pub enum PlayStage {
     Respawn(player::Respawn),
     CombatDeath(player::CombatDeath),
 
-    EntityAnimation(population::EntityAnimation),
+    SpawnEntity(population::SpawnEntity),
     SpawnPlayer(population::SpawnPlayer),
+    EntityAnimation(population::EntityAnimation),
     SystemChatMessage(population::SystemChatMessage),
     PlayerInfo(population::PlayerInfo),
     UpdateAttributes(population::UpdateAttributes),

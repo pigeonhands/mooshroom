@@ -117,7 +117,7 @@ pub struct AdvancementDisplay {
     pub icon: Slot,
     pub frame_type: VarInt,
     pub flags: i32,
-    #[parse(read_background_texture, flags)]
+    #[read(read_background_texture, flags)]
     pub backdround_texture: Option<Identifier>,
     pub x_coord: f32,
     pub y_coord: f32,

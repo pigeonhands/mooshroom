@@ -4,7 +4,7 @@ use mooshroom_core::{
 };
 use mooshroom_macros::Mooshroom;
 
-use super::nbt;
+use super::{nbt, population::WorldPosition};
 use crate::{
     core::primitives::{Identifier, Position, Vec3},
     types::Chat,
@@ -25,20 +25,7 @@ impl Angle {
     }
 }
 
-pub type WorldPosition = Vec3<f64>;
 
-#[derive(Debug, Clone, Default, Mooshroom)]
-#[packet_id(0x0)]
-pub struct SpawnEntity {
-    pub entity_id: VarInt,
-    pub entity_uuid: uuid::Uuid,
-    pub entity_type: VarInt,
-    pub position: WorldPosition,
-    pub pitch: Angle,
-    pub yaw: Angle,
-    pub data: VarInt,
-    pub velocity: Vec3<i16>,
-}
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x0b)]
 pub struct ChangeDifficulty {
@@ -213,7 +200,7 @@ pub struct PlayerChatMessage {
     pub unsigned_content: Option<Chat>,
     pub filter_type: FilterType,
 
-    #[parse(read_filter_mask, filter_type)]
+    #[read(read_filter_mask, filter_type)]
     pub filter_mask: Option<BitSet>,
 
     pub chat_type: VarInt,

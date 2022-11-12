@@ -1,11 +1,16 @@
 use mooshroom_macros::Mooshroom;
 
-use crate::server::status::StatusResponse;
+use crate::server::status::{PingResponse, StatusResponse};
 
 #[derive(Debug, Clone, Default, Mooshroom)]
-#[packet_id(0)]
+#[packet_id(0x0)]
 #[response(StatusResponse)]
 pub struct StatusRequest;
+
+#[derive(Debug, Clone, Default, Mooshroom)]
+#[packet_id(0x01)]
+#[response(PingResponse)]
+pub struct PingRequest(u64);
 
 #[cfg(test)]
 mod tests {

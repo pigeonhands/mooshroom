@@ -1,28 +1,45 @@
-use mooshroom_macros::Mooshroom;
-use serde::{Deserialize, Serialize};
+# 0x00 - StatusResponse
 
-use crate::containers::Json;
+In response to [SatusRequest](../client/status-request.md).
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+| field_name            |  type        |
+|-----------------------|------------------------|
+| response_length       | `VarInt`               |
+| response              | `[u8;response_length]` json string |
+
+
+## Rust 
+---------
+
+```rust,noplayground
+pub struct StatusResponse {
+    pub response: String,
+}
+```
+
+### With json deseralization
+--------
+```rust,noplayground
+#[derive(Deserialize)]
 pub struct ServerVersion {
     pub name: String,
     pub protocol: i32,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Deserialize)]
 pub struct ServerPlayer {
     pub name: String,
     pub id: uuid::Uuid,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Deserialize)]
 pub struct ServerPlayers {
     pub max: usize,
     pub online: usize,
     pub sample: Vec<ServerPlayers>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(Deserialize)]
 pub struct StatusBody {
     pub version: ServerVersion,
     pub favicon: String,
@@ -32,12 +49,7 @@ pub struct StatusBody {
     pub enforces_secure_chat: Option<bool>,
 }
 
-#[derive(Debug, Clone, Default, Mooshroom)]
-#[packet_id(0x00)]
 pub struct StatusResponse {
     pub response: Json<StatusBody>,
 }
-
-#[derive(Debug, Clone, Default, Mooshroom)]
-#[packet_id(0x01)]
-pub struct PingResponse(u64);
+```
