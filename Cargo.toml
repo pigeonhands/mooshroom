@@ -4,7 +4,6 @@ members = [
     "mooshroom-core",
     "mooshroom-macros",
 ]
-[workspace.ignore]
-members = [
+exclude = [
     "mooshroom-client"
 ]

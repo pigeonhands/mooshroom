@@ -77,6 +77,14 @@ pub struct DeathLocation {
 #[derive(Debug, Clone, Default, Mooshroom)]
 pub struct PackedXZ(i8);
 
+impl PackedXZ {
+    pub fn unpack(&self) -> (i8,i8) {
+        let x = (self.0 >> 4) & 15;
+        let z = self.0 & 15;
+        (x,z)
+    }
+}
+
 #[derive(Debug, Clone, Default, Mooshroom)]
 pub struct BlockEntity {
     pub xz: PackedXZ,
@@ -105,7 +113,7 @@ pub struct ChunkData {
     pub chunk_z: i32,
     pub heightmaps: nbt::NptCompound,
     pub data: Vec<u8>,
-    pub blocks: Vec<BlockEntity>,
+    pub entity_blocks: Vec<BlockEntity>,
     pub lighting: LightingData,
 }
 
