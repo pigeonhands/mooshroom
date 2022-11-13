@@ -1,0 +1,120 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'mooshroom'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=mooshroom"
+                ],
+                "filter": {
+                    "name": "mooshroom",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'connect_to_server'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=connect_to_server",
+                    "--package=mooshroom"
+                ],
+                "filter": {
+                    "name": "connect_to_server",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'connect_to_server'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=connect_to_server",
+                    "--package=mooshroom"
+                ],
+                "filter": {
+                    "name": "connect_to_server",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug example 'server_status'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--example=server_status",
+                    "--package=mooshroom"
+                ],
+                "filter": {
+                    "name": "server_status",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in example 'server_status'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--example=server_status",
+                    "--package=mooshroom"
+                ],
+                "filter": {
+                    "name": "server_status",
+                    "kind": "example"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'mooshroom-core'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=mooshroom-core"
+                ],
+                "filter": {
+                    "name": "mooshroom-core",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
