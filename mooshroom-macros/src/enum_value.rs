@@ -1,11 +1,12 @@
+use proc_macro2::TokenStream;
 use quote::quote;
 use syn::{Attribute, DataEnum, Fields};
 
-struct EnumValueAttributes {
+struct EnumAttributes {
     read_type: syn::Ident,
 }
 
-impl EnumValueAttributes {
+impl EnumAttributes {
     pub fn parse(attributes: &[Attribute]) -> Self {
         let mut read_type: Option<syn::Ident> = None;
 
@@ -22,11 +23,27 @@ impl EnumValueAttributes {
     }
 }
 
+#[derive(Clone)]
+struct EnumFieldAttributes {
+    pub id: Option<syn::LitStr>,
+}
+
+impl EnumFieldAttributes {
+    pub fn parse(attributes: &[Attribute]) -> Self {
+        let id = None;
+        for attr in attributes {
+            if attr.path.is_ident("read") {
+            }
+        }
+        Self { id }
+    }
+}
+
 pub fn impl_enum(ast: &syn::DeriveInput, data: &DataEnum) -> proc_macro2::TokenStream {
     let name = &ast.ident;
-    let attrs = EnumValueAttributes::parse(&ast.attrs);
+    let attrs = EnumAttributes::parse(&ast.attrs);
 
-    let (idents, values): (Vec<_>, Vec<_>) = data
+    let fields : Vec<_> = data
         .variants
         .iter()
         .map(|v| {
@@ -42,12 +59,43 @@ pub fn impl_enum(ast: &syn::DeriveInput, data: &DataEnum) -> proc_macro2::TokenS
                 syn::Expr::Cast(c) => c.expr.as_ref(),
                 expr => expr,
             };
-            (&v.ident, expr)
+            let attributes = EnumFieldAttributes::parse(&v.attrs);
+            (&v.ident, expr, attributes)
         })
-        .unzip();
+        .collect();
 
     let read_type = attrs.read_type;
+    let read_write = {
+        let (idents, values) : (Vec<_>, Vec<_>) =  fields.iter().map(|(idents, values, _)| {
+            (idents, values)
+        }).clone().into_iter().unzip();
+
+        impl_read_write(&name, &idents, &values, &read_type)
+    };
+    let id_impl = {
+        let (idents, ids) : (Vec<_>, Vec<_>) =  fields.iter().filter_map(|(idents, _, attrs)| {
+            if let Some(id) = &attrs.id {
+                Some((idents, id))
+            }else{
+                None
+            }
+        }).clone().into_iter().unzip();
+        if !idents.is_empty() {
+            impl_identifiable(&name, &idents,  &ids)
+        }else{
+            TokenStream::new()
+        }
+    };
     let x = quote! {
+        #read_write
+        #id_impl
+    };
+    eprintln!("{}", x);
+    x
+}
+
+fn impl_read_write(name: &syn::Ident, idents: &[&syn::Ident], values: &[&syn::Expr], read_type: &syn::Ident) -> TokenStream {
+    quote! {
         #[automatically_derived]
         impl<const PV: usize> ::mooshroom_core::io::MooshroomReadable<PV> for #name {
             fn read(reader: &mut impl ::std::io::Read) -> ::mooshroom_core::error::Result<Self> {
@@ -70,6 +118,26 @@ pub fn impl_enum(ast: &syn::DeriveInput, data: &DataEnum) -> proc_macro2::TokenS
                 Ok(())
             }
         }
-    };
-    x
+    }
+}
+
+fn impl_identifiable(name: &syn::Ident, idents: &[&syn::Ident], ids: &[&syn::LitStr]) -> TokenStream {
+    quote! {
+        #[automatically_derived]
+        impl ::mooshroom_core::io::MooshroomIdentifiable for #name {
+            type Type = &'static str;
+            fn from_id(id: Self::Type) -> ::mooshroom_core::error::Result<Self>{
+                match self {
+                    #( #name::#idents => Ok(#ids), )*
+                    _ => Err(::mooshroom_core::error::MooshroomError::InvalidId(id.into()))
+                }
+            }
+            fn to_id(&self) -> ::mooshroom_core::error::Result<Self::Type> {
+                match self {
+                    #( #ids => Ok(#name::#idents), )*
+                    _ => Err(::mooshroom_core::error::MooshroomError::NoId)
+                }
+            }
+        }
+    }
 }

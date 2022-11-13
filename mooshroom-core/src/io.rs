@@ -56,3 +56,9 @@ impl<T> MooshroomWriteProto for T {
         <Self as MooshroomWritable<PV>>::write(self, writer)
     }
 }
+
+pub trait MooshroomIdentifiable:Sized {
+    type Type;
+    fn from_id(id: Self::Type) -> Result<Self>;
+    fn to_id(&self) -> Result<Self::Type>;
+}

@@ -22,6 +22,10 @@ pub enum MooshroomError {
     InvalidNbtTag(u8),
     #[error("Invalid enum variant {0}")]
     InvalidEnumVariant(i32),
+    #[error("Could not find value for id {0} ")]
+    InvalidId(String),
+    #[error("No Id found for value")]
+    NoId,
 
     #[cfg(feature = "uuid")]
     #[error("Invalid uuid. {0}")]

@@ -4,7 +4,7 @@ mod mooshroom;
 use proc_macro::TokenStream;
 use syn::{parse_macro_input, DeriveInput};
 
-#[proc_macro_derive(Mooshroom, attributes(packet_id, response, value_type, read))]
+#[proc_macro_derive(Mooshroom, attributes(packet_id, response, value_type, read, id))]
 pub fn mooshroom_derive(input: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(input as DeriveInput);
 

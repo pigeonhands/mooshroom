@@ -260,3 +260,16 @@ where
         Ok(())
     }
 }
+
+
+impl<const PV: usize> MooshroomReadable<PV> for (){
+    fn read(_: &mut impl std::io::Read) -> crate::error::Result<Self> {
+        Ok(())
+    }
+}
+
+impl<const PV: usize> MooshroomWritable<PV> for () {
+    fn write(&self, _: &mut impl std::io::Write) -> crate::error::Result<()> {
+        Ok(())
+    }
+}

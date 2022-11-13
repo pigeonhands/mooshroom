@@ -15,15 +15,17 @@ use super::{
     crafting::Slot,
     nbt,
     world::{Angle},
+    entity
 };
 use crate::shared::SignatureData;
 
 pub type WorldPosition = Vec3<f64>;
 
+
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x0)]
 pub struct SpawnEntity {
-    pub entity_id: VarInt,
+    pub entity_id: entity::EntityType,
     pub entity_uuid: uuid::Uuid,
     pub entity_type: VarInt,
     pub position: WorldPosition,
