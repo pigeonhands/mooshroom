@@ -1,18 +1,19 @@
-use mooshroom_macros::Mooshroom;
-use mooshroom_core::{
-    varint::VarInt,
-};
+use mooshroom_core::{primitives::Position, varint::VarInt};
+use mooshroom_macros::{Mooshroom, MooshroomCollection, DefaultInline, MooshroomBitflag, MooshroomUpdatable};
+
+use super::crafting::Slot;
+use crate::types::Chat;
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[repr(i32)]
 #[value_type(VarInt)]
 pub enum EntityType {
-    #[default]    
+    #[default]
     #[id("minecraft:allay")]
     Allay = 0,
     #[id("minecraft:area_effect_cloud")]
     AreaEffectCloud = 1,
     #[id("minecraft:armor_stand")]
-    ArmorStand= 2,
+    ArmorStand = 2,
     #[id("minecraft:arrow")]
     Arrow = 3,
     #[id("minecraft:axolotl")]
@@ -246,7 +247,8 @@ pub enum EntityType {
 }
 
 impl EntityType {
-    pub fn bounding_box(&self) -> (f32, f32) { //(xy, z)
+    pub fn bounding_box(&self) -> (f32, f32) {
+        //(xy, z)
         match self {
             Self::Allay => (0.6, 0.35),
             Self::AreaEffectCloud => (2.0, 0.5), //2.0* => (Radius, 0.5)
@@ -268,7 +270,7 @@ impl EntityType {
             Self::Donkey => (1.5, 1.39648),
             Self::DragonFireball => (1.0, 1.0),
             Self::Drowned => (0.6, 1.95),
-            Self::ElderGuardian => (1.9975, 1.9975), //1.9975 (2.35 * guardian), 1.9975 (2.35 * guardian)	
+            Self::ElderGuardian => (1.9975, 1.9975), //1.9975 (2.35 * guardian), 1.9975 (2.35 * guardian)
             Self::EndCrystal => (2.0, 2.0),
             Self::EnderDragon => (16.0, 8.0),
             Self::Enderman => (0.6, 2.9),
@@ -283,9 +285,9 @@ impl EntityType {
             Self::Frog => (0.5, 0.5),
             Self::Ghast => (4.0, 4.0),
             Self::Giant => (3.6, 12.0),
-            Self::GlowItemFrame => (0.75,0.75), //0.75 or 0.0625 (depth), 0.75	
+            Self::GlowItemFrame => (0.75, 0.75), //0.75 or 0.0625 (depth), 0.75
             Self::GlowSquid => (0.8, 0.8),
-            Self::Goat => (1.3, 0.9), //1.3 (adult) 0.65 (baby), 0.9 (adult), 0.45 (baby)	
+            Self::Goat => (1.3, 0.9), //1.3 (adult) 0.65 (baby), 0.9 (adult), 0.45 (baby)
             Self::Guardian => (0.85, 0.85),
             Self::Hoglin => (1.39648, 1.4),
             Self::Horse => (1.39648, 1.6),
@@ -293,7 +295,7 @@ impl EntityType {
             Self::Illusioner => (0.6, 1.95),
             Self::IronGolem => (1.4, 2.7),
             Self::Item => (0.25, 0.25),
-            Self::ItemFrame=> (0.75,0.75), //0.75 or 0.0625 (depth), 0.75	
+            Self::ItemFrame => (0.75, 0.75), //0.75 or 0.0625 (depth), 0.75
             Self::Fireball => (1.0, 1.0),
             Self::LeashKnot => (0.375, 0.5),
             Self::LightningBolt => (0.0, 0.0),
@@ -311,7 +313,7 @@ impl EntityType {
             Self::Mule => (1.39648, 1.6),
             Self::Mooshroom => (0.9, 1.4),
             Self::Ocelot => (0.6, 0.7),
-            Self::Painting => (1.,1.), //type width or 0.0625 (depth), type height	
+            Self::Painting => (1., 1.), //type width or 0.0625 (depth), type height
             Self::Panda => (1.3, 1.25),
             Self::Parrot => (0.5, 0.9),
             Self::Phantom => (0.9, 0.5),
@@ -368,4 +370,199 @@ impl EntityType {
             Self::FishingHook => (0.25, 0.25),
         }
     }
+}
+
+pub type Particle = VarInt; //TODO: https://wiki.vg/Data_types#Particle
+
+#[derive(Debug, Clone, Default, Mooshroom)]
+#[repr(i32)]
+#[value_type(VarInt)]
+pub enum EntityPose {
+    #[default]
+    Standing = 0,
+    FallFlying = 1,
+    Sleeping = 2,
+    Swimming = 3,
+    SpinAttack = 4,
+    Sneaking = 5,
+    LongJumping = 6,
+    Sying = 7,
+    Croaking = 8,
+    UsingToung = 9,
+    Roaring = 10,
+    Sniffing = 11,
+    Wmerging = 12,
+    Digging = 13,
+}
+
+
+#[derive(Debug, Clone, Default, MooshroomBitflag)]
+#[value_type(u8)]
+pub struct EntityFlags {
+    #[mask(0x01)]
+    pub is_on_fire: bool,
+    #[mask(0x02)]
+    pub is_crouching: bool,
+    #[mask(0x04)]
+    pub unused: bool,
+    #[mask(0x08)]
+    pub is_sprinting: bool,
+    #[mask(0x10)]
+    pub is_swimming: bool,
+    #[mask(0x20)]
+    pub is_invisible: bool,
+    #[mask(0x40)]
+    pub has_glowing_effect: bool,
+    #[mask(0x40)]
+    pub is_flying_with_elytra: bool,
+}
+
+#[derive(Debug, Clone, MooshroomCollection)]
+pub enum EntityMetatataValue {
+    #[id(0)]
+    Flags(EntityFlags),
+    #[id(1)]
+    AirTicks(VarInt),
+    #[id(2)]
+    CustomName(Option<Chat>),
+    #[id(3)]
+    IsCustomNameVisible(bool),
+    #[id(4)]
+    IsSilent(bool),
+    #[id(5)]
+    HasNoGravity(bool),
+    #[id(6)]
+    Pose(EntityPose),
+    #[id(7)]
+    TicksFrozenInPowderedSnow(VarInt),
+}
+
+#[derive(Debug, Clone, Mooshroom, MooshroomUpdatable, Default)]
+#[update_using(EntityMetatataValue)]
+pub struct EntityMetadata {
+    #[from(Flags)]
+    pub flags: EntityFlags,
+    #[from(AirTicks)]
+    pub air_ticks: VarInt,
+    #[from(CustomName)]
+    pub custom_name: Option<Chat>,
+    #[from(IsCustomNameVisible)]
+    pub is_custom_name_visible: bool,
+    #[from(IsSilent)]
+    pub is_silent: bool,
+    #[from(HasNoGravity)]
+    pub has_no_gravity: bool,
+    #[from(Pose)]
+    pub pose: EntityPose,
+    #[from(TicksFrozenInPowderedSnow)]
+    pub ticks_frozen_in_powdered_snow: VarInt
+}
+
+#[derive(Debug, Clone, MooshroomCollection)]
+pub enum ThrownItemMetadataValue {
+    #[id_range(0..=7)]
+    EntityValue(EntityMetatataValue),
+    #[id(8)]
+    Item(Slot),
+}
+
+#[derive(Debug, Clone, Mooshroom, Default, MooshroomUpdatable)]
+#[update_using(ThrownItemMetadataValue)]
+pub struct ThrowItemMedata {
+    #[extends(EntityValue)]
+    pub entity_range: EntityMetadata,
+    #[from(Item)]
+    pub item: Slot,
+}
+
+
+#[derive(Debug, Clone, MooshroomCollection)]
+pub enum FallingBlockMetadataValue {
+    #[id_range(0..=7)]
+    EntityValue(EntityMetatataValue),
+    #[id(8)]
+    BlockPos(Position),
+}
+
+#[derive(Debug, Clone, Mooshroom, Default, MooshroomUpdatable)]
+#[update_using(FallingBlockMetadataValue)]
+pub struct FallingBlockMetadata {
+    #[extends(EntityValue)]
+    pub entity_range: EntityMetadata,
+    #[from(BlockPos)]
+    pub block_position: Position,
+}
+
+#[derive(Debug, Clone, MooshroomCollection)]
+pub enum AreaEffectCloudMetadataValue {
+    #[id_range(0..=7)]
+    EntityValue(EntityMetatataValue),
+    #[id(8)]
+    Radius(f32),
+    #[id(9)]
+    Color(VarInt),
+    #[id(10)]
+    ShowEffectAsSinglePoint(bool),
+    #[id(11)]
+    Particle(Particle),
+}
+
+#[derive(Debug, Clone, Mooshroom, DefaultInline, MooshroomUpdatable)]
+#[update_using(AreaEffectCloudMetadataValue)]
+pub struct AreaEffectCloudMetadata {
+    #[extends(EntityValue)]
+    pub entity_range: EntityMetadata,
+    #[from(Radius)]
+    #[default(0.5)]
+    pub block_position: f32,
+    #[from(Color)]
+    pub color: VarInt,
+    #[from(ShowEffectAsSinglePoint)]
+    pub show_effect_as_single_point: bool,
+    #[from(Particle)]
+    pub particle: Particle,
+}
+
+#[derive(Debug, Clone, MooshroomCollection)]
+pub enum FishingHookMetadataValue {
+    #[id_range(0..=7)]
+    EntityValue(EntityMetatataValue),
+    #[id(8)]
+    HookedEntityIdPlus1(VarInt), //-1 for id
+    #[id(9)]
+    IsCachable(bool),
+}
+
+#[derive(Debug, Clone, MooshroomCollection)]
+pub enum AbstractArrowMetadataValue {
+    #[id_range(0..=7)]
+    EntityValue(EntityMetatataValue),
+    #[id(8)]
+    Bitflags(u8),
+    #[id(9)]
+    PiercingLevel(u8),
+}
+
+#[derive(Debug, Clone, MooshroomCollection)]
+pub enum ArrowMetadataValue {
+    #[id_range(0..=9)]
+    ArrowMetadata(AbstractArrowMetadataValue),
+    #[id(10)]
+    Color(VarInt),
+}
+
+#[derive(Debug, Clone, MooshroomCollection)]
+pub enum SpectralArrowMetadataValue {
+    #[id_range(0..=9)]
+    ArrowMetadata(AbstractArrowMetadataValue),
+}
+
+#[derive(Debug, Clone, MooshroomCollection)]
+pub enum ThrowTridentMetadataValue {
+    #[id_range(0..=9)]
+    ArrowMetadata(AbstractArrowMetadataValue),
+    #[id(10)]
+    LoyaltyLevel(VarInt),
+    #[id(11)]
+    HasEnchantmentGlint(VarInt),
 }

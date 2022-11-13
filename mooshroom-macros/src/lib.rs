@@ -1,6 +1,9 @@
 mod collection;
 mod enum_value;
 mod mooshroom;
+mod updatable;
+mod default;
+mod bitflag;
 use proc_macro::TokenStream;
 use syn::{parse_macro_input, DeriveInput};
 
@@ -13,7 +16,7 @@ pub fn mooshroom_derive(input: TokenStream) -> TokenStream {
     gen.into()
 }
 
-#[proc_macro_derive(MooshroomCollection)]
+#[proc_macro_derive(MooshroomCollection, attributes(id, id_range))]
 pub fn collection_derive(input: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(input as DeriveInput);
 
@@ -22,11 +25,29 @@ pub fn collection_derive(input: TokenStream) -> TokenStream {
     gen.into()
 }
 
-#[proc_macro_derive(MooshroomEnum, attributes(value_type))]
-pub fn enum_value_derive(input: TokenStream) -> TokenStream {
+#[proc_macro_derive(MooshroomUpdatable, attributes(update_using, from, extends))]
+pub fn struct_updatable(input: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(input as DeriveInput);
 
-    let gen = collection::impl_collection(&ast);
+    let gen = updatable::impl_mooshroom_updatable(&ast);
+
+    gen.into()
+}
+
+#[proc_macro_derive(DefaultInline, attributes(default))]
+pub fn default_inline(input: TokenStream) -> TokenStream {
+    let ast = parse_macro_input!(input as DeriveInput);
+
+    let gen = default::impl_mooshroom_default_inline(&ast);
+
+    gen.into()
+}
+
+#[proc_macro_derive(MooshroomBitflag, attributes(value_type, mask))]
+pub fn impl_bitflag(input: TokenStream) -> TokenStream {
+    let ast = parse_macro_input!(input as DeriveInput);
+
+    let gen = bitflag::impl_mooshroom_bitflag(&ast);
 
     gen.into()
 }

@@ -25,7 +25,6 @@ impl Angle {
     }
 }
 
-
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x0b)]
 pub struct ChangeDifficulty {
@@ -78,10 +77,10 @@ pub struct DeathLocation {
 pub struct PackedXZ(i8);
 
 impl PackedXZ {
-    pub fn unpack(&self) -> (i8,i8) {
+    pub fn unpack(&self) -> (i8, i8) {
         let x = (self.0 >> 4) & 15;
         let z = self.0 & 15;
-        (x,z)
+        (x, z)
     }
 }
 

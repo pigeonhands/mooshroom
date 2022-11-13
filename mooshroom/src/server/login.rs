@@ -3,7 +3,6 @@ use mooshroom_macros::{Mooshroom, MooshroomCollection};
 
 use crate::types::Chat;
 
-
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0)]
 pub struct Disconnect(Chat);

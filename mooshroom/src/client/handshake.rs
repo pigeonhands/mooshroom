@@ -1,4 +1,4 @@
-use mooshroom_core::{ varint::VarInt};
+use mooshroom_core::varint::VarInt;
 use mooshroom_macros::Mooshroom;
 
 #[derive(Debug, Clone, Default, Copy, PartialEq, Eq, Mooshroom)]

@@ -23,10 +23,6 @@ pub trait MooshroomCommand<const PV: Protocal>: MooshroomPacket<PV> {
     type Response: MooshroomPacket<PV>;
 }
 
-pub trait MooshroomCollection<const PV: Protocal>: Sized {
-    fn read_one_of(id: VarInt, reader: &mut impl io::Read) -> Result<Self>;
-}
-
 pub trait MooshroomReadProto: Sized {
     fn read_proto<const PV: usize>(reader: &mut impl io::Read) -> Result<Self>
     where
@@ -55,10 +51,4 @@ impl<T> MooshroomWriteProto for T {
     {
         <Self as MooshroomWritable<PV>>::write(self, writer)
     }
-}
-
-pub trait MooshroomIdentifiable:Sized {
-    type Type;
-    fn from_id(id: Self::Type) -> Result<Self>;
-    fn to_id(&self) -> Result<Self::Type>;
 }

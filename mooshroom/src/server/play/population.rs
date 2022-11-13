@@ -11,16 +11,10 @@ use mooshroom_core::{
 };
 use mooshroom_macros::Mooshroom;
 
-use super::{
-    crafting::Slot,
-    nbt,
-    world::{Angle},
-    entity
-};
+use super::{crafting::Slot, entity, nbt, world::Angle};
 use crate::shared::SignatureData;
 
 pub type WorldPosition = Vec3<f64>;
-
 
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x0)]
@@ -53,8 +47,8 @@ pub enum Animation {
     TakeDamage = 1,
     LeaveBed = 2,
     SwingOffhand = 3,
-    CriticalEffect=4,
-    MagicCriticalEfect = 5
+    CriticalEffect = 4,
+    MagicCriticalEfect = 5,
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]

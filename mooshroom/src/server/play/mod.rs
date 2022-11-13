@@ -1,10 +1,10 @@
 pub mod crafting;
+pub mod entity;
 pub mod metadata;
 pub mod nbt;
 pub mod player;
 pub mod population;
 pub mod world;
-pub mod entity;
 use mooshroom_macros::MooshroomCollection;
 
 #[derive(Debug, Clone, MooshroomCollection)]

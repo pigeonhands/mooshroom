@@ -32,8 +32,7 @@ impl EnumFieldAttributes {
     pub fn parse(attributes: &[Attribute]) -> Self {
         let id = None;
         for attr in attributes {
-            if attr.path.is_ident("read") {
-            }
+            if attr.path.is_ident("read") {}
         }
         Self { id }
     }
@@ -43,7 +42,7 @@ pub fn impl_enum(ast: &syn::DeriveInput, data: &DataEnum) -> proc_macro2::TokenS
     let name = &ast.ident;
     let attrs = EnumAttributes::parse(&ast.attrs);
 
-    let fields : Vec<_> = data
+    let fields: Vec<_> = data
         .variants
         .iter()
         .map(|v| {
@@ -66,23 +65,31 @@ pub fn impl_enum(ast: &syn::DeriveInput, data: &DataEnum) -> proc_macro2::TokenS
 
     let read_type = attrs.read_type;
     let read_write = {
-        let (idents, values) : (Vec<_>, Vec<_>) =  fields.iter().map(|(idents, values, _)| {
-            (idents, values)
-        }).clone().into_iter().unzip();
+        let (idents, values): (Vec<_>, Vec<_>) = fields
+            .iter()
+            .map(|(idents, values, _)| (idents, values))
+            .clone()
+            .into_iter()
+            .unzip();
 
         impl_read_write(&name, &idents, &values, &read_type)
     };
     let id_impl = {
-        let (idents, ids) : (Vec<_>, Vec<_>) =  fields.iter().filter_map(|(idents, _, attrs)| {
-            if let Some(id) = &attrs.id {
-                Some((idents, id))
-            }else{
-                None
-            }
-        }).clone().into_iter().unzip();
+        let (idents, ids): (Vec<_>, Vec<_>) = fields
+            .iter()
+            .filter_map(|(idents, _, attrs)| {
+                if let Some(id) = &attrs.id {
+                    Some((idents, id))
+                } else {
+                    None
+                }
+            })
+            .clone()
+            .into_iter()
+            .unzip();
         if !idents.is_empty() {
-            impl_identifiable(&name, &idents,  &ids)
-        }else{
+            impl_identifiable(&name, &idents, &ids)
+        } else {
             TokenStream::new()
         }
     };
@@ -90,11 +97,16 @@ pub fn impl_enum(ast: &syn::DeriveInput, data: &DataEnum) -> proc_macro2::TokenS
         #read_write
         #id_impl
     };
-    eprintln!("{}", x);
+    //eprintln!("{}", x);
     x
 }
 
-fn impl_read_write(name: &syn::Ident, idents: &[&syn::Ident], values: &[&syn::Expr], read_type: &syn::Ident) -> TokenStream {
+fn impl_read_write(
+    name: &syn::Ident,
+    idents: &[&syn::Ident],
+    values: &[&syn::Expr],
+    read_type: &syn::Ident,
+) -> TokenStream {
     quote! {
         #[automatically_derived]
         impl<const PV: usize> ::mooshroom_core::io::MooshroomReadable<PV> for #name {
@@ -121,10 +133,14 @@ fn impl_read_write(name: &syn::Ident, idents: &[&syn::Ident], values: &[&syn::Ex
     }
 }
 
-fn impl_identifiable(name: &syn::Ident, idents: &[&syn::Ident], ids: &[&syn::LitStr]) -> TokenStream {
+fn impl_identifiable(
+    name: &syn::Ident,
+    idents: &[&syn::Ident],
+    ids: &[&syn::LitStr],
+) -> TokenStream {
     quote! {
         #[automatically_derived]
-        impl ::mooshroom_core::io::MooshroomIdentifiable for #name {
+        impl ::mooshroom_core::data::MooshroomIdentifiable for #name {
             type Type = &'static str;
             fn from_id(id: Self::Type) -> ::mooshroom_core::error::Result<Self>{
                 match self {

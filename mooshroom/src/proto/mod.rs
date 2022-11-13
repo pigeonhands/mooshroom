@@ -2,6 +2,7 @@ pub mod codec;
 pub mod connection;
 
 use codec::MooshroomCodec;
+use mooshroom_core::data::MooshroomCollection;
 
 use crate::core::{error::*, io::*};
 

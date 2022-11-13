@@ -261,8 +261,7 @@ where
     }
 }
 
-
-impl<const PV: usize> MooshroomReadable<PV> for (){
+impl<const PV: usize> MooshroomReadable<PV> for () {
     fn read(_: &mut impl std::io::Read) -> crate::error::Result<Self> {
         Ok(())
     }

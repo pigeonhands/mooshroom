@@ -6,7 +6,7 @@ use flate2::{
     Compression,
 };
 use log::error;
-use mooshroom_core::varint::VarInt;
+use mooshroom_core::{varint::VarInt, data::MooshroomCollection};
 
 use crate::core::{
     error::{MooshroomError, Result},

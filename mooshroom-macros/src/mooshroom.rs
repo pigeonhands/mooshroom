@@ -7,7 +7,6 @@ use syn::{
     Data,
     DataStruct,
     Fields,
-    LitInt,
     Token,
 };
 
@@ -15,7 +14,7 @@ use crate::enum_value;
 
 #[derive(Default)]
 struct MooshroomAttrs {
-    packet_id: Option<i32>,
+    packet_id: Option<syn::LitInt>,
     response: Option<syn::Ident>,
 }
 
@@ -24,14 +23,9 @@ impl MooshroomAttrs {
         let mut ma = Self::default();
         for attr in attributes {
             if attr.path.is_ident("packet_id") {
-                ma.packet_id = match attr
+                ma.packet_id = attr
                     .parse_args()
-                    .ok()
-                    .map(|l: LitInt| l.base10_parse().unwrap())
-                {
-                    Some(s) => Some(s),
-                    None => panic!("packet_id must be i32"),
-                }
+                    .expect("packet_id must be i32");
             } else if attr.path.is_ident("response") {
                 ma.response = match attr.parse_args() {
                     Ok(r) => r,
