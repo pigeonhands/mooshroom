@@ -1,0 +1,1237 @@
+508 |     Ok(#[stable(feature = "rust1", since = "1.0.0")] T),
+    |     ^^
+
+error[E0308]: mismatched types
+   --> C:\src\dev\mooshroom\mooshroom\src\server\play\population.rs:259:10
+    |
+256 |   #[derive(Debug, Clone, Default, Mooshroom)]
+    |                                   --------- arguments to this enum variant are incorrect
+...
+259 |   pub enum AttributePropertyKey {
+    |  __________^
+260 | |     #[default]
+261 | |     #[id("minecraft:generic.max_health")]
+262 | |     MaxHealth = 0,
+...   |
+283 | |     #[id("minecraft:zombie.spawn_reinforcements")]
+284 | |     ZombieSpawnReinforcements = 11,
+    | |_____________________________^ expected `&str`, found enum `AttributePropertyKey`
+    |
+note: tuple variant defined here
+   --> C:\Users\sam.mackenzie\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib/rustlib/src/rust\library\core\src\re
+sult.rs:508:5
+    |
+508 |     Ok(#[stable(feature = "rust1", since = "1.0.0")] T),
+    |     ^^
+
+error[E0308]: mismatched types
+   --> C:\src\dev\mooshroom\mooshroom\src\server\play\population.rs:259:10
+    |
+256 |   #[derive(Debug, Clone, Default, Mooshroom)]
+    |                                   --------- arguments to this enum variant are incorrect
+...
+259 |   pub enum AttributePropertyKey {
+    |  __________^
+260 | |     #[default]
+261 | |     #[id("minecraft:generic.max_health")]
+262 | |     MaxHealth = 0,
+...   |
+285 | |     #[id("minecraft:horse.jump_strength")]
+286 | |     HorseJumpStrength = 12,
+    | |_____________________^ expected `&str`, found enum `AttributePropertyKey`
+    |
+note: tuple variant defined here
+   --> C:\Users\sam.mackenzie\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib/rustlib/src/rust\library\core\src\re
+sult.rs:508:5
+    |
+508 |     Ok(#[stable(feature = "rust1", since = "1.0.0")] T),
+    |     ^^
+
+error[E0308]: mismatched types
+   --> C:\src\dev\mooshroom\mooshroom\src\server\play\population.rs:259:10
+    |
+256 |   #[derive(Debug, Clone, Default, Mooshroom)]
+    |                                   --------- arguments to this enum variant are incorrect
+...
+259 |   pub enum AttributePropertyKey {
+    |  __________^
+260 | |     #[default]
+261 | |     #[id("minecraft:generic.max_health")]
+262 | |     MaxHealth = 0,
+...   |
+287 | |     #[id("minecraft:generic.reachDistance")]
+288 | |     ForgeReachDistance = 13,
+    | |______________________^ expected `&str`, found enum `AttributePropertyKey`
+    |
+note: tuple variant defined here
+   --> C:\Users\sam.mackenzie\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib/rustlib/src/rust\library\core\src\re
+sult.rs:508:5
+    |
+508 |     Ok(#[stable(feature = "rust1", since = "1.0.0")] T),
+    |     ^^
+
+error[E0308]: mismatched types
+    |
+256 |   #[derive(Debug, Clone, Default, Mooshroom)]
+    |                                   --------- arguments to this enum variant are incorrect
+...
+259 |   pub enum AttributePropertyKey {
+    |  __________^
+260 | |     #[default]
+261 | |     #[id("minecraft:generic.max_health")]
+262 | |     MaxHealth = 0,
+...   |
+289 | |     #[id("minecraft:forge.swimSpeed")]
+290 | |     ForgeSwimSpeed = 14,
+    | |__________________^ expected `&str`, found enum `AttributePropertyKey`
+    |
+note: tuple variant defined here
+   --> C:\Users\sam.mackenzie\.rustup\toolchains\stable-x86_64-pc-windows-msvc\lib/rustlib/src/rust\library\core\src\re
+sult.rs:508:5
+    |
+508 |     Ok(#[stable(feature = "rust1", since = "1.0.0")] T),
+    |     ^^
+
+Some errors have detailed explanations: E0308, E0424.
+For more information about an error, try `rustc --explain E0308`.
+error: could not compile `mooshroom` due to 401 previous errors
+PS C:\src\dev\mooshroom\mooshroom-client> cargo run
+   Compiling mooshroom v0.1.0 (C:\src\dev\mooshroom\mooshroom)
+#[automatically_derived] impl < const PV : usize > :: mooshroom_core :: io ::
+MooshroomReadable < PV > for HandshakeState
+{
+    fn read(reader : & mut impl :: std :: io :: Read) -> :: mooshroom_core ::
+    error :: Result < Self >
+    {
+        let value = < VarInt as :: mooshroom_core :: io :: MooshroomReadable <
+        PV >> :: read(reader) ?.into() ;
+        Ok(match value
+        {
+            1 => HandshakeState :: Status, 2 => HandshakeState :: Login, i =>
+            return
+            Err(:: mooshroom_core :: error :: MooshroomError ::
+            InvalidEnumVariant(i.into()))
+        })
+    }
+} #[automatically_derived] impl < const PV : usize > :: mooshroom_core :: io
+:: MooshroomWritable < PV > for HandshakeState
+{
+    fn write(& self, writer : & mut impl :: std :: io :: Write) -> ::
+    mooshroom_core :: error :: Result < () >
+    {
+        match self
+        {
+            HandshakeState :: Status => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((1).into()), writer) ?,
+            HandshakeState :: Login => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((2).into()), writer) ?,
+        } ; Ok(())
+    }
+}
+#[automatically_derived] impl < const PV : usize > :: mooshroom_core :: io ::
+MooshroomReadable < PV > for EntityType
+{
+    fn read(reader : & mut impl :: std :: io :: Read) -> :: mooshroom_core ::
+    error :: Result < Self >
+    {
+        let value = < VarInt as :: mooshroom_core :: io :: MooshroomReadable <
+        PV >> :: read(reader) ?.into() ;
+        Ok(match value
+        {
+            0 => EntityType :: Allay, 1 => EntityType :: AreaEffectCloud, 2 =>
+            EntityType :: ArmorStand, 3 => EntityType :: Arrow, 4 =>
+            EntityType :: Axolotl, 5 => EntityType :: Bat, 6 => EntityType ::
+            Bee, 7 => EntityType :: Blaze, 8 => EntityType :: Boat, 9 =>
+            EntityType :: ChestBoat, 10 => EntityType :: Cat, 11 => EntityType
+            :: CaveSpider, 12 => EntityType :: Chicken, 13 => EntityType ::
+            Cod, 14 => EntityType :: Cow, 15 => EntityType :: Creeper, 16 =>
+            EntityType :: Dolphin, 17 => EntityType :: Donkey, 18 =>
+            EntityType :: DragonFireball, 19 => EntityType :: Drowned, 20 =>
+            EntityType :: ElderGuardian, 21 => EntityType :: EndCrystal, 22 =>
+            EntityType :: EnderDragon, 23 => EntityType :: Enderman, 24 =>
+            EntityType :: Endermite, 25 => EntityType :: Evoker, 26 =>
+            EntityType :: EvokerFangs, 27 => EntityType :: ExperienceOrb, 28
+            => EntityType :: EyeofEnder, 29 => EntityType :: FallingBlock, 30
+            => EntityType :: FireworkRocketEntity, 31 => EntityType :: Fox, 32
+            => EntityType :: Frog, 33 => EntityType :: Ghast, 34 => EntityType
+            :: Giant, 35 => EntityType :: GlowItemFrame, 36 => EntityType ::
+            GlowSquid, 37 => EntityType :: Goat, 38 => EntityType :: Guardian,
+            39 => EntityType :: Hoglin, 40 => EntityType :: Horse, 41 =>
+            EntityType :: Husk, 42 => EntityType :: Illusioner, 43 =>
+            EntityType :: IronGolem, 44 => EntityType :: Item, 45 =>
+            EntityType :: ItemFrame, 46 => EntityType :: Fireball, 47 =>
+            EntityType :: LeashKnot, 48 => EntityType :: LightningBolt, 49 =>
+            EntityType :: Llama, 50 => EntityType :: LlamaSpit, 51 =>
+            EntityType :: MagmaCube, 52 => EntityType :: Marker, 53 =>
+            EntityType :: Minecart, 54 => EntityType :: MinecartChest, 55 =>
+            EntityType :: MinecartCommandBlock, 56 => EntityType ::
+            MinecartFurnace, 57 => EntityType :: MinecartHopper, 58 =>
+            EntityType :: MinecartSpawner, 59 => EntityType :: MinecartTNT, 60
+            => EntityType :: Mule, 61 => EntityType :: Mooshroom, 62 =>
+            EntityType :: Ocelot, 63 => EntityType :: Painting, 64 =>
+            EntityType :: Panda, 65 => EntityType :: Parrot, 66 => EntityType
+            :: Phantom, 67 => EntityType :: Pig, 68 => EntityType :: Piglin,
+            69 => EntityType :: PiglinBrute, 70 => EntityType :: Pillager, 71
+            => EntityType :: PolarBear, 72 => EntityType :: PrimedTNT, 73 =>
+            EntityType :: Pufferfish, 74 => EntityType :: Rabbit, 75 =>
+            EntityType :: Ravager, 76 => EntityType :: Salmon, 77 =>
+            EntityType :: Sheep, 78 => EntityType :: Shulker, 79 => EntityType
+            :: ShulkerBullet, 80 => EntityType :: Silverfish, 81 => EntityType
+            :: Skeleton, 82 => EntityType :: SkeletonHorse, 83 => EntityType
+            :: Slime, 84 => EntityType :: SmallFireball, 85 => EntityType ::
+            SnowGolem, 86 => EntityType :: Snowball, 87 => EntityType ::
+            SpectralArrow, 88 => EntityType :: Spider, 89 => EntityType ::
+            Squid, 90 => EntityType :: Stray, 91 => EntityType :: Strider, 92
+            => EntityType :: Tadpole, 93 => EntityType :: ThrownEgg, 94 =>
+            EntityType :: ThrownEnderPearl, 95 => EntityType ::
+            ThrownExperienceBottle, 96 => EntityType :: ThrownPotion, 97 =>
+            EntityType :: ThrownTrident, 98 => EntityType :: TraderLlama, 99
+            => EntityType :: TropicalFish, 100 => EntityType :: Turtle, 101 =>
+            EntityType :: Vex, 102 => EntityType :: Villager, 103 =>
+            EntityType :: Vindicator, 104 => EntityType :: WanderingTrader,
+            105 => EntityType :: Warden, 106 => EntityType :: Witch, 107 =>
+            EntityType :: Wither, 108 => EntityType :: WitherSkeleton, 109 =>
+            EntityType :: WitherSkull, 110 => EntityType :: Wolf, 111 =>
+            EntityType :: Zoglin, 112 => EntityType :: Zombie, 113 =>
+            EntityType :: ZombieHorse, 114 => EntityType :: ZombieVillager,
+            115 => EntityType :: ZombifiedPiglin, 116 => EntityType :: Player,
+            117 => EntityType :: FishingHook, i => return
+            Err(:: mooshroom_core :: error :: MooshroomError ::
+            InvalidEnumVariant(i.into()))
+        })
+    }
+} #[automatically_derived] impl < const PV : usize > :: mooshroom_core :: io
+:: MooshroomWritable < PV > for EntityType
+{
+    fn write(& self, writer : & mut impl :: std :: io :: Write) -> ::
+    mooshroom_core :: error :: Result < () >
+    {
+        match self
+        {
+            EntityType :: Allay => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((0).into()), writer) ?,
+            EntityType :: AreaEffectCloud => < VarInt as :: mooshroom_core ::
+            io :: MooshroomWritable < PV >> :: write(& ((1).into()), writer)
+            ?, EntityType :: ArmorStand => < VarInt as :: mooshroom_core :: io
+            :: MooshroomWritable < PV >> :: write(& ((2).into()), writer) ?,
+            EntityType :: Arrow => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((3).into()), writer) ?,
+            EntityType :: Axolotl => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((4).into()), writer) ?,
+            EntityType :: Bat => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((5).into()), writer) ?,
+            EntityType :: Bee => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((6).into()), writer) ?,
+            EntityType :: Blaze => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((7).into()), writer) ?,
+            EntityType :: Boat => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((8).into()), writer) ?,
+            EntityType :: ChestBoat => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((9).into()), writer) ?,
+            EntityType :: Cat => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((10).into()), writer) ?,
+            EntityType :: CaveSpider => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((11).into()), writer) ?,
+            EntityType :: Chicken => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((12).into()), writer) ?,
+            EntityType :: Cod => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((13).into()), writer) ?,
+            EntityType :: Cow => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((14).into()), writer) ?,
+            EntityType :: Creeper => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((15).into()), writer) ?,
+            EntityType :: Dolphin => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((16).into()), writer) ?,
+            EntityType :: Donkey => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((17).into()), writer) ?,
+            EntityType :: DragonFireball => < VarInt as :: mooshroom_core ::
+            io :: MooshroomWritable < PV >> :: write(& ((18).into()), writer)
+            ?, EntityType :: Drowned => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((19).into()), writer) ?,
+            EntityType :: ElderGuardian => < VarInt as :: mooshroom_core :: io
+            :: MooshroomWritable < PV >> :: write(& ((20).into()), writer) ?,
+            EntityType :: EndCrystal => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((21).into()), writer) ?,
+            EntityType :: EnderDragon => < VarInt as :: mooshroom_core :: io
+            :: MooshroomWritable < PV >> :: write(& ((22).into()), writer) ?,
+            EntityType :: Enderman => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((23).into()), writer) ?,
+            EntityType :: Endermite => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((24).into()), writer) ?,
+            EntityType :: Evoker => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((25).into()), writer) ?,
+            EntityType :: EvokerFangs => < VarInt as :: mooshroom_core :: io
+            :: MooshroomWritable < PV >> :: write(& ((26).into()), writer) ?,
+            EntityType :: ExperienceOrb => < VarInt as :: mooshroom_core :: io
+            :: MooshroomWritable < PV >> :: write(& ((27).into()), writer) ?,
+            EntityType :: EyeofEnder => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((28).into()), writer) ?,
+            EntityType :: FallingBlock => < VarInt as :: mooshroom_core :: io
+            :: MooshroomWritable < PV >> :: write(& ((29).into()), writer) ?,
+            EntityType :: FireworkRocketEntity => < VarInt as ::
+            mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((30).into()), writer) ?, EntityType :: Fox => < VarInt as
+            :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((31).into()), writer) ?, EntityType :: Frog => < VarInt
+            as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((32).into()), writer) ?, EntityType :: Ghast => < VarInt
+            as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((33).into()), writer) ?, EntityType :: Giant => < VarInt
+            as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((34).into()), writer) ?, EntityType :: GlowItemFrame => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((35).into()), writer) ?, EntityType :: GlowSquid => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((36).into()), writer) ?, EntityType :: Goat => < VarInt
+            as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((37).into()), writer) ?, EntityType :: Guardian => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((38).into()), writer) ?, EntityType :: Hoglin => < VarInt
+            as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((39).into()), writer) ?, EntityType :: Horse => < VarInt
+            as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((40).into()), writer) ?, EntityType :: Husk => < VarInt
+            as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((41).into()), writer) ?, EntityType :: Illusioner => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((42).into()), writer) ?, EntityType :: IronGolem => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((43).into()), writer) ?, EntityType :: Item => < VarInt
+            as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((44).into()), writer) ?, EntityType :: ItemFrame => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((45).into()), writer) ?, EntityType :: Fireball => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((46).into()), writer) ?, EntityType :: LeashKnot => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((47).into()), writer) ?, EntityType :: LightningBolt => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((48).into()), writer) ?, EntityType :: Llama => < VarInt
+            as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((49).into()), writer) ?, EntityType :: LlamaSpit => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((50).into()), writer) ?, EntityType :: MagmaCube => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((51).into()), writer) ?, EntityType :: Marker => < VarInt
+            as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((52).into()), writer) ?, EntityType :: Minecart => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((53).into()), writer) ?, EntityType :: MinecartChest => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((54).into()), writer) ?, EntityType ::
+            MinecartCommandBlock => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((55).into()), writer) ?,
+            EntityType :: MinecartFurnace => < VarInt as :: mooshroom_core ::
+            io :: MooshroomWritable < PV >> :: write(& ((56).into()), writer)
+            ?, EntityType :: MinecartHopper => < VarInt as :: mooshroom_core
+            :: io :: MooshroomWritable < PV >> ::
+            write(& ((57).into()), writer) ?, EntityType :: MinecartSpawner =>
+            < VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >>
+            :: write(& ((58).into()), writer) ?, EntityType :: MinecartTNT =>
+            < VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >>
+            :: write(& ((59).into()), writer) ?, EntityType :: Mule => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((60).into()), writer) ?, EntityType :: Mooshroom => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((61).into()), writer) ?, EntityType :: Ocelot => < VarInt
+            as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((62).into()), writer) ?, EntityType :: Painting => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((63).into()), writer) ?, EntityType :: Panda => < VarInt
+            as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((64).into()), writer) ?, EntityType :: Parrot => < VarInt
+            as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((65).into()), writer) ?, EntityType :: Phantom => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((66).into()), writer) ?, EntityType :: Pig => < VarInt as
+            :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((67).into()), writer) ?, EntityType :: Piglin => < VarInt
+            as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((68).into()), writer) ?, EntityType :: PiglinBrute => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((69).into()), writer) ?, EntityType :: Pillager => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((70).into()), writer) ?, EntityType :: PolarBear => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((71).into()), writer) ?, EntityType :: PrimedTNT => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((72).into()), writer) ?, EntityType :: Pufferfish => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((73).into()), writer) ?, EntityType :: Rabbit => < VarInt
+            as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((74).into()), writer) ?, EntityType :: Ravager => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((75).into()), writer) ?, EntityType :: Salmon => < VarInt
+            as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((76).into()), writer) ?, EntityType :: Sheep => < VarInt
+            as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((77).into()), writer) ?, EntityType :: Shulker => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((78).into()), writer) ?, EntityType :: ShulkerBullet => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((79).into()), writer) ?, EntityType :: Silverfish => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((80).into()), writer) ?, EntityType :: Skeleton => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((81).into()), writer) ?, EntityType :: SkeletonHorse => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((82).into()), writer) ?, EntityType :: Slime => < VarInt
+            as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((83).into()), writer) ?, EntityType :: SmallFireball => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((84).into()), writer) ?, EntityType :: SnowGolem => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((85).into()), writer) ?, EntityType :: Snowball => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((86).into()), writer) ?, EntityType :: SpectralArrow => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((87).into()), writer) ?, EntityType :: Spider => < VarInt
+            as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((88).into()), writer) ?, EntityType :: Squid => < VarInt
+            as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((89).into()), writer) ?, EntityType :: Stray => < VarInt
+            as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((90).into()), writer) ?, EntityType :: Strider => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((91).into()), writer) ?, EntityType :: Tadpole => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((92).into()), writer) ?, EntityType :: ThrownEgg => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((93).into()), writer) ?, EntityType :: ThrownEnderPearl
+            => < VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV
+            >> :: write(& ((94).into()), writer) ?, EntityType ::
+            ThrownExperienceBottle => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((95).into()), writer) ?,
+            EntityType :: ThrownPotion => < VarInt as :: mooshroom_core :: io
+            :: MooshroomWritable < PV >> :: write(& ((96).into()), writer) ?,
+            EntityType :: ThrownTrident => < VarInt as :: mooshroom_core :: io
+            :: MooshroomWritable < PV >> :: write(& ((97).into()), writer) ?,
+            EntityType :: TraderLlama => < VarInt as :: mooshroom_core :: io
+            :: MooshroomWritable < PV >> :: write(& ((98).into()), writer) ?,
+            EntityType :: TropicalFish => < VarInt as :: mooshroom_core :: io
+            :: MooshroomWritable < PV >> :: write(& ((99).into()), writer) ?,
+            EntityType :: Turtle => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((100).into()), writer) ?,
+            EntityType :: Vex => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((101).into()), writer) ?,
+            EntityType :: Villager => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((102).into()), writer) ?,
+            EntityType :: Vindicator => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((103).into()), writer) ?,
+            EntityType :: WanderingTrader => < VarInt as :: mooshroom_core ::
+            io :: MooshroomWritable < PV >> :: write(& ((104).into()), writer)
+            ?, EntityType :: Warden => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((105).into()), writer) ?,
+            EntityType :: Witch => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((106).into()), writer) ?,
+            EntityType :: Wither => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((107).into()), writer) ?,
+            EntityType :: WitherSkeleton => < VarInt as :: mooshroom_core ::
+            io :: MooshroomWritable < PV >> :: write(& ((108).into()), writer)
+            ?, EntityType :: WitherSkull => < VarInt as :: mooshroom_core ::
+            io :: MooshroomWritable < PV >> :: write(& ((109).into()), writer)
+            ?, EntityType :: Wolf => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((110).into()), writer) ?,
+            EntityType :: Zoglin => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((111).into()), writer) ?,
+            EntityType :: Zombie => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((112).into()), writer) ?,
+            EntityType :: ZombieHorse => < VarInt as :: mooshroom_core :: io
+            :: MooshroomWritable < PV >> :: write(& ((113).into()), writer) ?,
+            EntityType :: ZombieVillager => < VarInt as :: mooshroom_core ::
+            io :: MooshroomWritable < PV >> :: write(& ((114).into()), writer)
+            ?, EntityType :: ZombifiedPiglin => < VarInt as :: mooshroom_core
+            :: io :: MooshroomWritable < PV >> ::
+            write(& ((115).into()), writer) ?, EntityType :: Player => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((116).into()), writer) ?, EntityType :: FishingHook => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((117).into()), writer) ?,
+        } ; Ok(())
+    }
+} #[automatically_derived] impl :: mooshroom_core :: data ::
+MooshroomIdentifiable for EntityType
+{
+    type Type = & 'static str ; fn from_id(id : Self :: Type) -> ::
+    mooshroom_core :: error :: Result < Self >
+    {
+        match self
+        {
+            EntityType :: Allay => Ok("minecraft:allay"), EntityType ::
+            AreaEffectCloud => Ok("minecraft:area_effect_cloud"), EntityType
+            :: ArmorStand => Ok("minecraft:armor_stand"), EntityType :: Arrow
+            => Ok("minecraft:arrow"), EntityType :: Axolotl =>
+            Ok("minecraft:axolotl"), EntityType :: Bat => Ok("minecraft:bat"),
+            EntityType :: Bee => Ok("minecraft:bee"), EntityType :: Blaze =>
+            Ok("minecraft:blaze"), EntityType :: Boat => Ok("minecraft:boat"),
+            EntityType :: ChestBoat => Ok("minecraft:chest_boat"), EntityType
+            :: Cat => Ok("minecraft:cat"), EntityType :: CaveSpider =>
+            Ok("minecraft:cave_spider"), EntityType :: Chicken =>
+            Ok("minecraft:chicken"), EntityType :: Cod => Ok("minecraft:cod"),
+            EntityType :: Cow => Ok("minecraft:cow"), EntityType :: Creeper =>
+            Ok("minecraft:creeper"), EntityType :: Dolphin =>
+            Ok("minecraft:dolphin"), EntityType :: Donkey =>
+            Ok("minecraft:donkey"), EntityType :: DragonFireball =>
+            Ok("minecraft:dragon_fireball"), EntityType :: Drowned =>
+            Ok("minecraft:drowned"), EntityType :: ElderGuardian =>
+            Ok("minecraft:elder_guardian"), EntityType :: EndCrystal =>
+            Ok("minecraft:end_crystal"), EntityType :: EnderDragon =>
+            Ok("minecraft:ender_dragon"), EntityType :: Enderman =>
+            Ok("minecraft:enderman"), EntityType :: Endermite =>
+            Ok("minecraft:endermite"), EntityType :: Evoker =>
+            Ok("minecraft:evoker"), EntityType :: EvokerFangs =>
+            Ok("minecraft:evoker_fangs"), EntityType :: ExperienceOrb =>
+            Ok("minecraft:experience_orb"), EntityType :: EyeofEnder =>
+            Ok("minecraft:eye_of_ender"), EntityType :: FallingBlock =>
+            Ok("minecraft:falling_block"), EntityType :: FireworkRocketEntity
+            => Ok("minecraft:firework_rocket"), EntityType :: Fox =>
+            Ok("minecraft:fox"), EntityType :: Frog => Ok("minecraft:frog"),
+            EntityType :: Ghast => Ok("minecraft:ghast"), EntityType :: Giant
+            => Ok("minecraft:giant"), EntityType :: GlowItemFrame =>
+            Ok("minecraft:glow_item_frame"), EntityType :: GlowSquid =>
+            Ok("minecraft:glow_squid"), EntityType :: Goat =>
+            Ok("minecraft:goat"), EntityType :: Guardian =>
+            Ok("minecraft:guardian"), EntityType :: Hoglin =>
+            Ok("minecraft:hoglin"), EntityType :: Horse =>
+            Ok("minecraft:horse"), EntityType :: Husk => Ok("minecraft:husk"),
+            EntityType :: Illusioner => Ok("minecraft:illusioner"), EntityType
+            :: IronGolem => Ok("minecraft:iron_golem"), EntityType :: Item =>
+            Ok("minecraft:item"), EntityType :: ItemFrame =>
+            Ok("minecraft:item_frame"), EntityType :: Fireball =>
+            Ok("minecraft:fireball"), EntityType :: LeashKnot =>
+            Ok("minecraft:leash_knot"), EntityType :: LightningBolt =>
+            Ok("minecraft:lightning_bolt"), EntityType :: Llama =>
+            Ok("minecraft:llama"), EntityType :: LlamaSpit =>
+            Ok("minecraft:llama_spit"), EntityType :: MagmaCube =>
+            Ok("minecraft:magma_cube"), EntityType :: Marker =>
+            Ok("minecraft:marker"), EntityType :: Minecart =>
+            Ok("minecraft:minecart"), EntityType :: MinecartChest =>
+            Ok("minecraft:chest_minecart"), EntityType :: MinecartCommandBlock
+            => Ok("minecraft:commandblock_minecart"), EntityType ::
+            MinecartFurnace => Ok("minecraft:furnace_minecart"), EntityType ::
+            MinecartHopper => Ok("minecraft:hopper_minecart"), EntityType ::
+            MinecartSpawner => Ok("minecraft:spawner_minecart"), EntityType ::
+            MinecartTNT => Ok("minecraft:tnt_minecart"), EntityType :: Mule =>
+            Ok("minecraft:mule"), EntityType :: Mooshroom =>
+            Ok("minecraft:mooshroom"), EntityType :: Ocelot =>
+            Ok("minecraft:ocelot"), EntityType :: Painting =>
+            Ok("minecraft:painting"), EntityType :: Panda =>
+            Ok("minecraft:panda"), EntityType :: Parrot =>
+            Ok("minecraft:parrot"), EntityType :: Phantom =>
+            Ok("minecraft:phantom"), EntityType :: Pig => Ok("minecraft:pig"),
+            EntityType :: Piglin => Ok("minecraft:piglin"), EntityType ::
+            PiglinBrute => Ok("minecraft:piglin_brute"), EntityType ::
+            Pillager => Ok("minecraft:pillager"), EntityType :: PolarBear =>
+            Ok("minecraft:polar_bear"), EntityType :: PrimedTNT =>
+            Ok("minecraft:tnt"), EntityType :: Pufferfish =>
+            Ok("minecraft:pufferfish"), EntityType :: Rabbit =>
+            Ok("minecraft:rabbit"), EntityType :: Ravager =>
+            Ok("minecraft:ravager"), EntityType :: Salmon =>
+            Ok("minecraft:salmon"), EntityType :: Sheep =>
+            Ok("minecraft:sheep"), EntityType :: Shulker =>
+            Ok("minecraft:shulker"), EntityType :: ShulkerBullet =>
+            Ok("minecraft:shulker_bullet"), EntityType :: Silverfish =>
+            Ok("minecraft:silverfish"), EntityType :: Skeleton =>
+            Ok("minecraft:skeleton"), EntityType :: SkeletonHorse =>
+            Ok("minecraft:skeleton_horse"), EntityType :: Slime =>
+            Ok("minecraft:slime"), EntityType :: SmallFireball =>
+            Ok("minecraft:small_fireball"), EntityType :: SnowGolem =>
+            Ok("minecraft:snow_golem"), EntityType :: Snowball =>
+            Ok("minecraft:snowball"), EntityType :: SpectralArrow =>
+            Ok("minecraft:spectral_arrow"), EntityType :: Spider =>
+            Ok("minecraft:spider"), EntityType :: Squid =>
+            Ok("minecraft:squid"), EntityType :: Stray =>
+            Ok("minecraft:stray"), EntityType :: Strider =>
+            Ok("minecraft:strider"), EntityType :: Tadpole =>
+            Ok("minecraft:tadpole"), EntityType :: ThrownEgg =>
+            Ok("minecraft:egg"), EntityType :: ThrownEnderPearl =>
+            Ok("minecraft:ender_pearl"), EntityType :: ThrownExperienceBottle
+            => Ok("minecraft:experience_bottle"), EntityType :: ThrownPotion
+            => Ok("minecraft:potion"), EntityType :: ThrownTrident =>
+            Ok("minecraft:trident"), EntityType :: TraderLlama =>
+            Ok("minecraft:trader_llama"), EntityType :: TropicalFish =>
+            Ok("minecraft:tropical_fish"), EntityType :: Turtle =>
+            Ok("minecraft:turtle"), EntityType :: Vex => Ok("minecraft:vex"),
+            EntityType :: Villager => Ok("minecraft:villager"), EntityType ::
+            Vindicator => Ok("minecraft:vindicator"), EntityType ::
+            WanderingTrader => Ok("minecraft:wandering_trader"), EntityType ::
+            Warden => Ok("minecraft:warden"), EntityType :: Witch =>
+            Ok("minecraft:witch"), EntityType :: Wither =>
+            Ok("minecraft:wither"), EntityType :: WitherSkeleton =>
+            Ok("minecraft:wither_skeleton"), EntityType :: WitherSkull =>
+            Ok("minecraft:wither_skull"), EntityType :: Wolf =>
+            Ok("minecraft:wolf"), EntityType :: Zoglin =>
+            Ok("minecraft:zoglin"), EntityType :: Zombie =>
+            Ok("minecraft:zombie"), EntityType :: ZombieHorse =>
+            Ok("minecraft:zombie_horse"), EntityType :: ZombieVillager =>
+            Ok("minecraft:zombie_villager"), EntityType :: ZombifiedPiglin =>
+            Ok("minecraft:zombified_piglin"), EntityType :: Player =>
+            Ok("minecraft:player"), EntityType :: FishingHook =>
+            Ok("minecraft:fishing_bobber"), _ =>
+            Err(:: mooshroom_core :: error :: MooshroomError ::
+            InvalidId(id.into()))
+        }
+    } fn to_id(& self) -> :: mooshroom_core :: error :: Result < Self :: Type
+    >
+    {
+        match self
+        {
+            "minecraft:allay" => Ok(EntityType :: Allay),
+            "minecraft:area_effect_cloud" =>
+            Ok(EntityType :: AreaEffectCloud), "minecraft:armor_stand" =>
+            Ok(EntityType :: ArmorStand), "minecraft:arrow" =>
+            Ok(EntityType :: Arrow), "minecraft:axolotl" =>
+            Ok(EntityType :: Axolotl), "minecraft:bat" =>
+            Ok(EntityType :: Bat), "minecraft:bee" => Ok(EntityType :: Bee),
+            "minecraft:blaze" => Ok(EntityType :: Blaze), "minecraft:boat" =>
+            Ok(EntityType :: Boat), "minecraft:chest_boat" =>
+            Ok(EntityType :: ChestBoat), "minecraft:cat" =>
+            Ok(EntityType :: Cat), "minecraft:cave_spider" =>
+            Ok(EntityType :: CaveSpider), "minecraft:chicken" =>
+            Ok(EntityType :: Chicken), "minecraft:cod" =>
+            Ok(EntityType :: Cod), "minecraft:cow" => Ok(EntityType :: Cow),
+            "minecraft:creeper" => Ok(EntityType :: Creeper),
+            "minecraft:dolphin" => Ok(EntityType :: Dolphin),
+            "minecraft:donkey" => Ok(EntityType :: Donkey),
+            "minecraft:dragon_fireball" => Ok(EntityType :: DragonFireball),
+            "minecraft:drowned" => Ok(EntityType :: Drowned),
+            "minecraft:elder_guardian" => Ok(EntityType :: ElderGuardian),
+            "minecraft:end_crystal" => Ok(EntityType :: EndCrystal),
+            "minecraft:ender_dragon" => Ok(EntityType :: EnderDragon),
+            "minecraft:enderman" => Ok(EntityType :: Enderman),
+            "minecraft:endermite" => Ok(EntityType :: Endermite),
+            "minecraft:evoker" => Ok(EntityType :: Evoker),
+            "minecraft:evoker_fangs" => Ok(EntityType :: EvokerFangs),
+            "minecraft:experience_orb" => Ok(EntityType :: ExperienceOrb),
+            "minecraft:eye_of_ender" => Ok(EntityType :: EyeofEnder),
+            "minecraft:falling_block" => Ok(EntityType :: FallingBlock),
+            "minecraft:firework_rocket" =>
+            Ok(EntityType :: FireworkRocketEntity), "minecraft:fox" =>
+            Ok(EntityType :: Fox), "minecraft:frog" => Ok(EntityType :: Frog),
+            "minecraft:ghast" => Ok(EntityType :: Ghast), "minecraft:giant" =>
+            Ok(EntityType :: Giant), "minecraft:glow_item_frame" =>
+            Ok(EntityType :: GlowItemFrame), "minecraft:glow_squid" =>
+            Ok(EntityType :: GlowSquid), "minecraft:goat" =>
+            Ok(EntityType :: Goat), "minecraft:guardian" =>
+            Ok(EntityType :: Guardian), "minecraft:hoglin" =>
+            Ok(EntityType :: Hoglin), "minecraft:horse" =>
+            Ok(EntityType :: Horse), "minecraft:husk" =>
+            Ok(EntityType :: Husk), "minecraft:illusioner" =>
+            Ok(EntityType :: Illusioner), "minecraft:iron_golem" =>
+            Ok(EntityType :: IronGolem), "minecraft:item" =>
+            Ok(EntityType :: Item), "minecraft:item_frame" =>
+            Ok(EntityType :: ItemFrame), "minecraft:fireball" =>
+            Ok(EntityType :: Fireball), "minecraft:leash_knot" =>
+            Ok(EntityType :: LeashKnot), "minecraft:lightning_bolt" =>
+            Ok(EntityType :: LightningBolt), "minecraft:llama" =>
+            Ok(EntityType :: Llama), "minecraft:llama_spit" =>
+            Ok(EntityType :: LlamaSpit), "minecraft:magma_cube" =>
+            Ok(EntityType :: MagmaCube), "minecraft:marker" =>
+            Ok(EntityType :: Marker), "minecraft:minecart" =>
+            Ok(EntityType :: Minecart), "minecraft:chest_minecart" =>
+            Ok(EntityType :: MinecartChest), "minecraft:commandblock_minecart"
+            => Ok(EntityType :: MinecartCommandBlock),
+            "minecraft:furnace_minecart" => Ok(EntityType :: MinecartFurnace),
+            "minecraft:hopper_minecart" => Ok(EntityType :: MinecartHopper),
+            "minecraft:spawner_minecart" => Ok(EntityType :: MinecartSpawner),
+            "minecraft:tnt_minecart" => Ok(EntityType :: MinecartTNT),
+            "minecraft:mule" => Ok(EntityType :: Mule), "minecraft:mooshroom"
+            => Ok(EntityType :: Mooshroom), "minecraft:ocelot" =>
+            Ok(EntityType :: Ocelot), "minecraft:painting" =>
+            Ok(EntityType :: Painting), "minecraft:panda" =>
+            Ok(EntityType :: Panda), "minecraft:parrot" =>
+            Ok(EntityType :: Parrot), "minecraft:phantom" =>
+            Ok(EntityType :: Phantom), "minecraft:pig" =>
+            Ok(EntityType :: Pig), "minecraft:piglin" =>
+            Ok(EntityType :: Piglin), "minecraft:piglin_brute" =>
+            Ok(EntityType :: PiglinBrute), "minecraft:pillager" =>
+            Ok(EntityType :: Pillager), "minecraft:polar_bear" =>
+            Ok(EntityType :: PolarBear), "minecraft:tnt" =>
+            Ok(EntityType :: PrimedTNT), "minecraft:pufferfish" =>
+            Ok(EntityType :: Pufferfish), "minecraft:rabbit" =>
+            Ok(EntityType :: Rabbit), "minecraft:ravager" =>
+            Ok(EntityType :: Ravager), "minecraft:salmon" =>
+            Ok(EntityType :: Salmon), "minecraft:sheep" =>
+            Ok(EntityType :: Sheep), "minecraft:shulker" =>
+            Ok(EntityType :: Shulker), "minecraft:shulker_bullet" =>
+            Ok(EntityType :: ShulkerBullet), "minecraft:silverfish" =>
+            Ok(EntityType :: Silverfish), "minecraft:skeleton" =>
+            Ok(EntityType :: Skeleton), "minecraft:skeleton_horse" =>
+            Ok(EntityType :: SkeletonHorse), "minecraft:slime" =>
+            Ok(EntityType :: Slime), "minecraft:small_fireball" =>
+            Ok(EntityType :: SmallFireball), "minecraft:snow_golem" =>
+            Ok(EntityType :: SnowGolem), "minecraft:snowball" =>
+            Ok(EntityType :: Snowball), "minecraft:spectral_arrow" =>
+            Ok(EntityType :: SpectralArrow), "minecraft:spider" =>
+            Ok(EntityType :: Spider), "minecraft:squid" =>
+            Ok(EntityType :: Squid), "minecraft:stray" =>
+            Ok(EntityType :: Stray), "minecraft:strider" =>
+            Ok(EntityType :: Strider), "minecraft:tadpole" =>
+            Ok(EntityType :: Tadpole), "minecraft:egg" =>
+            Ok(EntityType :: ThrownEgg), "minecraft:ender_pearl" =>
+            Ok(EntityType :: ThrownEnderPearl), "minecraft:experience_bottle"
+            => Ok(EntityType :: ThrownExperienceBottle), "minecraft:potion" =>
+            Ok(EntityType :: ThrownPotion), "minecraft:trident" =>
+            Ok(EntityType :: ThrownTrident), "minecraft:trader_llama" =>
+            Ok(EntityType :: TraderLlama), "minecraft:tropical_fish" =>
+            Ok(EntityType :: TropicalFish), "minecraft:turtle" =>
+            Ok(EntityType :: Turtle), "minecraft:vex" =>
+            Ok(EntityType :: Vex), "minecraft:villager" =>
+            Ok(EntityType :: Villager), "minecraft:vindicator" =>
+            Ok(EntityType :: Vindicator), "minecraft:wandering_trader" =>
+            Ok(EntityType :: WanderingTrader), "minecraft:warden" =>
+            Ok(EntityType :: Warden), "minecraft:witch" =>
+            Ok(EntityType :: Witch), "minecraft:wither" =>
+            Ok(EntityType :: Wither), "minecraft:wither_skeleton" =>
+            Ok(EntityType :: WitherSkeleton), "minecraft:wither_skull" =>
+            Ok(EntityType :: WitherSkull), "minecraft:wolf" =>
+            Ok(EntityType :: Wolf), "minecraft:zoglin" =>
+            Ok(EntityType :: Zoglin), "minecraft:zombie" =>
+            Ok(EntityType :: Zombie), "minecraft:zombie_horse" =>
+            Ok(EntityType :: ZombieHorse), "minecraft:zombie_villager" =>
+            Ok(EntityType :: ZombieVillager), "minecraft:zombified_piglin" =>
+            Ok(EntityType :: ZombifiedPiglin), "minecraft:player" =>
+            Ok(EntityType :: Player), "minecraft:fishing_bobber" =>
+            Ok(EntityType :: FishingHook), _ =>
+            Err(:: mooshroom_core :: error :: MooshroomError :: NoId)
+        }
+    }
+}
+#[automatically_derived] impl < const PV : usize > :: mooshroom_core :: io ::
+MooshroomReadable < PV > for EntityPose
+{
+    fn read(reader : & mut impl :: std :: io :: Read) -> :: mooshroom_core ::
+    error :: Result < Self >
+    {
+        let value = < VarInt as :: mooshroom_core :: io :: MooshroomReadable <
+        PV >> :: read(reader) ?.into() ;
+        Ok(match value
+        {
+            0 => EntityPose :: Standing, 1 => EntityPose :: FallFlying, 2 =>
+            EntityPose :: Sleeping, 3 => EntityPose :: Swimming, 4 =>
+            EntityPose :: SpinAttack, 5 => EntityPose :: Sneaking, 6 =>
+            EntityPose :: LongJumping, 7 => EntityPose :: Sying, 8 =>
+            EntityPose :: Croaking, 9 => EntityPose :: UsingToung, 10 =>
+            EntityPose :: Roaring, 11 => EntityPose :: Sniffing, 12 =>
+            EntityPose :: Wmerging, 13 => EntityPose :: Digging, i => return
+            Err(:: mooshroom_core :: error :: MooshroomError ::
+            InvalidEnumVariant(i.into()))
+        })
+    }
+} #[automatically_derived] impl < const PV : usize > :: mooshroom_core :: io
+:: MooshroomWritable < PV > for EntityPose
+{
+    fn write(& self, writer : & mut impl :: std :: io :: Write) -> ::
+    mooshroom_core :: error :: Result < () >
+    {
+        match self
+        {
+            EntityPose :: Standing => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((0).into()), writer) ?,
+            EntityPose :: FallFlying => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((1).into()), writer) ?,
+            EntityPose :: Sleeping => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((2).into()), writer) ?,
+            EntityPose :: Swimming => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((3).into()), writer) ?,
+            EntityPose :: SpinAttack => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((4).into()), writer) ?,
+            EntityPose :: Sneaking => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((5).into()), writer) ?,
+            EntityPose :: LongJumping => < VarInt as :: mooshroom_core :: io
+            :: MooshroomWritable < PV >> :: write(& ((6).into()), writer) ?,
+            EntityPose :: Sying => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((7).into()), writer) ?,
+            EntityPose :: Croaking => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((8).into()), writer) ?,
+            EntityPose :: UsingToung => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((9).into()), writer) ?,
+            EntityPose :: Roaring => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((10).into()), writer) ?,
+            EntityPose :: Sniffing => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((11).into()), writer) ?,
+            EntityPose :: Wmerging => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((12).into()), writer) ?,
+            EntityPose :: Digging => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((13).into()), writer) ?,
+        } ; Ok(())
+    }
+}
+#[automatically_derived] impl < const PV : usize > :: mooshroom_core :: io ::
+MooshroomReadable < PV > for BoatType
+{
+    fn read(reader : & mut impl :: std :: io :: Read) -> :: mooshroom_core ::
+    error :: Result < Self >
+    {
+        let value = < VarInt as :: mooshroom_core :: io :: MooshroomReadable <
+        PV >> :: read(reader) ?.into() ;
+        Ok(match value
+        {
+            0 => BoatType :: Oak, 1 => BoatType :: Spruce, 2 => BoatType ::
+            Birch, 3 => BoatType :: Jungle, 4 => BoatType :: Aracina, 5 =>
+            BoatType :: DarkOak, i => return
+            Err(:: mooshroom_core :: error :: MooshroomError ::
+            InvalidEnumVariant(i.into()))
+        })
+    }
+} #[automatically_derived] impl < const PV : usize > :: mooshroom_core :: io
+:: MooshroomWritable < PV > for BoatType
+{
+    fn write(& self, writer : & mut impl :: std :: io :: Write) -> ::
+    mooshroom_core :: error :: Result < () >
+    {
+        match self
+        {
+            BoatType :: Oak => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((0).into()), writer) ?,
+            BoatType :: Spruce => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((1).into()), writer) ?,
+            BoatType :: Birch => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((2).into()), writer) ?,
+            BoatType :: Jungle => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((3).into()), writer) ?,
+            BoatType :: Aracina => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((4).into()), writer) ?,
+            BoatType :: DarkOak => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((5).into()), writer) ?,
+        } ; Ok(())
+    }
+}
+#[automatically_derived] impl < const PV : usize > :: mooshroom_core :: io ::
+MooshroomReadable < PV > for UpdateRecipeBookAction
+{
+    fn read(reader : & mut impl :: std :: io :: Read) -> :: mooshroom_core ::
+    error :: Result < Self >
+    {
+        let value = < VarInt as :: mooshroom_core :: io :: MooshroomReadable <
+        PV >> :: read(reader) ?.into() ;
+        Ok(match value
+        {
+            0 => UpdateRecipeBookAction :: Init, 1 => UpdateRecipeBookAction
+            :: Add, 2 => UpdateRecipeBookAction :: Remove, i => return
+            Err(:: mooshroom_core :: error :: MooshroomError ::
+            InvalidEnumVariant(i.into()))
+        })
+    }
+} #[automatically_derived] impl < const PV : usize > :: mooshroom_core :: io
+:: MooshroomWritable < PV > for UpdateRecipeBookAction
+{
+    fn write(& self, writer : & mut impl :: std :: io :: Write) -> ::
+    mooshroom_core :: error :: Result < () >
+    {
+        match self
+        {
+            UpdateRecipeBookAction :: Init => < VarInt as :: mooshroom_core ::
+            io :: MooshroomWritable < PV >> :: write(& ((0).into()), writer)
+            ?, UpdateRecipeBookAction :: Add => < VarInt as :: mooshroom_core
+            :: io :: MooshroomWritable < PV >> ::
+            write(& ((1).into()), writer) ?, UpdateRecipeBookAction :: Remove
+            => < VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV
+            >> :: write(& ((2).into()), writer) ?,
+        } ; Ok(())
+    }
+}
+#[automatically_derived] impl < const PV : usize > :: mooshroom_core :: io ::
+MooshroomReadable < PV > for PlayerAction
+{
+    fn read(reader : & mut impl :: std :: io :: Read) -> :: mooshroom_core ::
+    error :: Result < Self >
+    {
+        let value = < VarInt as :: mooshroom_core :: io :: MooshroomReadable <
+        PV >> :: read(reader) ?.into() ;
+        Ok(match value
+        {
+            0 => PlayerAction :: StartSneeking, 1 => PlayerAction ::
+            StopSneeking, 2 => PlayerAction :: LeaveBed, 3 => PlayerAction ::
+            StartSprinting, 4 => PlayerAction :: StopSprinting, 5 =>
+            PlayerAction :: StartJumpWithHorse, 6 => PlayerAction ::
+            StopJumpWithHorse, 7 => PlayerAction :: OpenHorseInventory, 8 =>
+            PlayerAction :: StartFLyingWithElytra, i => return
+            Err(:: mooshroom_core :: error :: MooshroomError ::
+            InvalidEnumVariant(i.into()))
+        })
+    }
+} #[automatically_derived] impl < const PV : usize > :: mooshroom_core :: io
+:: MooshroomWritable < PV > for PlayerAction
+{
+    fn write(& self, writer : & mut impl :: std :: io :: Write) -> ::
+    mooshroom_core :: error :: Result < () >
+    {
+        match self
+        {
+            PlayerAction :: StartSneeking => < VarInt as :: mooshroom_core ::
+            io :: MooshroomWritable < PV >> :: write(& ((0).into()), writer)
+            ?, PlayerAction :: StopSneeking => < VarInt as :: mooshroom_core
+            :: io :: MooshroomWritable < PV >> ::
+            write(& ((1).into()), writer) ?, PlayerAction :: LeaveBed => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((2).into()), writer) ?, PlayerAction :: StartSprinting =>
+            < VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >>
+            :: write(& ((3).into()), writer) ?, PlayerAction :: StopSprinting
+            => < VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV
+            >> :: write(& ((4).into()), writer) ?, PlayerAction ::
+            StartJumpWithHorse => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((5).into()), writer) ?,
+            PlayerAction :: StopJumpWithHorse => < VarInt as :: mooshroom_core
+            :: io :: MooshroomWritable < PV >> ::
+            write(& ((6).into()), writer) ?, PlayerAction ::
+            OpenHorseInventory => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((7).into()), writer) ?,
+            PlayerAction :: StartFLyingWithElytra => < VarInt as ::
+            mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((8).into()), writer) ?,
+        } ; Ok(())
+    }
+}
+#[automatically_derived] impl < const PV : usize > :: mooshroom_core :: io ::
+MooshroomReadable < PV > for Animation
+{
+    fn read(reader : & mut impl :: std :: io :: Read) -> :: mooshroom_core ::
+    error :: Result < Self >
+    {
+        let value = < u8 as :: mooshroom_core :: io :: MooshroomReadable < PV
+        >> :: read(reader) ?.into() ;
+        Ok(match value
+        {
+            0 => Animation :: SwingMainArm, 1 => Animation :: TakeDamage, 2 =>
+            Animation :: LeaveBed, 3 => Animation :: SwingOffhand, 4 =>
+            Animation :: CriticalEffect, 5 => Animation :: MagicCriticalEfect,
+            i => return
+            Err(:: mooshroom_core :: error :: MooshroomError ::
+            InvalidEnumVariant(i.into()))
+        })
+    }
+} #[automatically_derived] impl < const PV : usize > :: mooshroom_core :: io
+:: MooshroomWritable < PV > for Animation
+{
+    fn write(& self, writer : & mut impl :: std :: io :: Write) -> ::
+    mooshroom_core :: error :: Result < () >
+    {
+        match self
+        {
+            Animation :: SwingMainArm => < u8 as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((0).into()), writer) ?,
+            Animation :: TakeDamage => < u8 as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((1).into()), writer) ?,
+            Animation :: LeaveBed => < u8 as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((2).into()), writer) ?,
+            Animation :: SwingOffhand => < u8 as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((3).into()), writer) ?,
+            Animation :: CriticalEffect => < u8 as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((4).into()), writer) ?,
+            Animation :: MagicCriticalEfect => < u8 as :: mooshroom_core :: io
+            :: MooshroomWritable < PV >> :: write(& ((5).into()), writer) ?,
+        } ; Ok(())
+    }
+}
+#[automatically_derived] impl < const PV : usize > :: mooshroom_core :: io ::
+MooshroomReadable < PV > for ModifierOperation
+{
+    fn read(reader : & mut impl :: std :: io :: Read) -> :: mooshroom_core ::
+    error :: Result < Self >
+    {
+        let value = < u8 as :: mooshroom_core :: io :: MooshroomReadable < PV
+        >> :: read(reader) ?.into() ;
+        Ok(match value
+        {
+            0 => ModifierOperation :: AddOrSubtract, 1 => ModifierOperation ::
+            AddOrSubtractPercent, 2 => ModifierOperation :: Multiply, i =>
+            return
+            Err(:: mooshroom_core :: error :: MooshroomError ::
+            InvalidEnumVariant(i.into()))
+        })
+    }
+} #[automatically_derived] impl < const PV : usize > :: mooshroom_core :: io
+:: MooshroomWritable < PV > for ModifierOperation
+{
+    fn write(& self, writer : & mut impl :: std :: io :: Write) -> ::
+    mooshroom_core :: error :: Result < () >
+    {
+        match self
+        {
+            ModifierOperation :: AddOrSubtract => < u8 as :: mooshroom_core ::
+            io :: MooshroomWritable < PV >> :: write(& ((0).into()), writer)
+            ?, ModifierOperation :: AddOrSubtractPercent => < u8 as ::
+            mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((1).into()), writer) ?, ModifierOperation :: Multiply =>
+            < u8 as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((2).into()), writer) ?,
+        } ; Ok(())
+    }
+}
+#[automatically_derived] impl < const PV : usize > :: mooshroom_core :: io ::
+MooshroomReadable < PV > for AttributePropertyKey
+{
+    fn read(reader : & mut impl :: std :: io :: Read) -> :: mooshroom_core ::
+    error :: Result < Self >
+    {
+        let value = < VarInt as :: mooshroom_core :: io :: MooshroomReadable <
+        PV >> :: read(reader) ?.into() ;
+        Ok(match value
+        {
+            0 => AttributePropertyKey :: MaxHealth, 1 => AttributePropertyKey
+            :: FollowRange, 2 => AttributePropertyKey :: KnockbackResistance,
+            3 => AttributePropertyKey :: MovementSpeed, 4 =>
+            AttributePropertyKey :: FlyingSpeed, 5 => AttributePropertyKey ::
+            AttackDamage, 6 => AttributePropertyKey :: AttackKnockback, 7 =>
+            AttributePropertyKey :: AttackSpeed, 8 => AttributePropertyKey ::
+            Armor, 9 => AttributePropertyKey :: ArmorToughness, 10 =>
+            AttributePropertyKey :: Luck, 11 => AttributePropertyKey ::
+            ZombieSpawnReinforcements, 12 => AttributePropertyKey ::
+            HorseJumpStrength, 13 => AttributePropertyKey ::
+            ForgeReachDistance, 14 => AttributePropertyKey :: ForgeSwimSpeed,
+            i => return
+            Err(:: mooshroom_core :: error :: MooshroomError ::
+            InvalidEnumVariant(i.into()))
+        })
+    }
+} #[automatically_derived] impl < const PV : usize > :: mooshroom_core :: io
+:: MooshroomWritable < PV > for AttributePropertyKey
+{
+    fn write(& self, writer : & mut impl :: std :: io :: Write) -> ::
+    mooshroom_core :: error :: Result < () >
+    {
+        match self
+        {
+            AttributePropertyKey :: MaxHealth => < VarInt as :: mooshroom_core
+            :: io :: MooshroomWritable < PV >> ::
+            write(& ((0).into()), writer) ?, AttributePropertyKey ::
+            FollowRange => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((1).into()), writer) ?,
+            AttributePropertyKey :: KnockbackResistance => < VarInt as ::
+            mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((2).into()), writer) ?, AttributePropertyKey ::
+            MovementSpeed => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((3).into()), writer) ?,
+            AttributePropertyKey :: FlyingSpeed => < VarInt as ::
+            mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((4).into()), writer) ?, AttributePropertyKey ::
+            AttackDamage => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((5).into()), writer) ?,
+            AttributePropertyKey :: AttackKnockback => < VarInt as ::
+            mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((6).into()), writer) ?, AttributePropertyKey ::
+            AttackSpeed => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((7).into()), writer) ?,
+            AttributePropertyKey :: Armor => < VarInt as :: mooshroom_core ::
+            io :: MooshroomWritable < PV >> :: write(& ((8).into()), writer)
+            ?, AttributePropertyKey :: ArmorToughness => < VarInt as ::
+            mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((9).into()), writer) ?, AttributePropertyKey :: Luck => <
+            VarInt as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((10).into()), writer) ?, AttributePropertyKey ::
+            ZombieSpawnReinforcements => < VarInt as :: mooshroom_core :: io
+            :: MooshroomWritable < PV >> :: write(& ((11).into()), writer) ?,
+            AttributePropertyKey :: HorseJumpStrength => < VarInt as ::
+            mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((12).into()), writer) ?, AttributePropertyKey ::
+            ForgeReachDistance => < VarInt as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((13).into()), writer) ?,
+            AttributePropertyKey :: ForgeSwimSpeed => < VarInt as ::
+            mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((14).into()), writer) ?,
+        } ; Ok(())
+    }
+} #[automatically_derived] impl :: mooshroom_core :: data ::
+MooshroomIdentifiable for AttributePropertyKey
+{
+    type Type = & 'static str ; fn from_id(id : Self :: Type) -> ::
+    mooshroom_core :: error :: Result < Self >
+    {
+        match self
+        {
+            AttributePropertyKey :: MaxHealth =>
+            Ok("minecraft:generic.max_health"), AttributePropertyKey ::
+            FollowRange => Ok("minecraft:generic.follow_range"),
+            AttributePropertyKey :: KnockbackResistance =>
+            Ok("minecraft:generic.knockback_resistance"), AttributePropertyKey
+            :: MovementSpeed => Ok("minecraft:generic.movement_speed"),
+            AttributePropertyKey :: FlyingSpeed =>
+            Ok("minecraft:generic.flying_speed"), AttributePropertyKey ::
+            AttackDamage => Ok("minecraft:generic.attack_damage"),
+            AttributePropertyKey :: AttackKnockback =>
+            Ok("minecraft:generic.attack_knockback"), AttributePropertyKey ::
+            AttackSpeed => Ok("minecraft:generic.attack_speed"),
+            AttributePropertyKey :: Armor => Ok("minecraft:generic.armor"),
+            AttributePropertyKey :: ArmorToughness =>
+            Ok("minecraft:generic.armor_toughness"), AttributePropertyKey ::
+            Luck => Ok("minecraft:generic.luck"), AttributePropertyKey ::
+            ZombieSpawnReinforcements =>
+            Ok("minecraft:zombie.spawn_reinforcements"), AttributePropertyKey
+            :: HorseJumpStrength => Ok("minecraft:horse.jump_strength"),
+            AttributePropertyKey :: ForgeReachDistance =>
+            Ok("minecraft:generic.reachDistance"), AttributePropertyKey ::
+            ForgeSwimSpeed => Ok("minecraft:forge.swimSpeed"), _ =>
+            Err(:: mooshroom_core :: error :: MooshroomError ::
+            InvalidId(id.into()))
+        }
+    } fn to_id(& self) -> :: mooshroom_core :: error :: Result < Self :: Type
+    >
+    {
+        match self
+        {
+            "minecraft:generic.max_health" =>
+            Ok(AttributePropertyKey :: MaxHealth),
+            "minecraft:generic.follow_range" =>
+            Ok(AttributePropertyKey :: FollowRange),
+            "minecraft:generic.knockback_resistance" =>
+            Ok(AttributePropertyKey :: KnockbackResistance),
+            "minecraft:generic.movement_speed" =>
+            Ok(AttributePropertyKey :: MovementSpeed),
+            "minecraft:generic.flying_speed" =>
+            Ok(AttributePropertyKey :: FlyingSpeed),
+            "minecraft:generic.attack_damage" =>
+            Ok(AttributePropertyKey :: AttackDamage),
+            "minecraft:generic.attack_knockback" =>
+            Ok(AttributePropertyKey :: AttackKnockback),
+            "minecraft:generic.attack_speed" =>
+            Ok(AttributePropertyKey :: AttackSpeed), "minecraft:generic.armor"
+            => Ok(AttributePropertyKey :: Armor),
+            "minecraft:generic.armor_toughness" =>
+            Ok(AttributePropertyKey :: ArmorToughness),
+            "minecraft:generic.luck" => Ok(AttributePropertyKey :: Luck),
+            "minecraft:zombie.spawn_reinforcements" =>
+            Ok(AttributePropertyKey :: ZombieSpawnReinforcements),
+            "minecraft:horse.jump_strength" =>
+            Ok(AttributePropertyKey :: HorseJumpStrength),
+            "minecraft:generic.reachDistance" =>
+            Ok(AttributePropertyKey :: ForgeReachDistance),
+            "minecraft:forge.swimSpeed" =>
+            Ok(AttributePropertyKey :: ForgeSwimSpeed), _ =>
+            Err(:: mooshroom_core :: error :: MooshroomError :: NoId)
+        }
+    }
+}
+#[automatically_derived] impl < const PV : usize > :: mooshroom_core :: io ::
+MooshroomReadable < PV > for GameEventType
+{
+    fn read(reader : & mut impl :: std :: io :: Read) -> :: mooshroom_core ::
+    error :: Result < Self >
+    {
+        let value = < u8 as :: mooshroom_core :: io :: MooshroomReadable < PV
+        >> :: read(reader) ?.into() ;
+        Ok(match value
+        {
+            0 => GameEventType :: NoRespawnBlockAvalible, 1 => GameEventType
+            :: EndRaining, 2 => GameEventType :: BeginRaining, 3 =>
+            GameEventType :: ChangeGamemode, 4 => GameEventType :: WinGame, 5
+            => GameEventType :: DemoEvent, 6 => GameEventType ::
+            ArrowHitPlayer, 7 => GameEventType :: RainLevelChange, 8 =>
+            GameEventType :: ThunderLevelChange, 9 => GameEventType ::
+            PlayPufferFishStingSound, 10 => GameEventType ::
+            PlayElderGuardianMobAppreanceSounds, 11 => GameEventType ::
+            EnableRespawnScreen, i => return
+            Err(:: mooshroom_core :: error :: MooshroomError ::
+            InvalidEnumVariant(i.into()))
+        })
+    }
+} #[automatically_derived] impl < const PV : usize > :: mooshroom_core :: io
+:: MooshroomWritable < PV > for GameEventType
+{
+    fn write(& self, writer : & mut impl :: std :: io :: Write) -> ::
+    mooshroom_core :: error :: Result < () >
+    {
+        match self
+        {
+            GameEventType :: NoRespawnBlockAvalible => < u8 as ::
+            mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((0).into()), writer) ?, GameEventType :: EndRaining => <
+            u8 as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((1).into()), writer) ?, GameEventType :: BeginRaining =>
+            < u8 as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((2).into()), writer) ?, GameEventType :: ChangeGamemode
+            => < u8 as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((3).into()), writer) ?, GameEventType :: WinGame => < u8
+            as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((4).into()), writer) ?, GameEventType :: DemoEvent => <
+            u8 as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((5).into()), writer) ?, GameEventType :: ArrowHitPlayer
+            => < u8 as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((6).into()), writer) ?, GameEventType :: RainLevelChange
+            => < u8 as :: mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((7).into()), writer) ?, GameEventType ::
+            ThunderLevelChange => < u8 as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((8).into()), writer) ?,
+            GameEventType :: PlayPufferFishStingSound => < u8 as ::
+            mooshroom_core :: io :: MooshroomWritable < PV >> ::
+            write(& ((9).into()), writer) ?, GameEventType ::
+            PlayElderGuardianMobAppreanceSounds => < u8 as :: mooshroom_core
+            :: io :: MooshroomWritable < PV >> ::
+            write(& ((10).into()), writer) ?, GameEventType ::
+            EnableRespawnScreen => < u8 as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((11).into()), writer) ?,
+        } ; Ok(())
+    }
+}
+#[automatically_derived] impl < const PV : usize > :: mooshroom_core :: io ::
+MooshroomReadable < PV > for GameMode
+{
+    fn read(reader : & mut impl :: std :: io :: Read) -> :: mooshroom_core ::
+    error :: Result < Self >
+    {
+        let value = < i8 as :: mooshroom_core :: io :: MooshroomReadable < PV
+        >> :: read(reader) ?.into() ;
+        Ok(match value
+        {
+            - 1 => GameMode :: None, 0 => GameMode :: Survival, 1 => GameMode
+            :: Creative, 2 => GameMode :: Adventure, 3 => GameMode ::
+            Spectator, i => return
+            Err(:: mooshroom_core :: error :: MooshroomError ::
+            InvalidEnumVariant(i.into()))
+        })
+    }
+} #[automatically_derived] impl < const PV : usize > :: mooshroom_core :: io
+:: MooshroomWritable < PV > for GameMode
+{
+    fn write(& self, writer : & mut impl :: std :: io :: Write) -> ::
+    mooshroom_core :: error :: Result < () >
+    {
+        match self
+        {
+            GameMode :: None => < i8 as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((- 1).into()), writer) ?,
+            GameMode :: Survival => < i8 as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((0).into()), writer) ?,
+            GameMode :: Creative => < i8 as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((1).into()), writer) ?,
+            GameMode :: Adventure => < i8 as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((2).into()), writer) ?,
+            GameMode :: Spectator => < i8 as :: mooshroom_core :: io ::
+            MooshroomWritable < PV >> :: write(& ((3).into()), writer) ?,
+        } ; Ok(())
+    }
+}
+#[automatically_derived] impl < const PV : usize > :: mooshroom_core :: io ::
+MooshroomReadable < PV > for FilterType
+{
+    fn read(reader : & mut impl :: std :: io :: Read) -> :: mooshroom_core ::
+    error :: Result < Self >
+    {
+        let value = < VarInt as :: mooshroom_core :: io :: MooshroomReadable <
+        PV >> :: read(reader) ?.into() ;
+        Ok(match value
+        {
+            0 => FilterType :: PassThrough, 1 => FilterType :: FullyFiltered,
+            2 => FilterType :: PartiallyFiltered, i => return
+            Err(:: mooshroom_core :: error :: MooshroomError ::
+            InvalidEnumVariant(i.into()))
+        })
+    }
+} #[automatically_derived] impl < const PV : usize > :: mooshroom_core :: io
+:: MooshroomWritable < PV > for FilterType
+{
+    fn write(& self, writer : & mut impl :: std :: io :: Write) -> ::
+    mooshroom_core :: error :: Result < () >
+    {
+        match self
+        {
+            FilterType :: PassThrough => < VarInt as :: mooshroom_core :: io
+            :: MooshroomWritable < PV >> :: write(& ((0).into()), writer) ?,
+            FilterType :: FullyFiltered => < VarInt as :: mooshroom_core :: io
+            :: MooshroomWritable < PV >> :: write(& ((1).into()), writer) ?,
+            FilterType :: PartiallyFiltered => < VarInt as :: mooshroom_core
+            :: io :: MooshroomWritable < PV >> ::
+            write(& ((2).into()), writer) ?,
+        } ; Ok(())
+    }
+}
