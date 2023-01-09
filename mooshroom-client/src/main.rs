@@ -2,6 +2,7 @@ mod minecraft;
 mod camera;
 use bevy::{prelude::*, window::CursorGrabMode};
 use camera::FlyCameraPlugin;
+use bevy_text_mesh::prelude::*;
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 enum AppState {
@@ -23,6 +24,7 @@ fn main() {
         }))
         .add_state(AppState::Paused)
         .add_plugin(FlyCameraPlugin)
+        .add_plugin(TextMeshPlugin)
         .add_plugin(minecraft::MinecraftPlugin)
         .add_startup_system(setup_system)
         .add_system(cursor_grab_system)
@@ -50,13 +52,13 @@ fn cursor_grab_system(
     let window = window_res.primary_mut();
     if mouse.just_pressed(MouseButton::Left) {
         window.set_cursor_visibility(false);
-        window.set_cursor_grab_mode(CursorGrabMode::Locked);
-        app_state.set(AppState::InGame).unwrap();
+        //window.set_cursor_grab_mode(CursorGrabMode::Locked);
+        app_state.set(AppState::InGame).ok();
     }
     if key.just_pressed(KeyCode::Escape) {
         window.set_cursor_visibility(true);
-        window.set_cursor_grab_mode(CursorGrabMode::None);
-        app_state.set(AppState::Paused).unwrap();
+        //window.set_cursor_grab_mode(CursorGrabMode::None);
+        app_state.set(AppState::Paused).ok();
     }
 }
 

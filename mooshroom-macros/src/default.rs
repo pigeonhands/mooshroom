@@ -1,8 +1,8 @@
-use syn::Attribute;
 use quote::quote;
+use syn::Attribute;
 
 struct MooshroomDefaultFieldsAttrs {
-    pub default: Option<syn::Lit>
+    pub default: Option<syn::Expr>,
 }
 
 impl MooshroomDefaultFieldsAttrs {
@@ -13,9 +13,7 @@ impl MooshroomDefaultFieldsAttrs {
                 default = Some(attr.parse_args().unwrap())
             }
         }
-        Self{
-            default
-        }
+        Self { default }
     }
 }
 
@@ -32,22 +30,29 @@ fn impl_mooshroom_packet_struct(
 ) -> proc_macro2::TokenStream {
     let name = &ast.ident;
 
-    let field_data :Vec<_> = data.fields.iter().map(|f| {
-        let field_attrs = MooshroomDefaultFieldsAttrs::parse(&f.attrs);
-        (&f.ident, field_attrs.default)
-    }).collect();
+    let field_data: Vec<_> = data
+        .fields
+        .iter()
+        .map(|f| {
+            let field_attrs = MooshroomDefaultFieldsAttrs::parse(&f.attrs);
+            (&f.ident, field_attrs.default)
+        })
+        .collect();
 
-    let field_inits: Vec<_> =  field_data.iter().map(|(ident, default)| {
-        if let Some(d) = default {
-            quote! {
-                #ident: #d
+    let field_inits: Vec<_> = field_data
+        .iter()
+        .map(|(ident, default)| {
+            if let Some(d) = default {
+                quote! {
+                    #ident: #d
+                }
+            } else {
+                quote! {
+                    #ident: Default::default()
+                }
             }
-        }else{
-            quote! {
-                #ident: Default::default()
-            }
-        }
-    }).collect();
+        })
+        .collect();
 
     quote! {
         #[automatically_derived]

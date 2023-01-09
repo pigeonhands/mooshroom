@@ -1,7 +1,7 @@
-use syn::Attribute;
 use quote::quote;
+use syn::Attribute;
 struct MooshroomUpdatableAttrs {
-    pub update_using: syn::Ident
+    pub update_using: syn::Ident,
 }
 
 impl MooshroomUpdatableAttrs {
@@ -12,18 +12,18 @@ impl MooshroomUpdatableAttrs {
                 update_using = Some(attr.parse_args().unwrap())
             }
         }
-        Self{
-            update_using: update_using.expect("must have #[update_using(EnumType)]")
+        Self {
+            update_using: update_using.expect("must have #[update_using(EnumType)]"),
         }
     }
 }
 
 enum UpdateFieldFrom {
     Direct(syn::Path),
-    Extends(syn::Path)
+    Extends(syn::Path),
 }
 struct MooshroomUpdatableFieldsAttrs {
-    pub from: UpdateFieldFrom
+    pub from: UpdateFieldFrom,
 }
 
 impl MooshroomUpdatableFieldsAttrs {
@@ -32,22 +32,20 @@ impl MooshroomUpdatableFieldsAttrs {
         for attr in attributes {
             if attr.path.is_ident("from") {
                 from.map(|_| panic!("cannot have both #[from] and #[extends]"));
-                from = Some(
-                    UpdateFieldFrom::Direct(
-                        attr.parse_args().expect("Must be EnumType::Variant")
-                    )
-                )
-            }else if attr.path.is_ident("extends") {
+                from = Some(UpdateFieldFrom::Direct(
+                    attr.parse_args().expect("Must be EnumType::Variant"),
+                ))
+            } else if attr.path.is_ident("extends") {
                 from.map(|_| panic!("cannot have both #[from] and #[extends]"));
-                from = Some(
-                    UpdateFieldFrom::Extends(
-                        attr.parse_args().expect("Must be EnumType::Variant")
-                    )
-                )
+                from = Some(UpdateFieldFrom::Extends(
+                    attr.parse_args().expect("Must be EnumType::Variant"),
+                ))
             }
         }
-        Self{
-            from: from.expect("each field have #[from(EnumType::variant)] or #[extends(EnumType::variant)].")
+        Self {
+            from: from.expect(
+                "each field have #[from(EnumType::variant)] or #[extends(EnumType::variant)].",
+            ),
         }
     }
 }
@@ -64,12 +62,16 @@ fn impl_mooshroom_packet_struct(
     data: &syn::DataStruct,
 ) -> proc_macro2::TokenStream {
     let name = &ast.ident;
-    let MooshroomUpdatableAttrs{ update_using } = MooshroomUpdatableAttrs::parse(&ast.attrs);
+    let MooshroomUpdatableAttrs { update_using } = MooshroomUpdatableAttrs::parse(&ast.attrs);
 
-    let field_info : Vec<_> = data.fields.iter().map(|f| {
-        let field_attrs = MooshroomUpdatableFieldsAttrs::parse(&f.attrs);
-        (&f.ident, &f.ty, field_attrs.from)
-    }).collect();
+    let field_info: Vec<_> = data
+        .fields
+        .iter()
+        .map(|f| {
+            let field_attrs = MooshroomUpdatableFieldsAttrs::parse(&f.attrs);
+            (&f.ident, &f.ty, field_attrs.from)
+        })
+        .collect();
 
     let update_fields : Vec<_> = field_info.iter().map(|(ident, ty, from)| {
         match from {

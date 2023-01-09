@@ -30,9 +30,11 @@ struct EnumFieldAttributes {
 
 impl EnumFieldAttributes {
     pub fn parse(attributes: &[Attribute]) -> Self {
-        let id = None;
+        let mut id = None;
         for attr in attributes {
-            if attr.path.is_ident("read") {}
+            if attr.path.is_ident("id") {
+                id = attr.parse_args().ok();
+            }
         }
         Self { id }
     }
@@ -97,7 +99,7 @@ pub fn impl_enum(ast: &syn::DeriveInput, data: &DataEnum) -> proc_macro2::TokenS
         #read_write
         #id_impl
     };
-    //eprintln!("{}", x);
+   // eprintln!("{}", x);
     x
 }
 
@@ -143,14 +145,14 @@ fn impl_identifiable(
         impl ::mooshroom_core::data::MooshroomIdentifiable for #name {
             type Type = &'static str;
             fn from_id(id: Self::Type) -> ::mooshroom_core::error::Result<Self>{
-                match self {
-                    #( #name::#idents => Ok(#ids), )*
+                match id {
+                    #( #ids => Ok(#name::#idents), )*
                     _ => Err(::mooshroom_core::error::MooshroomError::InvalidId(id.into()))
                 }
             }
             fn to_id(&self) -> ::mooshroom_core::error::Result<Self::Type> {
                 match self {
-                    #( #ids => Ok(#name::#idents), )*
+                    #( #name::#idents => Ok(#ids), )*
                     _ => Err(::mooshroom_core::error::MooshroomError::NoId)
                 }
             }

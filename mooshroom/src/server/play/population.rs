@@ -1,5 +1,6 @@
 use mooshroom_core::{
     io::{
+        MooshroomCollectionProto,
         MooshroomPacket,
         MooshroomReadProto,
         MooshroomReadable,
@@ -9,7 +10,7 @@ use mooshroom_core::{
     primitives::{Identifier, Vec3},
     varint::VarInt,
 };
-use mooshroom_macros::Mooshroom;
+use mooshroom_macros::{Mooshroom, MooshroomBitfield, MooshroomCollection};
 
 use super::{crafting::Slot, entity, nbt, world::Angle};
 use crate::shared::SignatureData;
@@ -19,12 +20,13 @@ pub type WorldPosition = Vec3<f64>;
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x0)]
 pub struct SpawnEntity {
-    pub entity_id: entity::EntityType,
+    pub entity_id: VarInt,
     pub entity_uuid: uuid::Uuid,
-    pub entity_type: VarInt,
+    pub entity_type: entity::EntityType,
     pub position: WorldPosition,
     pub pitch: Angle,
     pub yaw: Angle,
+    pub head_yaw: Angle,
     pub data: VarInt,
     pub velocity: Vec3<i16>,
 }
@@ -59,6 +61,13 @@ pub struct EntityAnimation {
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]
+#[packet_id(0x1A)]
+pub struct EntityEvent {
+    pub entity_id: i32,
+    pub status: u8,
+}
+
+#[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x28)]
 pub struct UpdateEntityPosition {
     pub entity_id: VarInt,
@@ -87,7 +96,7 @@ pub struct UpdateEntityRotation {
 
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x3B)]
-pub struct RemoveEntity {
+pub struct RemoveEntities {
     pub entities: Vec<VarInt>,
 }
 
@@ -137,15 +146,24 @@ where
     }
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, MooshroomCollection)]
 pub enum PlayerAction {
+    #[id(0)]
     AddPlayer(Vec<ActionFor<AddPlayer>>),
+    #[id(1)]
     UpdateGamemode(Vec<ActionFor<VarInt>>),
+    #[id(2)]
     UpdateLatency(Vec<ActionFor<VarInt>>),
+    #[id(3)]
     UpdateDisplayName(Vec<ActionFor<Option<String>>>),
-    RemovePlayer,
-    #[default]
-    Unknown,
+    #[id(4)]
+    RemovePlayer(()),
+}
+
+impl Default for PlayerAction {
+    fn default() -> Self {
+        Self::RemovePlayer(())
+    }
 }
 
 #[derive(Debug, Clone, Default)]
@@ -157,42 +175,14 @@ impl<const PV: usize> MooshroomPacket<PV> for PlayerInfo {
 impl<const PV: usize> MooshroomReadable<PV> for PlayerInfo {
     fn read(reader: &mut impl std::io::Read) -> mooshroom_core::error::Result<Self> {
         let action = VarInt::read_proto::<PV>(reader)?;
-        let ser_action = match action.0 {
-            0 => PlayerAction::AddPlayer(Vec::read_proto::<PV>(reader)?),
-            1 => PlayerAction::UpdateGamemode(Vec::read_proto::<PV>(reader)?),
-            2 => PlayerAction::UpdateLatency(Vec::read_proto::<PV>(reader)?),
-            3 => PlayerAction::UpdateDisplayName(Vec::read_proto::<PV>(reader)?),
-            4 => PlayerAction::RemovePlayer,
-            _ => PlayerAction::Unknown,
-        };
-        Ok(Self(ser_action))
+        Ok(Self(PlayerAction::read_one_of_proto::<PV>(action, reader)?))
     }
 }
 
 impl<const PV: usize> MooshroomWritable<PV> for PlayerInfo {
     fn write(&self, writer: &mut impl std::io::Write) -> mooshroom_core::error::Result<()> {
-        match &self.0 {
-            PlayerAction::AddPlayer(p) => {
-                VarInt(0).write_proto::<PV>(writer)?;
-                p.write_proto::<PV>(writer)?;
-            }
-            PlayerAction::UpdateGamemode(p) => {
-                VarInt(1).write_proto::<PV>(writer)?;
-                p.write_proto::<PV>(writer)?;
-            }
-            PlayerAction::UpdateLatency(p) => {
-                VarInt(2).write_proto::<PV>(writer)?;
-                p.write_proto::<PV>(writer)?;
-            }
-            PlayerAction::UpdateDisplayName(p) => {
-                VarInt(3).write_proto::<PV>(writer)?;
-                p.write_proto::<PV>(writer)?;
-            }
-            PlayerAction::RemovePlayer => {
-                VarInt(4).write_proto::<PV>(writer)?;
-            }
-            _ => {}
-        }
+        self.0.variant_id_proto::<PV>().write_proto::<PV>(writer)?;
+        self.0.write_one_of_proto::<PV>(writer)?;
         Ok(())
     }
 }
@@ -238,13 +228,6 @@ pub struct SetPassengers {
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]
-#[packet_id(0x62)]
-pub struct SystemChatMessage {
-    pub json: String,
-    pub is_overlay: bool,
-}
-
-#[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x66)]
 pub struct TeleportEntity {
     pub entity_id: VarInt,
@@ -255,15 +238,61 @@ pub struct TeleportEntity {
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]
+#[repr(u8)]
+pub enum ModifierOperation {
+    #[default]
+    AddOrSubtract = 0,
+    AddOrSubtractPercent = 1,
+    Multiply = 2,
+}
+
+#[derive(Debug, Clone, Default, Mooshroom)]
 pub struct Modifier {
     pub uuid: uuid::Uuid,
     pub amount: f64,
-    pub operaion: u8,
+    pub operaion: ModifierOperation,
+}
+
+#[derive(Debug, Clone, Default, Mooshroom)]
+#[repr(i32)]
+#[value_type(VarInt)]
+pub enum AttributePropertyKey {
+    #[default]
+    #[id("minecraft:generic.max_health")]
+    MaxHealth = 0,
+    #[id("minecraft:generic.follow_range")]
+    FollowRange = 1,
+    #[id("minecraft:generic.knockback_resistance")]
+    KnockbackResistance = 2,
+    #[id("minecraft:generic.movement_speed")]
+    MovementSpeed = 3,
+    #[id("minecraft:generic.flying_speed")]
+    FlyingSpeed = 4,
+    #[id("minecraft:generic.attack_damage")]
+    AttackDamage = 5,
+    #[id("minecraft:generic.attack_knockback")]
+    AttackKnockback = 6,
+    #[id("minecraft:generic.attack_speed")]
+    AttackSpeed = 7,
+    #[id("minecraft:generic.armor")]
+    Armor = 8,
+    #[id("minecraft:generic.armor_toughness")]
+    ArmorToughness = 9,
+    #[id("minecraft:generic.luck")]
+    Luck = 10,
+    #[id("minecraft:zombie.spawn_reinforcements")]
+    ZombieSpawnReinforcements = 11,
+    #[id("minecraft:horse.jump_strength")]
+    HorseJumpStrength = 12,
+    #[id("minecraft:generic.reachDistance")]
+    ForgeReachDistance = 13,
+    #[id("minecraft:forge.swimSpeed")]
+    ForgeSwimSpeed = 14,
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]
 pub struct AttributeProperty {
-    pub key: Identifier,
+    pub key: Identifier, //AttributePropertyKey
     pub value: f64,
     pub modifiers: Vec<Modifier>,
 }
@@ -274,6 +303,17 @@ pub struct UpdateAttributes {
     pub properties: Vec<AttributeProperty>,
 }
 
+#[derive(Debug, Clone, Default, MooshroomBitfield)]
+#[value_type(u8)]
+pub struct EntityEffectFlags {
+    #[mask(0x01)]
+    pub is_ambient: bool,
+    #[mask(0x02)]
+    pub show_particles: bool,
+    #[mask(0x04)]
+    pub show_icon: bool,
+}
+
 #[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x69)]
 pub struct EntityEffect {
@@ -281,6 +321,6 @@ pub struct EntityEffect {
     pub effect_id: VarInt,
     pub aplifier: i8,
     pub duration: VarInt,
-    pub flags: i8,
+    pub flags: EntityEffectFlags,
     pub factor_codec: Option<nbt::NptCompound>,
 }

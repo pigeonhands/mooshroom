@@ -24,3 +24,11 @@ pub struct SetContainerContent {
     pub slot_data: Vec<Slot>,
     pub carried_item: Slot,
 }
+
+#[derive(Debug, Clone, Default, Mooshroom)]
+#[packet_id(0x1D)]
+pub struct OpenHorseScreen {
+    //pub window_id: u8,
+    //pub slot_count: VarInt,
+    //pub entity_id: u32,
+}

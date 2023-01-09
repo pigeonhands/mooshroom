@@ -1,9 +1,17 @@
 use mooshroom_core::{primitives::Position, varint::VarInt};
-use mooshroom_macros::{Mooshroom, MooshroomCollection, DefaultInline, MooshroomBitflag, MooshroomUpdatable};
+use mooshroom_macros::{
+    DefaultInline,
+    Mooshroom,
+    MooshroomBitfield,
+    MooshroomCollection,
+    MooshroomUpdatable,
+    
+};
 
 use super::crafting::Slot;
 use crate::types::Chat;
-#[derive(Debug, Clone, Default, Mooshroom)]
+
+#[derive(Debug, Copy, Clone, Default, Mooshroom)]
 #[repr(i32)]
 #[value_type(VarInt)]
 pub enum EntityType {
@@ -395,8 +403,7 @@ pub enum EntityPose {
     Digging = 13,
 }
 
-
-#[derive(Debug, Clone, Default, MooshroomBitflag)]
+#[derive(Debug, Clone, Default, MooshroomBitfield)]
 #[value_type(u8)]
 pub struct EntityFlags {
     #[mask(0x01)]
@@ -455,7 +462,7 @@ pub struct EntityMetadata {
     #[from(Pose)]
     pub pose: EntityPose,
     #[from(TicksFrozenInPowderedSnow)]
-    pub ticks_frozen_in_powdered_snow: VarInt
+    pub ticks_frozen_in_powdered_snow: VarInt,
 }
 
 #[derive(Debug, Clone, MooshroomCollection)]
@@ -474,7 +481,6 @@ pub struct ThrowItemMedata {
     #[from(Item)]
     pub item: Slot,
 }
-
 
 #[derive(Debug, Clone, MooshroomCollection)]
 pub enum FallingBlockMetadataValue {
@@ -533,14 +539,45 @@ pub enum FishingHookMetadataValue {
     IsCachable(bool),
 }
 
+#[derive(Debug, Clone, Mooshroom, Default, MooshroomUpdatable)]
+#[update_using(FishingHookMetadataValue)]
+pub struct FishingHookMetadata {
+    #[extends(EntityValue)]
+    pub entity_range: EntityMetadata,
+    #[from(HookedEntityIdPlus1)]
+    pub hooked_entity_id_plus_1: VarInt,
+    #[from(IsCachable)]
+    pub is_cachable: bool,
+}
+
+#[derive(Debug, Clone, Default, MooshroomBitfield)]
+#[value_type(u8)]
+pub struct ArrowFlags {
+    #[mask(0x01)]
+    pub is_critical: bool,
+    #[mask(0x02)]
+    pub is_noclip: bool,
+}
+
 #[derive(Debug, Clone, MooshroomCollection)]
 pub enum AbstractArrowMetadataValue {
     #[id_range(0..=7)]
     EntityValue(EntityMetatataValue),
     #[id(8)]
-    Bitflags(u8),
+    Bitflags(ArrowFlags),
     #[id(9)]
     PiercingLevel(u8),
+}
+
+#[derive(Debug, Clone, Mooshroom, Default, MooshroomUpdatable)]
+#[update_using(AbstractArrowMetadataValue)]
+pub struct AbstractArrowMetadata {
+    #[extends(EntityValue)]
+    pub entity_range: EntityMetadata,
+    #[from(Bitflags)]
+    pub flags: ArrowFlags,
+    #[from(PiercingLevel)]
+    pub piercing_level: u8,
 }
 
 #[derive(Debug, Clone, MooshroomCollection)]
@@ -551,10 +588,27 @@ pub enum ArrowMetadataValue {
     Color(VarInt),
 }
 
+#[derive(Debug, Clone, Mooshroom, DefaultInline, MooshroomUpdatable)]
+#[update_using(ArrowMetadataValue)]
+pub struct ArrowMetadata {
+    #[extends(ArrowMetadata)]
+    pub arrow_metadata: AbstractArrowMetadata,
+    #[from(Color)]
+    #[default(VarInt(-1))]
+    pub color: VarInt,
+}
+
 #[derive(Debug, Clone, MooshroomCollection)]
 pub enum SpectralArrowMetadataValue {
     #[id_range(0..=9)]
     ArrowMetadata(AbstractArrowMetadataValue),
+}
+
+#[derive(Debug, Clone, Mooshroom, Default, MooshroomUpdatable)]
+#[update_using(SpectralArrowMetadataValue)]
+pub struct SpectralArrowMetadata {
+    #[extends(ArrowMetadata)]
+    pub arrow_metadata: AbstractArrowMetadata,
 }
 
 #[derive(Debug, Clone, MooshroomCollection)]
@@ -564,5 +618,59 @@ pub enum ThrowTridentMetadataValue {
     #[id(10)]
     LoyaltyLevel(VarInt),
     #[id(11)]
-    HasEnchantmentGlint(VarInt),
+    HasEnchantmentGlint(bool),
 }
+
+#[derive(Debug, Clone, Mooshroom, Default, MooshroomUpdatable)]
+#[update_using(ThrowTridentMetadataValue)]
+pub struct ThrowTridentMetadata {
+    #[extends(ArrowMetadata)]
+    pub arrow_metadata: AbstractArrowMetadata,
+    #[from(LoyaltyLevel)]
+    pub loyalty_level: VarInt,
+    #[from(HasEnchantmentGlint)]
+    pub has_enchantment_glint: bool,
+}
+
+#[derive(Debug, Clone, Default, Mooshroom)]
+#[repr(i32)]
+#[value_type(VarInt)]
+pub enum BoatType {
+    #[default]
+    Oak = 0,
+    Spruce = 1,
+    Birch = 2,
+    Jungle = 3,
+    Aracina = 4,
+    DarkOak = 5,
+}
+/*
+#[derive(Debug, Clone, MooshroomCollection, DefaultInline)]
+pub enum BoatMetadataValue {
+    #[id_range(0..=7)]
+    EntityValue(EntityMetatataValue),
+    #[id(8)]
+    FowardDirection(VarInt),
+    #[id(9)]
+    #[default(VarInt(1))]
+    DamageTaken(u8),
+    #[id(11)]
+    Type(BoatType),
+    #[id(12)]
+    IsLeftPaddleTurning(bool),
+    #[id(13)]
+    IsRightPaddleTurning(bool),
+    #[id(14)]
+    SplashTimer(VarInt)
+}*/
+/*
+#[derive(Debug, Clone, Mooshroom, Default, MooshroomUpdatable)]
+#[update_using(BoatMetadataValue)]
+pub struct BoatMetadata {
+    #[extends(EntityValue)]
+    pub entity_range: EntityMetadata,
+    #[from(Bitflags)]
+    pub flags: ArrowFlags,
+    #[from(PiercingLevel)]
+    pub piercing_level: u8,
+} */

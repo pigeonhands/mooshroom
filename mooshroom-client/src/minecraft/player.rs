@@ -52,6 +52,6 @@ pub fn add_player(
         );
         }).insert((
             player::Player,
-            entity::Entity::default()
+            entity::MobEntity::default()
         ));
 }

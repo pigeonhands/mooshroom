@@ -23,9 +23,7 @@ impl MooshroomAttrs {
         let mut ma = Self::default();
         for attr in attributes {
             if attr.path.is_ident("packet_id") {
-                ma.packet_id = attr
-                    .parse_args()
-                    .expect("packet_id must be i32");
+                ma.packet_id = attr.parse_args().expect("packet_id must be i32");
             } else if attr.path.is_ident("response") {
                 ma.response = match attr.parse_args() {
                     Ok(r) => r,

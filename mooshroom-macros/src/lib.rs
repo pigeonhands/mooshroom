@@ -1,9 +1,9 @@
+mod bitfield;
 mod collection;
+mod default;
 mod enum_value;
 mod mooshroom;
 mod updatable;
-mod default;
-mod bitflag;
 use proc_macro::TokenStream;
 use syn::{parse_macro_input, DeriveInput};
 
@@ -43,11 +43,11 @@ pub fn default_inline(input: TokenStream) -> TokenStream {
     gen.into()
 }
 
-#[proc_macro_derive(MooshroomBitflag, attributes(value_type, mask))]
+#[proc_macro_derive(MooshroomBitfield, attributes(value_type, mask))]
 pub fn impl_bitflag(input: TokenStream) -> TokenStream {
     let ast = parse_macro_input!(input as DeriveInput);
 
-    let gen = bitflag::impl_mooshroom_bitflag(&ast);
+    let gen = bitfield::impl_mooshroom_bitfield(&ast);
 
     gen.into()
 }

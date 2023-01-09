@@ -28,6 +28,12 @@ pub struct Commands {
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]
+#[packet_id(0x16)]
+pub struct PluginMessage {
+    pub channel: Identifier,
+    pub data: Vec<u8>,
+}
+#[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x20)]
 pub struct KeepAlive(pub i64);
 
@@ -288,7 +294,17 @@ pub struct GroupedTag {
 pub struct UpdateTags(Vec<GroupedTag>);
 
 #[derive(Debug, Clone, Default, Mooshroom)]
+#[repr(i32)]
+#[value_type(VarInt)]
+pub enum UpdateRecipeBookAction {
+    #[default]
+    Init = 0,
+    Add = 1,
+    Remove = 2,
+}
+#[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x3a)]
 pub struct UpdateRecipeBook {
+    pub action: UpdateRecipeBookAction,
     //TODO
 }

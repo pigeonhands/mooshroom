@@ -5,7 +5,7 @@ use byteorder::{ReadBytesExt, WriteBytesExt};
 use super::io::{MooshroomReadable, MooshroomWritable};
 use crate::error::{MooshroomError, Result};
 
-#[derive(Copy, Clone, Default, Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, Default, Debug, PartialEq, Eq, Hash)]
 pub struct VarInt(pub i32);
 
 impl VarInt {

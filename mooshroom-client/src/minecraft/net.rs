@@ -1,8 +1,7 @@
+use super::{entity::{self}, player};
 use bevy::prelude::*;
-use std::{net::TcpStream, sync::mpsc};
 use mooshroom::{proto::connection::MooshroomConnection, server::play::PlayStage};
-
-use super::{entity, player};
+use std::{net::TcpStream, sync::mpsc};
 
 pub struct MinecraftConnection {
     pub rec: Option<mpsc::Receiver<PlayStage>>,
@@ -45,15 +44,24 @@ fn run_server(tx: mpsc::Sender<PlayStage>) -> mooshroom::core::error::Result<()>
             }
             PlayStage::CombatDeath(p) => {
                 info!("{:#?}", p);
-            },
+            }
             PlayStage::SpawnEntity(p) => {
                 info!("{:#?}", p);
-            },
+            }
+            PlayStage::PluginMessage(p) => {
+                info!("{:#?}", p);
+            }
+            PlayStage::OpenHorseScreen(c) => {
+                info!("{:#?}", c);
+            }
             _ => {
                 //continue;
             }
         };
-        tx.send(packet).unwrap();
+        if let Err(e) = tx.send(packet) {
+            eprintln!("{:?}", e);
+            return Err(mooshroom::prelude::MooshroomError::Other(e.into()));
+        }
     }
 }
 
@@ -69,10 +77,9 @@ pub fn connect_to_server(mut mc_con: NonSendMut<MinecraftConnection>) {
 
 pub fn handle_messages(
     mc_con: NonSendMut<MinecraftConnection>,
-    mut query: Query<&mut entity::Entity, With<player::Player>>,
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut query: Query<&mut entity::MobEntity, With<player::Player>>,
+    mut ev_spawn_entity: EventWriter<entity::SpawnEntityEvent>,
+    mut ev_entity: EventWriter<entity::UpdateEntityEvent>,
 ) {
     if let Some(rx) = &mc_con.rec {
         while let Ok(p) = rx.try_recv() {
@@ -82,20 +89,23 @@ pub fn handle_messages(
                     let mut player = query.single_mut();
                     player.health = p.health;
                 }
-                PlayStage::ChunkData(c) => {
-                    if c.entity_blocks.len() > 0 {
-                        info!("{:?}", c.entity_blocks);
-                    }
-                    for b in c.entity_blocks {
-                        let (x, z) = b.xz.unpack();
-                        commands.spawn(PbrBundle {
-                            mesh: meshes.add(Mesh::from(shape::Box::new(3.0, 0.1, 1.0))),
-                            material: materials.add(Color::rgb(20.0, 10.0, 50.0).into()),
-                            transform: Transform::from_xyz(x as f32, b.y as f32, z as f32),
-                            ..Default::default()
-                        });
-                    }
+                PlayStage::ChunkData(_) => {}
+                PlayStage::SpawnEntity(c) => {
+                    ev_spawn_entity.send(entity::SpawnEntityEvent(c));
+                }
+                PlayStage::UpdateEntityPosition(c) => {
+                    ev_entity.send(entity::UpdateEntityEvent::UpdatePosition(c));
                 },
+                PlayStage::UpdateEntityPositionAndRotation(c) => {
+                    ev_entity.send(entity::UpdateEntityEvent::UpdatePositionAndRotation(c));
+                }
+                PlayStage::RemoveEntities(c )=> {
+                    ev_entity.send(entity::UpdateEntityEvent::Remove(c));
+                },
+                PlayStage::TeleportEntity(c) => {
+                    ev_entity.send(entity::UpdateEntityEvent::Teleport(c));
+
+                }
                 _ => {}
             }
         }

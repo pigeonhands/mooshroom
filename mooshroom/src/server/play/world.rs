@@ -2,7 +2,7 @@ use mooshroom_core::{
     io::MooshroomReadProto,
     varint::{VarInt, VarLong},
 };
-use mooshroom_macros::Mooshroom;
+use mooshroom_macros::{Mooshroom, MooshroomBitfield};
 
 use super::{nbt, population::WorldPosition};
 use crate::{
@@ -39,17 +39,64 @@ pub struct BlockUpdate {
     pub block_id: VarInt,
 }
 
-#[derive(Debug, Clone, Default, Mooshroom)]
-#[packet_id(0x1A)]
-pub struct EntityEvent {
-    pub entity_id: i32,
-    pub status: u8,
+#[derive(Debug, Clone, Default, MooshroomBitfield)]
+#[value_type(u8)]
+pub struct NodeFlags {
+    #[mask(0x01)]
+    pub is_on_fire: bool,
+    #[mask(0x02)]
+    pub is_crouching: bool,
+    #[mask(0x04)]
+    pub unused: bool,
+    #[mask(0x08)]
+    pub is_sprinting: bool,
+    #[mask(0x10)]
+    pub is_swimming: bool,
+    #[mask(0x20)]
+    pub is_invisible: bool,
+    #[mask(0x40)]
+    pub has_glowing_effect: bool,
+    #[mask(0x40)]
+    pub is_flying_with_elytra: bool,
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]
-#[packet_id(0x1d)]
+#[packet_id(0x0F)]
+pub struct Commands {
+    pub location: Position,
+    pub block_id: VarInt,
+}
+
+#[derive(Debug, Clone, Default, Mooshroom)]
+#[packet_id(0x1B)]
+pub struct UnloadChunk {
+    pub x: u32,
+    pub z: u32,
+}
+
+
+#[derive(Debug, Clone, Default, Mooshroom)]
+#[repr(u8)]
+pub enum GameEventType {
+    NoRespawnBlockAvalible = 0,
+    EndRaining = 1,
+    BeginRaining = 2,
+    ChangeGamemode = 3,
+    WinGame = 4,
+    DemoEvent = 5,
+    ArrowHitPlayer = 6,
+    RainLevelChange = 7,
+    ThunderLevelChange = 8,
+    PlayPufferFishStingSound = 9,
+    PlayElderGuardianMobAppreanceSounds = 10,
+    #[default]
+    EnableRespawnScreen = 11,
+}
+
+#[derive(Debug, Clone, Default, Mooshroom)]
+#[packet_id(0x1c)]
 pub struct GameEvent {
-    pub event_id: u8,
+    pub event_id: GameEventType,
     pub value: f32,
 }
 
@@ -264,3 +311,18 @@ pub struct SoundEffect {
     pub pitch: f32,
     pub speed: i64,
 }
+
+#[derive(Debug, Clone, Default, Mooshroom)]
+#[packet_id(0x62)]
+pub struct SystemChatMessage {
+    pub json: String,
+    pub is_overlay: bool,
+}
+
+
+#[derive(Debug, Clone, Default, Mooshroom)]
+#[packet_id(0x67)]
+pub struct FeatureFlags {
+    pub features: Vec<Identifier>
+}
+

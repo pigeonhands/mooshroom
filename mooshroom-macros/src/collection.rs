@@ -67,7 +67,7 @@ fn impl_collection_enum(ast: &syn::DeriveInput, data: &DataEnum) -> proc_macro2:
         })
         .collect();
 
-    let selector = fields.iter().map(|(name, ty, attrs)|{
+    let read_selector = fields.iter().map(|(name, ty, attrs)|{
             if let Some(id_type) = &attrs.id {
                 match id_type {
                     FieldIdType::Single(id) => {
@@ -84,6 +84,17 @@ fn impl_collection_enum(ast: &syn::DeriveInput, data: &DataEnum) -> proc_macro2:
             }else{
                 quote! {
                     <#ty as ::mooshroom_core::io::MooshroomPacket<PV>>::PACKET_ID => Ok(Self::#name(<#ty as ::mooshroom_core::io::MooshroomReadable<PV>>::read(reader)?)),
+                }
+            }
+        });
+    let write_selector = fields.iter().map(|(name, ty, attrs)|{
+            if let Some(FieldIdType::Range(_)) = &attrs.id {
+                quote! {
+                    Self::#name(value) => <#ty as ::mooshroom_core::data::MooshroomCollection<PV>>::write_one_of(value, writer)?,
+                }
+            }else{
+                quote! {
+                    Self::#name(value) => <#ty as ::mooshroom_core::io::MooshroomWritable<PV>>::write(value, writer)?,
                 }
             }
         });
@@ -113,9 +124,15 @@ fn impl_collection_enum(ast: &syn::DeriveInput, data: &DataEnum) -> proc_macro2:
         impl<const PV: ::mooshroom_core::io::Protocal> ::mooshroom_core::data::MooshroomCollection<PV> for #name {
             fn read_one_of(id: ::mooshroom_core::varint::VarInt, reader: &mut impl ::std::io::Read) -> ::mooshroom_core::error::Result<Self>{
                 match id {
-                    #( #selector ) *
+                    #( #read_selector ) *
                     i => Err(::mooshroom_core::error::MooshroomError::NotInCollection(i.0))
                 }
+            }
+            fn write_one_of(&self,writer: &mut impl ::std::io::Write) -> ::mooshroom_core::error::Result<()> {
+                match self {
+                    #( #write_selector ) *
+                }
+                Ok(())
             }
             fn variant_id(&self) -> ::mooshroom_core::varint::VarInt {
                 match self {

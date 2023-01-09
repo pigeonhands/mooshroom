@@ -30,6 +30,9 @@ pub enum MooshroomError {
     #[cfg(feature = "uuid")]
     #[error("Invalid uuid. {0}")]
     UuidError(uuid::Error),
+
+    #[error("Unexpected error: {0}")]
+    Other(Box<dyn std::error::Error>),
 }
 
 impl From<std::io::Error> for MooshroomError {

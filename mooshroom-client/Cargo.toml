@@ -11,5 +11,6 @@ opt-level = 3
 
 [dependencies]
 bevy = "0.9"
+bevy_text_mesh = "0.5.0"
 log = "0.4.17"
 mooshroom = { path = "../mooshroom"}
