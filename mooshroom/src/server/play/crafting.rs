@@ -26,6 +26,15 @@ pub struct SetContainerContent {
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]
+#[packet_id(0x13)]
+pub struct SetContainerSlot {
+    pub window_id: u8,
+    pub state_id: VarInt,
+    pub slot: u16,
+    pub carried_item: Slot,
+}
+
+#[derive(Debug, Clone, Default, Mooshroom)]
 #[packet_id(0x1D)]
 pub struct OpenHorseScreen {
     //pub window_id: u8,

@@ -12,7 +12,8 @@ use mooshroom_core::{
 };
 use mooshroom_macros::{Mooshroom, MooshroomBitfield, MooshroomCollection};
 
-use super::{crafting::Slot, entity, nbt, world::Angle};
+use super::{crafting::Slot, nbt, world::Angle};
+use crate::data::entity_data;
 use crate::shared::SignatureData;
 
 pub type WorldPosition = Vec3<f64>;
@@ -22,7 +23,7 @@ pub type WorldPosition = Vec3<f64>;
 pub struct SpawnEntity {
     pub entity_id: VarInt,
     pub entity_uuid: uuid::Uuid,
-    pub entity_type: entity::EntityType,
+    pub entity_type: entity_data::EntityType,
     pub position: WorldPosition,
     pub pitch: Angle,
     pub yaw: Angle,
@@ -167,7 +168,7 @@ impl Default for PlayerAction {
 }
 
 #[derive(Debug, Clone, Default)]
-pub struct PlayerInfo(PlayerAction);
+pub struct PlayerInfo(pub PlayerAction);
 impl<const PV: usize> MooshroomPacket<PV> for PlayerInfo {
     const PACKET_ID: VarInt = VarInt(0x37);
 }
@@ -225,6 +226,14 @@ pub struct SetEquipment {
 pub struct SetPassengers {
     pub entity_id: VarInt,
     pub passengers: Vec<VarInt>,
+}
+
+#[derive(Debug, Clone, Default, Mooshroom)]
+#[packet_id(0x65)]
+pub struct PickUpItem {
+    pub entity_id: VarInt,
+    pub collector_id: VarInt,
+    pub pickup_item_count: VarInt,
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]

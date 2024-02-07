@@ -1,6 +1,7 @@
 use std::net::TcpStream;
 
 use mooshroom::{proto::connection::MooshroomConnection, server::play::PlayStage};
+use mooshroom_core::data::MooshroomIdentifiable;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::init();
@@ -40,7 +41,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
             PlayStage::CombatDeath(p) => {
                 println!("{:#?}", p);
-            }
+            },
+            PlayStage::SpawnEntity(entity) =>{
+                // println!("Entity: {}", entity.entity_type.to_id()?);
+            },
+            PlayStage::SynchronizePlayerPosition(p) =>{
+                println!("{:#?}", p);
+            },
             _ => {}
         }
     }

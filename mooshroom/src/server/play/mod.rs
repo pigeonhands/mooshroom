@@ -11,8 +11,8 @@ use mooshroom_macros::MooshroomCollection;
 pub enum PlayStage {
     #[id(0x00)]
     SpawnEntity(population::SpawnEntity),
-    //#[id(0x01)]
-    //SpawnExperienceOrb(player::SpawnExperienceOrb),
+    #[id(0x01)]
+    SpawnExperienceOrb(entity::SpawnExperienceOrb),
     #[id(0x02)]
     SpawnPlayer(population::SpawnPlayer),
     #[id(0x03)]
@@ -47,8 +47,8 @@ pub enum PlayStage {
     SetContainerContent(crafting::SetContainerContent),
     // #[id(0x12)]
     // SetContainerProperty(crafting::SetContainerProperty),
-    // #[id(0x13)]
-    // SetContainerSlot(crafting::SetContainerSlot),
+    #[id(0x13)]
+    SetContainerSlot(crafting::SetContainerSlot),
     // #[id(0x14)]
     // SetCooldown(crafting::SetCooldown),
     // #[id(0x15)]
@@ -216,7 +216,8 @@ pub enum PlayStage {
     //#[id(0x65)]
     //PickupItem(population::PickupItem),
     #[id(0x65)]
-    UpdateAdvancements(player::UpdateAdvancements),
+     // UpdateAdvancements(player::UpdateAdvancements),
+    PickUpItem(population::PickUpItem),
     #[id(0x66)]
     TeleportEntity(population::TeleportEntity),
     #[id(0x67)]

@@ -1,8 +1,10 @@
-mod net;
 mod entity;
+mod net;
 mod player;
+mod population;
 
 use std::collections::HashMap;
+
 use bevy::prelude::*;
 use mooshroom::core::varint::VarInt;
 
@@ -17,9 +19,12 @@ impl Plugin for MinecraftPlugin {
     fn build(&self, app: &mut App) {
         app.insert_non_send_resource(net::MinecraftConnection { rec: None });
         app.insert_resource(NetEntities::default());
-        app.add_plugin(entity::MinecraftEntityPlugin);
-        app.add_startup_system(net::connect_to_server);
-        app.add_startup_system(player::add_player);
-        app.add_system(net::handle_messages);
+        app.add_plugins((
+            entity::MinecraftEntityPlugin,
+            player::MinecraftPlayerPlugin,
+            population::MinecraftPopulationPlugin,
+        ));
+        app.add_systems(Startup, (net::connect_to_server,));
+        app.add_systems(Update, net::handle_messages);
     }
 }

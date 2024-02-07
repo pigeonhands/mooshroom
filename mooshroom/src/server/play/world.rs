@@ -23,6 +23,9 @@ impl Angle {
     pub fn to_deg(&self) -> f32 {
         (self.0 as f32) / (256.0 / 360.0)
     }
+    pub fn to_radians(&self) -> f32 {
+        f32::to_radians(self.to_deg())
+    }
 }
 
 #[derive(Debug, Clone, Default, Mooshroom)]

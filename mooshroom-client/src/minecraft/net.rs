@@ -1,7 +1,13 @@
-use super::{entity::{self}, player};
+use std::{net::TcpStream, sync::mpsc};
+
 use bevy::prelude::*;
 use mooshroom::{proto::connection::MooshroomConnection, server::play::PlayStage};
-use std::{net::TcpStream, sync::mpsc};
+
+use super::{
+    entity::{self},
+    player,
+    population,
+};
 
 pub struct MinecraftConnection {
     pub rec: Option<mpsc::Receiver<PlayStage>>,
@@ -36,24 +42,6 @@ fn run_server(tx: mpsc::Sender<PlayStage>) -> mooshroom::core::error::Result<()>
                     c.respawn()?;
                 }
             }
-            PlayStage::PlayerChatMessage(c) => {
-                info!("{}", c.plain_message)
-            }
-            PlayStage::Respawn(p) => {
-                info!("{:#?}", p);
-            }
-            PlayStage::CombatDeath(p) => {
-                info!("{:#?}", p);
-            }
-            PlayStage::SpawnEntity(p) => {
-                info!("{:#?}", p);
-            }
-            PlayStage::PluginMessage(p) => {
-                info!("{:#?}", p);
-            }
-            PlayStage::OpenHorseScreen(c) => {
-                info!("{:#?}", c);
-            }
             _ => {
                 //continue;
             }
@@ -80,6 +68,8 @@ pub fn handle_messages(
     mut query: Query<&mut entity::MobEntity, With<player::Player>>,
     mut ev_spawn_entity: EventWriter<entity::SpawnEntityEvent>,
     mut ev_entity: EventWriter<entity::UpdateEntityEvent>,
+    mut ev_player: EventWriter<player::UpdatePlayerEvent>,
+    mut ev_population: EventWriter<population::UpdatePopulationEvent>,
 ) {
     if let Some(rx) = &mc_con.rec {
         while let Ok(p) = rx.try_recv() {
@@ -95,16 +85,24 @@ pub fn handle_messages(
                 }
                 PlayStage::UpdateEntityPosition(c) => {
                     ev_entity.send(entity::UpdateEntityEvent::UpdatePosition(c));
-                },
+                }
                 PlayStage::UpdateEntityPositionAndRotation(c) => {
                     ev_entity.send(entity::UpdateEntityEvent::UpdatePositionAndRotation(c));
                 }
-                PlayStage::RemoveEntities(c )=> {
+                PlayStage::RemoveEntities(c) => {
                     ev_entity.send(entity::UpdateEntityEvent::Remove(c));
-                },
+                }
                 PlayStage::TeleportEntity(c) => {
                     ev_entity.send(entity::UpdateEntityEvent::Teleport(c));
-
+                }
+                PlayStage::SynchronizePlayerPosition(c) => {
+                    ev_player.send(player::UpdatePlayerEvent::SyncPosition(c));
+                }
+                PlayStage::SpawnPlayer(c) => {
+                    ev_population.send(population::UpdatePopulationEvent::SpawnPlayer(c));
+                }
+                PlayStage::PlayerInfo(info) => {
+                    ev_population.send(population::UpdatePopulationEvent::PlayerInfo(info));
                 }
                 _ => {}
             }

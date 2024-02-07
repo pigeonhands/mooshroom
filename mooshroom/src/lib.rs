@@ -4,6 +4,7 @@ pub mod proto;
 pub mod server;
 pub mod shared;
 pub mod types;
+pub mod data;
 pub use mooshroom_core as core;
 pub use mooshroom_core::ProtocolVersion;
 pub use mooshroom_macros as macros;

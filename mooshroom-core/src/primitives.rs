@@ -194,11 +194,11 @@ impl<const PV: usize> MooshroomReadable<PV> for Position {
 
 impl<const PV: usize> MooshroomWritable<PV> for Position {
     fn write(&self, writer: &mut impl std::io::Write) -> crate::error::Result<()> {
-        let mut buffer = [0; 8];
-        buffer[..26].copy_from_slice(&(self.x & I26_MASK).to_be_bytes()[6..]);
-        buffer[26..26 + 26].copy_from_slice(&(self.z & I26_MASK).to_be_bytes()[6..]);
-        buffer[26 + 26..].copy_from_slice(&(self.y & I12_MASK).to_be_bytes()[4..]);
-        writer.write_all(&buffer)?;
+        let mut position : i64 = 0;
+        position |= (self.x & I26_MASK).overflowing_shl(38).0 as i64;
+        position |= ((self.z & I26_MASK) << 12) as i64;
+        position |= (self.y & I12_MASK) as i64;
+        writer.write_all(&position.to_be_bytes())?;
         Ok(())
     }
 }
